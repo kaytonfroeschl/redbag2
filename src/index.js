@@ -1,17 +1,29 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { Amplify } from 'aws-amplify';
+import awsExports from './aws-exports';
+import { NavigationProvider } from './context/navigation';
+import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
+//import { ApolloProvider } from 'react-apollo';
+
+Amplify.configure(awsExports);
+
+const client = new ApolloClient({
+  uri: "https://ywvl6sz7gvcefglg3m6gqu3d4a.appsync-api.us-east-1.amazonaws.com/graphql",
+  cache: new InMemoryCache(),
+  headers: {
+    'X-Api-Key': "da2-w644unwyf5horee6lorhb5wive"
+  }
+});
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+  <ApolloProvider client={client}>
+    <NavigationProvider>
+      <App />
+    </NavigationProvider>
+  </ApolloProvider>
+    
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
