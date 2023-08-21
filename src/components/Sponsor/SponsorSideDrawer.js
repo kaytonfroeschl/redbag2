@@ -114,9 +114,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     if(error) {
         console.error(error.message)
     }
-    console.log(data)
+    //console.log(data)
     passedSponsor = handleSponsorData(data ? data.getSponsor : null);
-    console.log("passed Sponsor: ", passedSponsor)
+    //console.log("passed Sponsor: ", passedSponsor)
 
     return (
         <React.Fragment>
