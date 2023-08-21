@@ -8,6 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateSponsorForm from '../components/Sponsor/CreateSponsorForm';
 import SponsorSideDrawer from '../components/Sponsor/SponsorSideDrawer';
+import ImportSponsors from '../components/ImportSponsors';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -89,6 +90,7 @@ export default function SponsorScreen () {
   const [NSOpen, setNSOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const sponsorArray = [];
   const [currSponsor, setCurrSponsor] = useState({});
@@ -153,6 +155,15 @@ export default function SponsorScreen () {
     setEditOpen(false);
   } 
 
+  const handleImportOpen = () => {
+    console.log("handleImport Open")
+    setImportOpen(true);
+  }
+
+  const handleImportClose = () => {
+    setImportOpen(false);
+  }
+
   const handleSpecialEditClose = () => {
     setEditOpen(false);
     drawerCallback();
@@ -204,7 +215,7 @@ export default function SponsorScreen () {
                 mr: 3
               }}
               variant="text"
-              //onclick={}
+              onClick={handleImportOpen}
             >
               Import
             </Button>
@@ -255,6 +266,7 @@ export default function SponsorScreen () {
       </Main>
       <CreateSponsorForm open={NSOpen} handleClose={handleNSClose} />
       <SponsorSideDrawer open={editOpen} handleClose={handleSpecialEditClose} sponsor_id={currSponsor.id} />
+      <ImportSponsors open={importOpen} handleClose={handleImportClose} />
 
     </React.Fragment>
   )
