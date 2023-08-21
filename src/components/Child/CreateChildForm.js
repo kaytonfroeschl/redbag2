@@ -21,6 +21,7 @@ export function CreateChildForm ({ open, handleClose }){
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
+    const [id, setID] = useState('');
     const [form_name, setFormName] = useState('');
     const [form_id, setFormID] = useState('');
     const [form_gender, setFormGender] = useState('');
@@ -90,6 +91,7 @@ export function CreateChildForm ({ open, handleClose }){
     }
 
     function resetValues() {
+        setID('');
         setFormName('');
         setFormID('');
         setFormGender('');
@@ -109,6 +111,13 @@ export function CreateChildForm ({ open, handleClose }){
         handleClose();
     }
 
+    function handleSpecialCreate(e) {
+        console.log("id: ", id);
+        console.log("name: ", form_name)
+        console.log("Child Id: ", form_id);
+        handleCreate(e);
+    }
+
 /* ==============================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
@@ -122,7 +131,7 @@ export function CreateChildForm ({ open, handleClose }){
         e.preventDefault();
         try {
             const response = await addChildMutation({
-                variables: { input: {Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike} },
+                variables: { input: { Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike} },
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
@@ -348,7 +357,7 @@ export function CreateChildForm ({ open, handleClose }){
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>
-                    <Button onClick={handleCreate}>Create</Button>
+                    <Button onClick={handleSpecialCreate}>Create</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

@@ -7,6 +7,7 @@ import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateSponsorForm from '../components/Sponsor/CreateSponsorForm';
+import SponsorSideDrawer from '../components/Sponsor/SponsorSideDrawer';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -90,6 +91,7 @@ export default function SponsorScreen () {
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const sponsorArray = [];
+  const [currSponsor, setCurrSponsor] = useState({});
 
   const [customWidth, setCustomWidth] = React.useState('100%');
 
@@ -140,6 +142,8 @@ export default function SponsorScreen () {
   }
 
   const handleEditOpen = (row) => {
+    setCurrSponsor(row);
+    console.log("Current Sponsor: ", currSponsor)
     setEditOpen(true);
     //setCurrentSponsor(row);
     //console.log("currentSponsor: ", currentSponsor)
@@ -148,6 +152,11 @@ export default function SponsorScreen () {
   const handleEditClose = () => {
     setEditOpen(false);
   } 
+
+  const handleSpecialEditClose = () => {
+    setEditOpen(false);
+    drawerCallback();
+  }
 
   const handleDeleteOpen = (row) => {
     //setCurrentSponsor(row);
@@ -245,6 +254,7 @@ export default function SponsorScreen () {
         </Paper>
       </Main>
       <CreateSponsorForm open={NSOpen} handleClose={handleNSClose} />
+      <SponsorSideDrawer open={editOpen} handleClose={handleSpecialEditClose} sponsor_id={currSponsor.id} />
 
     </React.Fragment>
   )

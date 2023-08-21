@@ -78,8 +78,9 @@ function createRows(array) {
   const kidArr = array.map((kid) => {
     if(kid.Sponsor !== null){
       return {
+        id: kid.id,
         rbl: "",
-        id: kid.ChildID,
+        childid: kid.ChildID,
         age: kid.Age,
         name: kid.Firstname,
         gender: kid.Gender,
@@ -95,8 +96,9 @@ function createRows(array) {
       }
     } else {
       return {
+        id: kid.id,
         rbl: "",
-        id: kid.ChildID,
+        childid: kid.ChildID,
         age: kid.Age,
         name: kid.Firstname,
         gender: kid.Gender,
@@ -162,6 +164,7 @@ export default function ChildrenScreen () {
 ================================================================================================*/
   const handleDrawerOpen = (data) => {
     setCurrentKid(data);
+    console.log("current kid: ", data)
     setDrawerOpen(true);
   }
 
@@ -211,7 +214,7 @@ export default function ChildrenScreen () {
                 rows= {renderedChildren}
                 columns={[
                     { field: 'rbl', headerName: 'RBL Lady', flex: .8},
-                    { field: 'id', headerName: 'ID', flex: .6 },
+                    { field: 'childid', headerName: 'ID', flex: .6 },
                     { field: 'name', headerName: 'Name', flex: .7 },
                     { field: 'gender', headerName: 'Gender', flex: .4 },
                     { field: 'age', headerName: 'Age', type: 'number', flex: .3},
@@ -248,7 +251,7 @@ export default function ChildrenScreen () {
         </Paper>
       </Main>
       <CreateChildForm open={NCOpen} handleClose={handleNCClose} />
-      <ChildSideDrawer child={currentKid} open={drawerOpen} handleClose={handleSpecialDrawerClose}  />
+      <ChildSideDrawer child_id={currentKid.id} open={drawerOpen} handleClose={handleSpecialDrawerClose}  />
 
     </React.Fragment>
   )

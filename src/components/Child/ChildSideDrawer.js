@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { styled, useTheme } from '@mui/material/styles';
+import { gql, useQuery } from '@apollo/client';
+import { getChild } from '../../graphql/queries';
+import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
@@ -8,6 +10,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import EditChildForm from './EditChildForm';
+import DeleteChild from './DeleteChild';
 
 /* =============================== Drawer Styling ================================================*/
 const drawerWidth = 360;
@@ -40,9 +43,20 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
   }));
 
-export default function ChildSideDrawer({ child, open, handleClose }) {
-    const [editOpen, setEditOpen] = useState(false);
 
+export default function ChildSideDrawer({ child_id, open, handleClose }) {
+
+    
+/* ==============================================================================================
+                                        Variables
+   ==============================================================================================*/
+    const [editOpen, setEditOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    let passedChild = {}
+
+/* ==============================================================================================
+                                        Handle Functions
+   ==============================================================================================*/
     const handleEditOpen = () => {
         setEditOpen(true);
       }
@@ -54,13 +68,75 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
         setEditOpen(false);
       }
 
-    /*(useEffect(() => {
-       resizeGrid();
-    }, [handleClose])*/
+      const handleDeleteOpen = () => {
+        setDeleteOpen(true);
+      }
+
+      const handleDeleteClose = (event, reason) => {
+        if (reason && reason == 'backdropClick'){
+            return;
+          }
+          setDeleteOpen(false);
+      }
+
+      function handleChildData(data){
+        if (data){
+            return {
+                passedName: data.Firstname,
+                passedChildID: data.ChildID,
+                passedid: data.id,
+                passedAge: data.Age,
+                passedGender: data.Gender,
+                passedRace: data.Race,
+                passedShirt: data.ShirtSize,
+                passedPant: data.PantSize,
+                passedShoe: data.ShoeSize,
+                passedWishlist: data.Wishlist,
+                passedInfo: data.Info,
+                passedBike: data.Bike,
+                passedSiblings: data.Siblings
+            }
+        }
+        else {
+            return {
+                passedName: null,
+                passedChildID: null,
+                passedid: null,
+                passedAge: null,
+                passedGender: null,
+                passedRace: null,
+                passedShirt: null,
+                passedPant: null,
+                passedShoe: null,
+                passedWishlist: null,
+                passedInfo: null,
+                passedBike: null,
+                passedSiblings: null
+            }
+        }
+      }
+
+/* ==============================================================================================
+                                Apollo Call to Query Current Child
+                                And setting Child data for Edit Child COmponent
+================================================================================================*/  
+    const { loading, error, data } = useQuery(gql(getChild), {
+        variables : { id: child_id },
+    }); 
+
+    if(loading){
+        return <div>Loading...</div>
+    }
+    if(error) {
+        console.error(error.message)
+    }
+    console.log(data)
+    passedChild = handleChildData(data ? data.getChild : null);
+    console.log("passed Child: ", passedChild)
+    
 
     return (
         <React.Fragment>
-            {console.log("inside Child Side Drawer: ", child)}
             <Drawer
             ModalProps={{ disableScrollLock: true }}
             sx={{
@@ -84,6 +160,9 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
             anchor="right"
             open={open}
             >
+    {/* ==============================================================================================
+                                        Drawer Header
+        ==============================================================================================*/}
         <DrawerHeader sx={{display:'flex'}}>
             <IconButton sx={{flexGrow: .1}} onClick={handleClose}>
                 {<ClearIcon />}
@@ -114,7 +193,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                             ml: 1,
                             fontWeight:'bold',
                             fontSize: 24,
-                    }}>{child.name}</Typography>
+                    }}>{data ? data.getChild.Firstname : "N/A"}</Typography>
                     <Typography 
                         style={{
                             color:'red'
@@ -122,7 +201,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                         sx={{
                             ml: 1,
                             fontSize: 16,
-                    }}>{child.rbl}</Typography>
+                    }}>RBL</Typography>
                 </Box>
                 <Box
                     sx={{
@@ -134,7 +213,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                             ml: 1,
                             fontWeight: 'bold',
                             fontSize: 25,
-                        }}>{child.id}</Typography>
+                        }}>{data ? data.getChild.ChildID : "N/A"}</Typography>
                 </Box>
                     </Box>
                 {/* =============================== Information ====================================== */}
@@ -154,60 +233,92 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                 style={{
                     background:'#01579b'
                 }}/>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                }}>
                 <Box
                     sx={{
                         display:'flex',
-                        flexDirection: 'row'
+                        flexDirection: 'column'
                     }}>
                     <Box
                         sx={{
                             mt: 1,
                             ml: 1,
                             display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1,
+                            flexDirection: 'row',
+
                         }}>
-                            <Typography sx={{pb: 1}}>Age</Typography>
-                            <Typography sx={{pb: 1}}>Gender</Typography>
-                            <Typography sx={{pb: 1}}>Race</Typography>
+                        <Typography sx={{pb: 1}}>Age&nbsp;&nbsp;</Typography>
+                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.Age : "N/A"}</Typography>
                     </Box>
                     <Box
                         sx={{
                             mt: 1,
                             ml: 1,
                             display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1,
+                            flexDirection: 'row',
+
                         }}>
-                            <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.age) ? child.age : "N/A"}</Typography>
-                            <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.gender) ? child.gender : "N/A"}</Typography>
-                            <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.race) ? child.race : "N/A"}</Typography>
+                        <Typography sx={{pb: 1}}>Gender&nbsp;&nbsp;</Typography>
+                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.Gender : "N/A"}</Typography>
                     </Box>
                     <Box
                         sx={{
                             mt: 1,
                             ml: 1,
                             display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1,
+                            flexDirection: 'row',
+
                         }}>
-                        <Typography sx={{pb: 1}}>Shirt Size</Typography>
-                        <Typography sx={{pb: 1}}>Pant Size</Typography>
-                        <Typography sx={{pb: 1}}>Shoe Size</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1,
-                        }}>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.shirtsize) ? child.shirtsize : "N/A"}</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.pantsize) ? child.pantsize : "N/A"}</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.shoesize) ? child.shoesize : "N/A"}</Typography>
+                        <Typography sx={{pb: 1}}>Race&nbsp;&nbsp;</Typography>
+                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.Race : "N/A"}</Typography>
                     </Box>
                 </Box>
+                <Box
+                    sx={{
+                        display:'flex',
+                        flexDirection: 'column',
+                        pl: 10
+                    }}>
+                    <Box
+                        sx={{
+                            mt: 1,
+                            ml: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+
+                        }}>
+                        <Typography sx={{pb: 1}}>Shirt Size&nbsp;&nbsp;</Typography>
+                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.ShirtSize : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            mt: 1,
+                            ml: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+
+                        }}>
+                        <Typography sx={{pb: 1}}>Pant Size&nbsp;&nbsp;</Typography>
+                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.PantSize : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            mt: 1,
+                            ml: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+
+                        }}>
+                        <Typography sx={{pb: 1}}>Shoe Size&nbsp;&nbsp;</Typography>
+                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.ShoeSize : "N/A"}</Typography>
+                    </Box>
+                </Box>
+            </Box>
+                
                 <Typography
                     style={{
                         color:'#01579b'
@@ -223,6 +334,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                     style={{
                         background:'#01579b'
                 }}/>
+                {/* =============================== WishList ====================================== */}
                 <Typography
                     sx={{
                         pb: 1,
@@ -230,7 +342,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                         ml: 1,
                     }}
                     style={{ wordWrap: "break-word" }}
-                >{(child.wishlist) ? child.wishlist : "N/A"}</Typography>
+                >{data ? data.getChild.Wishlist : "N/A"}</Typography>
 
                 {/* TODO: you need to add checks for if additional field has info then display if not then dont display */}
                 <Typography
@@ -248,6 +360,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                     style={{
                         background:'#01579b'
                 }}/>
+                {/* =============================== Additional Information ====================================== */}
                 <Typography
                     sx={{
                         pb: 1,
@@ -255,7 +368,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                         ml: 1
                     }}
                     style={{ wordWrap: "break-word" }}
-                    >{(child.addInfo) ? child.addInfo : "N/A"}</Typography>
+                    >{data ? data.getChild.Info : "N/A"}</Typography>
                 <Typography
                     style={{
                         color:'#01579b'
@@ -285,6 +398,7 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                             flexDirection: 'column',
                             flexGrow: 1,
                         }}>
+                            {/* =============================== Sponosor Information ====================================== */}
                             <Typography sx={{pb: 1}}>Name</Typography>
                             <Typography sx={{pb: 1}}>Phone</Typography>
                     </Box>
@@ -296,8 +410,18 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                             flexDirection: 'column',
                             flexGrow: 1,
                         }}>
-                            <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.sponsorName) ? child.sponsorName : "N/A"}</Typography>
-                            <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{(child.sponsorPhone) ? child.sponsorPhone : "N/A"}</Typography>
+                            { data 
+                                ? data.getChild.Sponsor !== null 
+                                    ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.FirstName + " " +  data.getChild.Sponsor.LastName}</Typography>
+                                    : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}</Typography>
+                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}å</Typography>
+                                }
+                             { data 
+                                ? data.getChild.Sponsor !== null 
+                                    ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.Phone}</Typography>
+                                    : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}</Typography>
+                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}å</Typography>
+                                }
                     </Box>
                 </Box>
                 <Box
@@ -308,18 +432,40 @@ export default function ChildSideDrawer({ child, open, handleClose }) {
                     flexDirection:'row',
                     justifyContent: 'flex-start'
                 }}>
-                <Button 
+                <Box
                     sx={{
-                        m:1,    
+                        display: 'flex',
+                        justifyContent: 'space-between'
                     }}
-                    variant="contained"
-                    onClick={handleEditOpen}
-                    >
-                    Edit Child
-                </Button>
+                >
+                    <Button 
+                        sx={{
+                            m:1,    
+                        }}
+                        variant="contained"
+                        onClick={handleEditOpen}
+                        >
+                        Edit Child
+                    </Button>
+                    <Button 
+                        sx={{
+                            m:1, 
+                            backgroundColor: 'red',
+                            ":hover": {
+                                color: 'black',
+                                bgcolor: 'red',
+                            }
+                        }}
+                        variant="contained"
+                        onClick={handleDeleteOpen}
+                        >
+                        Delete
+                    </Button>
+                </Box>
                 </Box> 
                 </Drawer>
-            <EditChildForm open={editOpen} handleClose={handleEditClose} child={child} />
+                <EditChildForm open={editOpen} handleClose={handleEditClose}  child={passedChild} />
+                <DeleteChild open={deleteOpen} handleClose={handleDeleteClose} child={passedChild} />
         </React.Fragment>
     )
 }

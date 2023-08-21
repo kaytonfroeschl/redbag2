@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateChild } from '../../graphql/mutations';
-import { listChildren } from '../../graphql/queries';
+import { listChildren, getChild } from '../../graphql/queries';
 import Dialog from '@mui/material/Dialog';
 import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -12,29 +12,15 @@ import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 
-export function EditChildForm ({ open, handleClose, child }){
-    console.log("In edit child form!", child)
 
-    useEffect(() => {
-        console.log("use effect was triggered")
-        setFormName(child.name)
-        setFormID(child.id)
-        setFormAge(child.age)
-        setFormGender(child.gender)
-        setFormRace(child.race)
-        setFormSiblings(child.siblings)
-        setFormShirt(child.shirtsize)
-        setFormPant(child.pantsize)
-        setFormShoe(child.shoesize)
-        setFormWishlist(child.wishlist)
-        setFormInfo(child.addInfo)
-        setFormBike(child.bike)
-    }, [child])
+export function EditChildForm ({ open, handleClose, child }){
+    console.log("we are in editCHild form: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
-    const [form_name, setFormName] = useState('');
     const [form_id, setFormID] = useState('');
+    const [form_name, setFormName] = useState('');
+    const [form_childid, setFormChildID] = useState('');
     const [form_gender, setFormGender] = useState('');
     const [form_race, setFormRace] = useState('');
     const [form_age, setFormAge] = useState('');
@@ -45,6 +31,26 @@ export function EditChildForm ({ open, handleClose, child }){
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
     const [form_bike, setFormBike] = useState('');
+    
+
+    useEffect(() => {
+        console.log("in use effect")
+        setFormID(child.passedid)
+        setFormName(child.passedName)
+        setFormChildID(child.passedChildID)
+        setFormAge(child.passedAge)
+        setFormGender(child.passedGender)
+        setFormRace(child.passedRace)
+        setFormSiblings(child.passedSiblings)
+        setFormShirt(child.passedShirt)
+        setFormPant(child.passedPant)
+        setFormShoe(child.passedShoe)
+        setFormWishlist(child.passedWishlist)
+        setFormInfo(child.passedInfo)
+        setFormBike(child.passedBike)
+    }, [child])
+
+
 
 /* ==============================================================================================
                                         OnChange Handle Functions 
@@ -53,8 +59,8 @@ export function EditChildForm ({ open, handleClose, child }){
         setFormName(event.target.value);
     }
 
-    function handleFormID(event) {
-        setFormID(event.target.value);
+    function handleFormChildID(event) {
+        setFormChildID(event.target.value);
     }
 
     function handleFormGender(event) {
@@ -103,7 +109,7 @@ export function EditChildForm ({ open, handleClose, child }){
 
     function resetValues() {
         setFormName('');
-        setFormID('');
+        setFormChildID('');
         setFormGender('');
         setFormRace('');
         setFormAge('');
@@ -133,10 +139,10 @@ export function EditChildForm ({ open, handleClose, child }){
 
     async function handleEdit(e) {
         e.preventDefault();
-        console.log(form_age)
+        console.log("hello")
         try {
             const response = await editChildMutation({
-                variables: { input: { Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike } },
+                variables: { input: { id: form_id, Firstname: form_name, ChildID: form_childid, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike } },
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
@@ -190,8 +196,8 @@ export function EditChildForm ({ open, handleClose, child }){
                         id="outlined-basic"
                         label="Child ID"
                         style = {{width: 235}}
-                        value={form_id}
-                        onChange={handleFormID}
+                        value={form_childid}
+                        onChange={handleFormChildID}
                     />
                     </Box>
                     {/*================== Age, Gender & Race =========================================*/}
