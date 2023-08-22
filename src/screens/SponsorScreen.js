@@ -8,7 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateSponsorForm from '../components/Sponsor/CreateSponsorForm';
 import SponsorSideDrawer from '../components/Sponsor/SponsorSideDrawer';
-import ImportSponsors from '../components/ImportSponsors';
+import ImportSponsors from '../components/Sponsor/ImportSponsors';
 
 /* ==============================================================================================
                                         Drawer Styling 

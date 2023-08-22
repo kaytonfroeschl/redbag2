@@ -12,23 +12,81 @@ import {
 } from '@mui/material';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { createSponsor } from '../graphql/mutations';
-import { listSponsors } from '../graphql/queries';
+import { createSponsor, updateSponsor } from '../../graphql/mutations';
+import { getSponsorByPhone } from '../../graphql/queries';
 
 export default function ImportSponsors({ open, handleClose }){
+    //Use State
     const [failures, setFailures] = useState([]);
     const [excelFile, setExcelFile] = useState(null);
     const [typeError, setTypeError] = useState(null);
     const [excelData, setExcelData] = useState(null);
     const [previewData, setPreviewData] = useState(null);
     
-    let input;
-    const [addSponsorMutation, { data, loading, error }] = useMutation(gql(createSponsor));
-    if(loading) {
-        return <div>Loading...</div>
-    }
+    //Apollo
+    var sponsorFoundID = -1;
+    const GetSponserByPhone = (phoneNumber) => {
+        console.log("GetSponsorByPhone, phoneNumber is ", phoneNumber);
+        console.log("GetSponsorByPhone query is ", getSponsorByPhone);
+        const {loading, error, data} = useQuery(gql(getSponsorByPhone, {variables: {phoneNumber}})); 
+        console.log("GetSponsorByPhone query was run");
+        if(loading) return "Looking for sponsor with phone number: " + phoneNumber;
+        if (error) {
+            sponsorFoundID = 0;
+            return "GetSponserByPhone failed with error: " + error;
+        }else{
+            if(data) {
+                sponsorFoundID = data.getSponsorByPhone.id;
+            }else{
+                sponsorFoundID = 0;
+                return "No Such Sponsor";
+            }
+        }             
+    };
+    
+    //const AddNewSponsor = () => {
+    //    const [addSponsorMutation, { loading, error, data }] = useMutation(gql(createSponsor));
+    //    if(loading) {
+    //        return <div>Creating Sponsor {sponsorName}</div>
+    //    };
+    //};
+    // const CreateSponsorFromSpreadsheetRow = async (rowData) => {        
+    //     var result = '';
+    //     try{
+    //         const response = await addSponsorMutation({
+    //             variables: 
+    //                 { input: { 
+    //                     FirstName: rowData(0), 
+    //                     LastName: '', 
+    //                     Email: rowData(2), 
+    //                     Phone: rowData(3), 
+    //                     Institution: rowData(1), 
+    //                     Address: (rowData(4) + " " + rowData(5) + ", " + rowData(6) + " " + rowData(7)), 
+    //                     YearsActive: rowData(8), 
+    //                     } 
+    //                 }, 
+    //                 refetchQueries: [{ query: gql(listSponsors) }]
+    //         });
+    //     } catch(error) {
+    //         result = "addSponsor failed with error: " + error;
+    //     }
 
-    console.log("ImportSponsor.js, excelFile=", excelFile);
+    //     return result;
+    // };
+    // result = CreateSponsorFromSpreadsheetRow(row);
+    // if (result.length > 0 ) {
+    //     result = sponsorName + " at row " + index + " failed to load: " + result;
+    //     numAddFail += 1;
+    //     setFailures(...failures, result);
+    // }else{
+    //     numAdd += 1;
+    // };
+    
+
+    //const [updateSponsorMutation, { loading, error, data }] = useMutation(gql(updateSponsor));
+    //if(loading) {
+    //    return <div>Creating Sponsor {sponsorName}</div>
+    //};
 
     const handleFileSubmit=(e)=>{
         e.preventDefault();
@@ -40,49 +98,6 @@ export default function ImportSponsors({ open, handleClose }){
             setPreviewData(data.slice(0,10));
             setExcelData(data);
         }
-    };
-
-    const FindSponsorByPhone = (phoneNum) => {        
-        var result = '';
-        try{            
-            const [loading, error, data] = useQuery(gql(getSponsorByPhone, {variables: {phoneNum}})); 
-            if(!loading || data ) {
-                console.log("GetSponsorByPhone, data is ", data);
-                if (error) {
-                    result = "FindSponsorByPhone failed with error: " + error;
-                }else{
-                    result = data;
-                }
-            }
-        }catch(catchError) {
-            result = "FindSponsorByPhone failed with error: " + catchError;
-        };
-
-        return result;
-    };
-
-    const CreateSponsorFromSpreadsheetRow = async (rowData) => {        
-        var result = '';
-        try{
-            const response = await addSponsorMutation({
-                variables: 
-                    { input: { 
-                        FirstName: rowData(0), 
-                        LastName: '', 
-                        Email: rowData(2), 
-                        Phone: rowData(3), 
-                        Institution: rowData(1), 
-                        Address: (rowData(4) + " " + rowData(5) + ", " + rowData(6) + " " + rowData(7)), 
-                        YearsActive: rowData(8), 
-                        } 
-                    }, 
-                    refetchQueries: [{ query: gql(listSponsors) }]
-            });
-        } catch(error) {
-            result = "addSponsor failed with error: " + error;
-        }
-
-        return result;
     };
 
     const handleDialogClose=() => {
@@ -97,6 +112,7 @@ export default function ImportSponsors({ open, handleClose }){
     const handleImport=() => {
         var result = '';
         var sponsorName = '';
+        var phone = 0;
         var numAdd = 0;
         var numAddFail = 0;
         var numUpdate = 0;
@@ -108,24 +124,16 @@ export default function ImportSponsors({ open, handleClose }){
             //row 0 contains headers, so ignor it
             if (index!==0) {
                 result = '';
-                sponsorName = row(0);
+                sponsorName = row["Sponsor Name"];
+                phone = row["Phone"];
 
                 //fetch Sponsor with that name.  Need to fetch a sponsor by Name
-                sponsorFound = FindSponsorByPhone(row(3));
+                result = GetSponserByPhone(phone);
+                console.log("Get Sponsor by phone for row " + index + " returned: ", result);
                 //If Sponsor found
-                //  update sponsor
-                //Else
-                    //Add Sponsor
-                    result = CreateSponsorFromSpreadsheetRow(row);
-                    if (result.length > 0 ) {
-                        result = sponsorName + " at row " + index + " failed to load: " + result;
-                        numAddFail += 1;
-                        setFailures(...failures, result);
-                    }else{
-                        numAdd += 1;
-                    };
-                //  End if
-            }
+                    //  update exiting sponsor
+                    //Create New Sponsor
+            };
         });
     };
 
