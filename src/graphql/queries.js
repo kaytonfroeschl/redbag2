@@ -149,6 +149,155 @@ export const getSponsor = /* GraphQL */ `
     }
   }
 `;
+
+export const getSponsorByPhone = /* GraphQL */ `
+  query GetSponsor($phone: phoneNum!) {
+    getSponsor(Phone: $phone) {
+      id
+      FirstName
+      LastName
+      Phone
+      Email
+      Address
+      YearsActive
+      Institution
+      Children {
+        items {
+          id
+          Firstname
+          ChildID
+          Gender
+          Race
+          Age
+          Siblings
+          ShirtSize
+          PantSize
+          ShoeSize
+          Wishlist
+          Info
+          Bike
+          rblID
+          sponsorID
+          RBL {
+            id
+            LastName
+            FirstName
+            Phone
+            Email
+            Color
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                }
+                createdAt
+                updatedAt
+              }
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          Sponsor {
+            id
+            FirstName
+            LastName
+            Phone
+            Email
+            Address
+            YearsActive
+            Institution
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                }
+                createdAt
+                updatedAt
+              }
+              nextToken
+            }
+            createdAt
+            updatedAt
+          }
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
 export const listSponsors = /* GraphQL */ `
   query ListSponsors(
     $filter: ModelSponsorFilterInput
