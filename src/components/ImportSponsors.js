@@ -7,9 +7,11 @@ import {
     DialogContent,
     DialogTitle,
     Button,
+    Alert,
+    Paper,
 } from '@mui/material';
 
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { createSponsor } from '../graphql/mutations';
 import { listSponsors } from '../graphql/queries';
 
@@ -18,12 +20,46 @@ export default function ImportSponsors({ open, handleClose }){
     const [excelFile, setExcelFile] = useState(null);
     const [typeError, setTypeError] = useState(null);
     const [excelData, setExcelData] = useState(null);
+    const [previewData, setPreviewData] = useState(null);
     
     let input;
     const [addSponsorMutation, { data, loading, error }] = useMutation(gql(createSponsor));
     if(loading) {
         return <div>Loading...</div>
     }
+
+    console.log("ImportSponsor.js, excelFile=", excelFile);
+
+    const handleFileSubmit=(e)=>{
+        e.preventDefault();
+        if(excelFile!==null){
+            const workbook = XLSX.read(excelFile,{type: 'buffer'});
+            const worksheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[worksheetName];
+            const data = XLSX.utils.sheet_to_json(worksheet);
+            setPreviewData(data.slice(0,10));
+            setExcelData(data);
+        }
+    };
+
+    const FindSponsorByPhone = (phoneNum) => {        
+        var result = '';
+        try{            
+            const [loading, error, data] = useQuery(gql(getSponsorByPhone, {variables: {phoneNum}})); 
+            if(!loading || data ) {
+                console.log("GetSponsorByPhone, data is ", data);
+                if (error) {
+                    result = "FindSponsorByPhone failed with error: " + error;
+                }else{
+                    result = data;
+                }
+            }
+        }catch(catchError) {
+            result = "FindSponsorByPhone failed with error: " + catchError;
+        };
+
+        return result;
+    };
 
     const CreateSponsorFromSpreadsheetRow = async (rowData) => {        
         var result = '';
@@ -49,8 +85,16 @@ export default function ImportSponsors({ open, handleClose }){
         return result;
     };
 
+    const handleDialogClose=() => {
+        setFailures(null);
+        setExcelFile(null);
+        setExcelData(null);
+        setPreviewData(null);
+        setTypeError(null);
+        handleClose();
+    }
+
     const handleImport=() => {
-        console.log("Import Sponsor Logic");
         var result = '';
         var sponsorName = '';
         var numAdd = 0;
@@ -67,6 +111,7 @@ export default function ImportSponsors({ open, handleClose }){
                 sponsorName = row(0);
 
                 //fetch Sponsor with that name.  Need to fetch a sponsor by Name
+                sponsorFound = FindSponsorByPhone(row(3));
                 //If Sponsor found
                 //  update sponsor
                 //Else
@@ -82,98 +127,81 @@ export default function ImportSponsors({ open, handleClose }){
                 //  End if
             }
         });
-        
-        handleClose();
     };
 
     // onchange event
     const handleFile=(e)=>{
+        setTypeError(null);
         let fileTypes = ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv'];
         let selectedFile = e.target.files[0];
         if(selectedFile){
-            if(selectedFile&&fileTypes.includes(selectedFile.type)){
+            if(fileTypes.includes(selectedFile.type)){
                 setTypeError(null);
+                setExcelFile(null);
+                setPreviewData(null);
+                setExcelData(null);
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(selectedFile);
                 reader.onload=(e)=>{
                     setExcelFile(e.target.result);
-                }
+                };
+                console.log("handleFile, about to call PreviewFile() excelFile=", excelFile);                
             }else{
-                setTypeError('Please select only excel file types');
+                setTypeError('File must be an Excel file type (*.xlsx)');
                 setExcelFile(null);
+                setPreviewData(null);
+                setExcelData(null);
             }
         }
-        else{
-            console.log('Please select your file');
-        }
-    }
-
-    // submit event
-    const handleFileSubmit=(e)=>{
-        e.preventDefault();
-        if(excelFile!==null){
-            const workbook = XLSX.read(excelFile,{type: 'buffer'});
-            const worksheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[worksheetName];
-            const data = XLSX.utils.sheet_to_json(worksheet);
-            setExcelData(data.slice(0,10));
-        }
-    }
+    };
 
     return(
         <React.Fragment>
             <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Import a File</DialogTitle>
+            <DialogTitle>Please Select an Excel File of Sponsor Information</DialogTitle>
             <DialogContent>
-                <div className="wrapper">
+                <div>
+                    <form onSubmit={handleFileSubmit}>
+                        <input type="file" required onChange={handleFile}/>
+                        <Button type="submit" variant="text">Preview File</Button>                        
+                        {typeError&&(
+                            <Alert severity="error">{typeError}</Alert>
+                        )}
+                    </form>
 
-                <h3>Upload & View Excel Sheets</h3>
-
-                {/* form */}
-                <form className="form-group custom-form" onSubmit={handleFileSubmit}>
-                <input type="file" className="form-control" required onChange={handleFile} />
-                <button type="submit" className="btn btn-success btn-md">UPLOAD</button>
-                {typeError&&(
-                    <div className="alert alert-danger" role="alert">{typeError}</div>
-                )}
-                </form>
-
-                {/* view data */}
-                <div className="viewer">
-                {excelData?(
-                    <div className="table-responsive">
-                    <table className="table">
-
-                        <thead>
-                        <tr>
-                            {Object.keys(excelData[0]).map((key)=>(
-                            <th key={key}>{key}</th>
-                            ))}
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        {excelData.map((individualExcelData, index)=>(
-                            <tr key={index}>
-                            {Object.keys(individualExcelData).map((key)=>(
-                                <td key={key}>{individualExcelData[key]}</td>
-                            ))}
-                            </tr>
-                        ))}
-                        </tbody>
-
-                    </table>
+                    {/* view data */}                    
+                    <div>
+                        {previewData?(
+                            <div className="table-responsive">
+                                <h3>File Preview (first 10 rows)</h3>
+                                <table className="table">
+                                    <thead>
+                                        <tr>
+                                            {Object.keys(previewData[0]).map((key)=>(
+                                            <th key={key}>{key}</th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {previewData.map((individualExcelData, index)=>(
+                                            <tr key={index}>
+                                            {Object.keys(individualExcelData).map((key)=>(
+                                                <td key={key}>{individualExcelData[key]}</td>
+                                            ))}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ):(
+                            <div></div>
+                        )}
                     </div>
-                ):(
-                    <div>No File is uploaded yet!</div>
-                )}
-                </div>
-
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleImport}>Import</Button>
+                <Button variant="outlined" onClick={handleDialogClose}>Cancel</Button>
+                <Button variant="contained" onClick={handleImport}>Import</Button>
             </DialogActions>
             </Dialog>
         </React.Fragment>
