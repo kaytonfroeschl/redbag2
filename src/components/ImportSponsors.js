@@ -9,31 +9,82 @@ import {
     Button,
 } from '@mui/material';
 
+import { gql, useMutation } from '@apollo/client';
+import { createSponsor } from '../graphql/mutations';
+import { listSponsors } from '../graphql/queries';
+
 export default function ImportSponsors({ open, handleClose }){
-    
-    // onchange states
+    const [failures, setFailures] = useState([]);
     const [excelFile, setExcelFile] = useState(null);
     const [typeError, setTypeError] = useState(null);
-
-    // submit state
     const [excelData, setExcelData] = useState(null);
+    
+    let input;
+    const [addSponsorMutation, { data, loading, error }] = useMutation(gql(createSponsor));
+    if(loading) {
+        return <div>Loading...</div>
+    }
+
+    const CreateSponsorFromSpreadsheetRow = async (rowData) => {        
+        var result = '';
+        try{
+            const response = await addSponsorMutation({
+                variables: 
+                    { input: { 
+                        FirstName: rowData(0), 
+                        LastName: '', 
+                        Email: rowData(2), 
+                        Phone: rowData(3), 
+                        Institution: rowData(1), 
+                        Address: (rowData(4) + " " + rowData(5) + ", " + rowData(6) + " " + rowData(7)), 
+                        YearsActive: rowData(8), 
+                        } 
+                    }, 
+                    refetchQueries: [{ query: gql(listSponsors) }]
+            });
+        } catch(error) {
+            result = "addSponsor failed with error: " + error;
+        }
+
+        return result;
+    };
 
     const handleImport=() => {
         console.log("Import Sponsor Logic");
-
+        var result = '';
+        var sponsorName = '';
+        var numAdd = 0;
+        var numAddFail = 0;
+        var numUpdate = 0;
+        var numUpdateFail = 0;
         //Our source data is in the variable: excelData
-        //row 0 contains headers, so ignor that
+        
         //Map through all rows
-        //  get Sponsor Name
-        //  fetch Sponsor with that name
-        //  If Sponsor found
-        //      update sponsor
-        //  Else
-        //      Add Sponsor
-        //  End if
+        excelData.map((row, index) => {
+            //row 0 contains headers, so ignor it
+            if (index!==0) {
+                result = '';
+                sponsorName = row(0);
+
+                //fetch Sponsor with that name.  Need to fetch a sponsor by Name
+                //If Sponsor found
+                //  update sponsor
+                //Else
+                    //Add Sponsor
+                    result = CreateSponsorFromSpreadsheetRow(row);
+                    if (result.length > 0 ) {
+                        result = sponsorName + " at row " + index + " failed to load: " + result;
+                        numAddFail += 1;
+                        setFailures(...failures, result);
+                    }else{
+                        numAdd += 1;
+                    };
+                //  End if
+            }
+        });
         
         handleClose();
-    }
+    };
 
     // onchange event
     const handleFile=(e)=>{
