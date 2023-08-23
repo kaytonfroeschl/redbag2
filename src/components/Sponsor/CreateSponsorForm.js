@@ -25,10 +25,6 @@ export default function CreateSponsorForm({ open, handleClose }) {
     const [form_inst, setFormInst] = useState('');
     const [form_email, setFormEmail] = useState('');
     const [form_phone, setFormPhone] = useState('');
-    const [form_street, setFormStreet] = useState('');
-    const [form_city, setFormCity] = useState('');
-    const [form_zip, setFormZip] = useState('');
-    const [form_state, setFormState] = useState('');
     const [form_address, setFormAddress] = useState('');
     const [form_ya, setFormYA] = useState('');
 
@@ -51,20 +47,8 @@ export default function CreateSponsorForm({ open, handleClose }) {
         setFormPhone(event.target.value);
     }
 
-    function handleFormStreet(event){
-        setFormStreet(event.target.value);
-    }
-
-    function handleFormCity(event){
-        setFormCity(event.target.value);
-    }
-
-    function handleFormZip(event){
-        setFormZip(event.target.value);
-    }
-
-    function handleFormState(event){
-        setFormState(event.target.value);
+    function handleFormAddress(event){
+        setFormAddress(event.target.value);
     }
 
     function handleFormYA(event){
@@ -76,20 +60,13 @@ export default function CreateSponsorForm({ open, handleClose }) {
         setFormInst('');
         setFormEmail('');
         setFormPhone('');
-        setFormStreet('');
-        setFormCity('');
-        setFormZip('');
-        setFormState('');
+        setFormAddress('')
         setFormYA('');
     }
 
     function handleSpecialClose() {
         resetValues();
         handleClose();
-    }
-
-    function renderAddress() {
-        setFormAddress(form_street + " " + form_city + ", " + form_state + " " + form_zip)
     }
 
 /* ==============================================================================================
@@ -103,7 +80,6 @@ export default function CreateSponsorForm({ open, handleClose }) {
 
     async function handleCreate(e){
         e.preventDefault();
-        renderAddress();
         try{
             const response = await addSponsorMutation({
                 variables: { input: { FirstName: form_name, LastName: '', Email: form_email, Phone: form_phone, Institution: form_inst, Address: form_address, YearsActive: form_ya } },
@@ -122,92 +98,72 @@ export default function CreateSponsorForm({ open, handleClose }) {
             <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Create New Sponsor</DialogTitle>
                 <DialogContent>
+                <FormControl
+                    required={true}
+                    variant="outlined"
+                    
+                > 
                 <Box
                     sx={{
                     '& .MuiTextField-root': { m: 2, width: '25ch' },
-                    
                     }}
                 >
-                    <FormControl
-                    required={true}
-                    variant="outlined"
+                <Box> 
+                    <TextField
+                    margin="normal"
+                    id="outlined-basic"
+                    label="Name"
+                    value={form_name}
+                    onChange={handleFormName}
+                    />
+                    <TextField
+                    margin="normal"
+                    id="outlined-basic"
+                    label="Optional: Company Name"
+                    value={form_inst}
+                    onChange={handleFormInst}
+                    />
+                    <TextField
+                    margin="normal"
+                    id="outlined-basic"
+                    label="Email"
+                    type={"email"}
+                    value={form_email}
+                    onChange={handleFormEmail}
+                    />
+                    <TextField
+                    margin="normal"
+                    id="outlined-basic"
+                    label="Phone"
+                    value={form_phone}
+                    onChange={handleFormPhone}
+                    />    
+                </Box>
+                </Box>
+                <Box
+                    sx={{
+                        m: 2
+                    }}>
+                <TextField
+                    label="Address"
+                    multiline
                     fullWidth
-                    > 
-                    <Box> 
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="Name"
-                        value={form_name}
-                        onChange={handleFormName}
-                        />
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="Optional: Company Name"
-                        value={form_inst}
-                        onChange={handleFormInst}
-                        />
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="Email"
-                        type={"email"}
-                        value={form_email}
-                        onChange={handleFormEmail}
-                        />
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="Phone"
-                        value={form_phone}
-                        onChange={handleFormPhone}
-                        />
-                        <Typography sx={{m:1}}>Address</Typography>
-                        <Divider/>
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="Street Address"
-                        value={form_street}
-                        onChange={handleFormStreet}
-                        />
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="City"
-                        value={form_city}
-                        onChange={handleFormCity}
-                        />
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="Zip Code"
-                        value={form_zip}
-                        onChange={handleFormZip}
-                        />
-                        <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="State"
-                        value={form_state}
-                        onChange={handleFormState}
-                        />
-                        <Typography sx={{m:1}}>Years Active</Typography>
-                        <Divider/>
-                        <TextField
-                        id="outlined-multiline-static"
-                        label="Years Active"
-                        multiline
-                        fullWidth
-                        rows={4}
-                        value={form_ya}
-                        onChange={handleFormYA}
-                        />
-                        
-                    </Box>
-                    </FormControl>
-                    </Box>
+                    rows={2}
+                    value={form_address}
+                    onChange={handleFormAddress}
+                />
+               <Typography>&nbsp;</Typography>
+                <TextField
+                    id="outlined-multiline-static"
+                    label="Years Active"
+                    multiline
+                    fullWidth
+                    rows={4}
+                    value={form_ya}
+                    onChange={handleFormYA}
+                />
+                </Box>
+                </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>

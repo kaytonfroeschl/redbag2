@@ -138,9 +138,9 @@ export default function ChildrenScreen () {
         return rowArray.push(kid)
     })
   }
-  console.log("Row Array: ", rowArray)
+  //console.log("Row Array: ", rowArray)
   const renderedChildren = createRows(rowArray);
-  console.log("Rendered Rows Array: ", renderedChildren);
+  //console.log("Rendered Rows Array: ", renderedChildren);
 
 /* ==============================================================================================
                                       Resize Drawer Callback
@@ -164,7 +164,7 @@ export default function ChildrenScreen () {
 ================================================================================================*/
   const handleDrawerOpen = (data) => {
     setCurrentKid(data);
-    console.log("current kid: ", data)
+    //console.log("current kid: ", data)
     setDrawerOpen(true);
   }
 

@@ -130,9 +130,8 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
     if(error) {
         console.error(error.message)
     }
-    console.log(data)
     passedChild = handleChildData(data ? data.getChild : null);
-    console.log("passed Child: ", passedChild)
+    //console.log("passed Child: ", passedChild)
     
 
     return (

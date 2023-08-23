@@ -114,9 +114,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     if(error) {
         console.error(error.message)
     }
-    console.log(data)
+    //console.log(data)
     passedSponsor = handleSponsorData(data ? data.getSponsor : null);
-    console.log("passed Sponsor: ", passedSponsor)
+    //console.log("passed Sponsor: ", passedSponsor)
 
     return (
         <React.Fragment>
@@ -185,59 +185,62 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                 style={{
                     background:'#01579b'
                 }}/>
-            <Box
-                sx={{
-                    mt: 1,
-                    display: 'flex',
-                    flexDirection: 'row',
-                }}>
                 <Box
                     sx={{
-                        mt: 1,
-                        ml: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                    }}>
-                    <Typography sx={{pb: 1}}>Email</Typography>
-                    <Typography sx={{pb: 1}}>Phone</Typography>
-                    <Typography sx={{pb: 8}}>Address</Typography>
-                    <Typography sx={{pb: 4}}>Years Active</Typography>
+                        mt: 1
+                    }}
+                >
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            mt: 1,
+                            ml: 1
+                        }}
+                    >
+                        <Typography sx={{pb: 1}}>Email&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? passedSponsor.passedEmail : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            mt: 1,
+                            ml: 1
+                        }}
+                    >
+                        <Typography sx={{pb: 1}}>Phone&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold',pb: 1}}>{data ? passedSponsor.passedPhone : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            mt: 1,
+                            ml: 1
+                        }}
+                    >
+                        <Typography sx={{pb: 1}}>Address&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold',pb: 5}}>{data ? passedSponsor.passedAddress : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            mt: 1,
+                            ml: 1
+                        }}
+                    >
+                        <Typography sx={{pb: 1}}>Years Active&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold',pb: 4}}>{data ? passedSponsor.passedYA : "N/A"}</Typography>
+                    </Box>
+
+
+
                 </Box>
-                <Box
-                sx={{
-                    mt: 1,
-                    ml: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}>
-                    <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? passedSponsor.passedEmail : "N/A"}</Typography>
-                    <Typography sx={{fontWeight: 'bold',pb: 1}}>{data ? passedSponsor.passedPhone : "N/A"}</Typography>
-                    <Typography sx={{fontWeight: 'bold',pb: 5}}>{data ? passedSponsor.passedAddress : "N/A"}</Typography>
-                    <Typography sx={{fontWeight: 'bold',pb: 4}}>{data ? passedSponsor.passedYA : "N/A"}</Typography>
-                </Box>
-            </Box>
-            <Typography
-                style={{
-                    color:'#01579b'
-                }}
-                sx={{
-                    ml: 1,
-                    mt: 1,
-                    fontWeight: 500
-                }}>Children Sponsored</Typography>
-            <Divider
-                sx={{
-                    borderBottomWidth: 1.5
-                }}
-                style={{
-                    background:'#01579b'
-                }}/>
-            <Typography
-                sx={{
-                    mt: 1,
-                    ml: 1,
-                }}>TODO</Typography>
-            <Box sx={{textAlign:'center'}}>
+            <Box>
                 <Button 
                     variant="contained"
                     sx={{
@@ -249,6 +252,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                 >Edit</Button>
             </Box>
         </Drawer>
+        <EditSponsorForm open={editOpen} handleClose={handleEditClose} sponsor={passedSponsor} />
         </React.Fragment>
     )
  

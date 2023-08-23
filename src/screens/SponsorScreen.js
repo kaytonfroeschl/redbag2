@@ -73,7 +73,6 @@ function QuickSearchToolbar() {
 }
 
 function createRows(array) {
-  console.log("in create rows: ", array)
   const sponArr = array.map((sponsor) => {
     return {
       id: sponsor.id,
@@ -107,9 +106,8 @@ export default function SponsorScreen () {
           return sponsorArray.push(sponsor)
       })
     }
-    console.log("Sponsor Array: ", sponsorArray)
+    //console.log("Sponsor Array: ", sponsorArray)
     const renderedSponsors = createRows(sponsorArray);
-    console.log("Rendered Rows Array: ", renderedSponsors);
 
 /* ==============================================================================================
                                       Resize Drawer Callback
@@ -145,10 +143,7 @@ export default function SponsorScreen () {
 
   const handleEditOpen = (row) => {
     setCurrSponsor(row);
-    console.log("Current Sponsor: ", currSponsor)
     setEditOpen(true);
-    //setCurrentSponsor(row);
-    //console.log("currentSponsor: ", currentSponsor)
   }
 
   const handleEditClose = () => {
@@ -156,7 +151,6 @@ export default function SponsorScreen () {
   } 
 
   const handleImportOpen = () => {
-    console.log("handleImport Open")
     setImportOpen(true);
   }
 
@@ -221,6 +215,11 @@ export default function SponsorScreen () {
             </Button>
           </Box>
             <DataGrid
+                sx={{
+                  '& .MuiDataGrid-root':{
+                    borderRadius: '0px',
+                  }
+                }}
                 rows = {renderedSponsors}
                 columns={ [
                   { field: 'name', headerName: 'Name', flex: 1},

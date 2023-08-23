@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 
 export function EditChildForm ({ open, handleClose, child }){
-    console.log("we are in editCHild form: ", child)
+    //console.log("we are in editCHild form: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -34,7 +34,7 @@ export function EditChildForm ({ open, handleClose, child }){
     
 
     useEffect(() => {
-        console.log("in use effect")
+        //console.log("in use effect")
         setFormID(child.passedid)
         setFormName(child.passedName)
         setFormChildID(child.passedChildID)
@@ -104,7 +104,7 @@ export function EditChildForm ({ open, handleClose, child }){
     }
 
     function handleEditClose() {
-        console.log("edit close")
+        //console.log("edit close")
     }
 
     function resetValues() {

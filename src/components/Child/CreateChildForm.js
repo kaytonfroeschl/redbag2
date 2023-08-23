@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import React, { useState, useEffect, Fragment } from 'react';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { createChild } from '../../graphql/mutations';
-import { listChildren } from '../../graphql/queries';
+import { listChildren, listSponsors } from '../../graphql/queries';
 import {
     Dialog,
     DialogActions,
@@ -13,7 +13,8 @@ import {
     Typography,
     Button,
     Divider, 
-    MenuItem
+    MenuItem,
+    Autocomplete
 } from '@mui/material';
 
 export function CreateChildForm ({ open, handleClose }){
@@ -34,6 +35,12 @@ export function CreateChildForm ({ open, handleClose }){
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
     const [form_bike, setFormBike] = useState('');
+    const [form_sponsor, setFormSponsor] = useState();
+    const [selectSponsor, setSelectSponsor] = useState();
+    
+
+    let sponsorAutoArray = [];
+    const sponsorArray = [];
 
 /* ==============================================================================================
                                         Handle Functions 
@@ -86,8 +93,23 @@ export function CreateChildForm ({ open, handleClose }){
         setFormBike(event.target.value);
     }
 
+    function handleFormSponsor(event){
+        setFormSponsor(event.target.value);
+    }
+
     function handleEditClose() {
-        console.log("edit close")
+        //console.log("edit close")
+    }
+
+    function handleSponsor() {
+        let temp;
+        let sponsorObj = sponsorArray.map((sponsor) => {
+            if (sponsor.id === selectSponsor.id) {
+                temp = sponsor;
+                return sponsor       
+        }})
+        console.log("temp: ", temp)
+        setFormSponsor(temp)
     }
 
     function resetValues() {
@@ -104,6 +126,7 @@ export function CreateChildForm ({ open, handleClose }){
         setFormWishlist('');
         setFormInfo('');
         setFormBike('');
+        setFormSponsor();
     }
 
     function handleSpecialClose() {
@@ -112,11 +135,34 @@ export function CreateChildForm ({ open, handleClose }){
     }
 
     function handleSpecialCreate(e) {
-        console.log("id: ", id);
-        console.log("name: ", form_name)
-        console.log("Child Id: ", form_id);
+        handleSponsor();
+        console.log("form_sponsor: ", form_sponsor)
         handleCreate(e);
     }
+
+    function createNameArray(array) {
+        let tempArr = [];
+        let list = array.map((sponsor) => {
+            tempArr.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
+        })
+        //console.log("New Array: ", tempArr)
+        return tempArr
+    }
+
+    
+
+/* ==============================================================================================
+                                     Grabbing a list of Sponsors
+                                     From Backend
+================================================================================================*/
+  const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
+  if(sData || !sLoading ) {
+    const sponsorList = sData.listSponsors.items.map((sponsor) => {
+        return sponsorArray.push(sponsor)
+        //console.log(sponsor.FirstName)
+    })
+  }
+  sponsorAutoArray = createNameArray(sponsorArray);
 
 /* ==============================================================================================
                                         Apollo Call to Add New Child
@@ -126,16 +172,17 @@ export function CreateChildForm ({ open, handleClose }){
     if(loading) {
         return <div>Loading...</div>
     }
-
+    
     async function handleCreate(e) {
         e.preventDefault();
+        //console.log("form_sponsor info: ", form_sponsor)
         try {
             const response = await addChildMutation({
-                variables: { input: { Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike} },
+                variables: { input: { Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike, sponsorID: form_sponsor.id }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
-            handleClose();
+            handleSpecialClose();
         } catch (error) {
             console.error("Mutation error: ", error);
         }
@@ -352,6 +399,29 @@ export function CreateChildForm ({ open, handleClose }){
                             onChange={handleFormSiblings}
                             />
                     </Box>
+                    {/*===================== Sponsor Assigned  =========================================*/}
+                    <Typography
+                        style={{
+                            fontWeight: 500
+                        }}
+                        sx={{
+                            mt: 2
+                        }}>Assign a Sponsor</Typography>
+                    <Divider
+                        sx={{mb:2, borderBottomWidth: 1.5}}
+                        style={{background: 'black'}}
+                    />
+                    <Autocomplete
+                        //value={selectSponsor}
+                        options = {sponsorAutoArray}
+                        getOptionLabel={option => option.label}
+                        renderInput={(params) => (
+                        <TextField {...params} label="Sponsor" variant="standard" />
+                        )}
+                        onChange={(e, value) => {
+                            setSelectSponsor(value)
+                        }}
+                    />
                     </FormControl>
                     </Box>
                 </DialogContent>
