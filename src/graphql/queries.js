@@ -149,15 +149,6 @@ export const getSponsor = /* GraphQL */ `
     }
   }
 `;
-
-export const getSponsorByPhone = /* GraphQL */ `
-  query GetSponsorByPhone($phone: phoneNum!) {
-    getSponsorByPhone(Phone: $phone) {
-      id
-      Phone 
-    }
-  }
-`;
 export const listSponsors = /* GraphQL */ `
   query ListSponsors(
     $filter: ModelSponsorFilterInput

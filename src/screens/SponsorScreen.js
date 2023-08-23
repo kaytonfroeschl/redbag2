@@ -8,7 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateSponsorForm from '../components/Sponsor/CreateSponsorForm';
 import SponsorSideDrawer from '../components/Sponsor/SponsorSideDrawer';
-import ImportSponsors from '../components/Sponsor/ImportSponsors';
+import SponsorImport from '../components/Sponsor/SponsorImport';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -144,11 +144,12 @@ export default function SponsorScreen () {
   }
 
   const handleEditOpen = (row) => {
-    setCurrSponsor(row);
-    //console.log("Current Sponsor: ", currSponsor)
-    setEditOpen(true);
-    //setCurrentSponsor(row);
-    //console.log("currentSponsor: ", currentSponsor)
+    if (row===null) {
+      setCurrSponsor(0);
+    }else{
+      setCurrSponsor(row);
+      setEditOpen(true);
+    }
   }
 
   const handleEditClose = () => {
@@ -266,7 +267,7 @@ export default function SponsorScreen () {
       </Main>
       <CreateSponsorForm open={NSOpen} handleClose={handleNSClose} />
       <SponsorSideDrawer open={editOpen} handleClose={handleSpecialEditClose} sponsor_id={currSponsor.id} />
-      <ImportSponsors open={importOpen} handleClose={handleImportClose} />
+      <SponsorImport open={importOpen} handleClose={handleImportClose} />
 
     </React.Fragment>
   )
