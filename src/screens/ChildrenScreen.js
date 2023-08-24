@@ -120,6 +120,7 @@ function createRows(array) {
 
 
 export default function ChildrenScreen () {
+  console.log("ChildrenScreen")
   const [customWidth, setCustomWidth] = React.useState('100%');
   const rowArray = [];
   const [currentKid, setCurrentKid] = useState({});
@@ -191,6 +192,7 @@ export default function ChildrenScreen () {
   } 
 
   const handleImportOpen = () => {
+    console.log("Child Import Button Clicked")
     setImportOpen(true);
   }
 

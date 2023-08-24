@@ -17,8 +17,8 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import { createChild, updateChild } from '../../graphql/mutations';
 import { listChildren, listSponsors } from '../../graphql/queries';
 
-var SponsorList = [];
-var ChildList = [];
+var currentSponsors = [];
+var currentChildren = [];
 
 const ConvertDataRow = (row) => {
     var child = {};
@@ -59,7 +59,7 @@ const extractDigits = (textValue) => {
 
 const findSponsorID_ByPhone = (searchPhone) => {
     let found = '';
-    let sponsorFound = SponsorList.map((sponsor) => {
+    let sponsorFound = currentSponsors.map((sponsor) => {
         if (sponsor.Phone===searchPhone) {
             found = sponsor.id;
         };
@@ -70,7 +70,7 @@ const findSponsorID_ByPhone = (searchPhone) => {
 
 const findChild_ByChildID = (searchChildID) => {
     let found = '';
-    let childFound = ChildList.map((child) => {
+    let childFound = currentChildren.map((child) => {
         if (child.ChildID===searchChildID) {
             found = child.id;
         };
@@ -80,6 +80,7 @@ const findChild_ByChildID = (searchChildID) => {
 };
 
 export default function ChildImport({ open, handleClose }){
+    console.log("ChildImport");
     let processMsgs = [];
     let processFails = [];
     //Use State
@@ -97,13 +98,13 @@ export default function ChildImport({ open, handleClose }){
 
     if(sponsor_data || !sponsor_loading ) {
         const SponsorList = sponsor_data.listSponsors.items.map((sponsor) => { 
-            return SponsorList.push(sponsor)
+            return currentSponsors.push(sponsor)
         });
     };
     
     if(child_data || !child_loading ) {
         const ChildList = child_data.listChildren.items.map((child) => {
-            return ChildList.push(child)
+            return currentChildren.push(child)
         });        
     };
     if(loadingAdd) {
@@ -242,13 +243,10 @@ export default function ChildImport({ open, handleClose }){
         processMsgs.push(numAddFail + " Children Adds Failed");
         
         processMsgs.push(numUpdate + " Children Updated");
-        processMsgs.push(numUpdate + " Children Updates Failed");
+        processMsgs.push(numUpdateFail + " Children Updates Failed");
         
         setMessages(processMsgs);
         setFailures(processFails);
-        
-        console.log("processMsgs: " + processMsgs);
-        console.log("processFails: " + processFails);
     };
 
     // onchange event
@@ -274,10 +272,29 @@ export default function ChildImport({ open, handleClose }){
         }
     };
 
+    const showMessages = () => {
+        var showMsgs = messages.map((item) => {<ListItem>{item}</ListItem>});
+        if (showMsgs.length===0) {showMsgs = ' There are no Messages'};
+        return (
+            <List>
+                {showMsgs}
+            </List>
+        );
+    };
+    const showFailures = () => {
+        var showMsgs = failures.map((item) => {<ListItem>{item}</ListItem>});
+        if (showMsgs.length===0) {showMsgs = ' There are no Failures'};
+        return (
+            <List>
+                {showMsgs}
+            </List>
+        );
+    };
+
     return(
         
         <React.Fragment>
-            <Dialog open={open} onClose={handleClose} fullWidth="true" maxWidth="xl">
+            <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth="xl">
             <DialogTitle>Please Select an Excel File of Child Information</DialogTitle>
             <DialogContent>
                 <div>
@@ -291,31 +308,15 @@ export default function ChildImport({ open, handleClose }){
                 </div>
 
                 <div>
-                    {messages?(
-                        <Paper elevation={6}>
-                        <List>
-                            {messages.map((item) => {
-                                <ListItem>{item}</ListItem>
-                            })}
-                        </List>
-                        </Paper>
-                    ):(
-                        <div>No messages</div>
-                    )}
+                    <Paper elevation={6}>
+                        {showMessages()}
+                    </Paper>
                 </div>
 
                 <div>
-                    {failures?(
-                        <Paper elevation={6}>
-                        <List>
-                            {failures.map((item) => {
-                                <ListItem>{item}</ListItem>
-                            })}
-                        </List>
-                        </Paper>
-                    ):(
-                        <div>No failures</div>
-                    )}
+                    <Paper elevation={6}>
+                        {showFailures()}
+                    </Paper>
                 </div>
 
             </DialogContent>
