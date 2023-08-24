@@ -11,6 +11,12 @@ import {
     List,
     ListItem,
     Paper,
+    TableContainer,
+    Table,
+    TableHead,
+    TableRow,
+    TableBody,
+    TableCell,
 } from '@mui/material';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -291,11 +297,11 @@ export default function ImportSponsors({ open, handleClose }){
                             <Alert severity="error">{typeError}</Alert>
                         )}
                     </form>
-
+                    
                     {/* view data */}                    
-                    <div>
+                    {/* <div>
                         {previewData?(
-                            <div className="table-responsive">
+                            <div>
                                 <h3>File Preview (first 10 rows)</h3>
                                 <table className="table">
                                     <thead>
@@ -319,7 +325,7 @@ export default function ImportSponsors({ open, handleClose }){
                         ):(
                             <div></div>
                         )}
-                    </div>
+                    </div> */}
                 </div>
                 <div>
                     {messages?(
