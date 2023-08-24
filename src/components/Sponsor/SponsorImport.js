@@ -8,17 +8,17 @@ import {
     DialogTitle,
     Button,
     Alert,
+    List,
+    ListItem,
     Paper,
 } from '@mui/material';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { createSponsor, updateSponsor } from '../../graphql/mutations';
 import { listSponsors } from '../../graphql/queries';
-import { getSponsorByPhoneQueryText } from '../../graphql/custom_queries';
 
 
 var SponsorsList = [];
-var SponsorFound = {};
 
 const ConvertDataRow = (row) => {
     var sponsor = {};
@@ -93,14 +93,15 @@ const findSponsorID_ByPhone = (searchPhone) => {
 };
 
 export default function ImportSponsors({ open, handleClose }){
+    let processMsgs = [];
+    let processFails = [];
     //Use State
+    const [messages, setMessages] = useState([]);
     const [failures, setFailures] = useState([]);
     const [excelFile, setExcelFile] = useState(null);
     const [typeError, setTypeError] = useState(null);
     const [excelData, setExcelData] = useState(null);
     const [previewData, setPreviewData] = useState(null);
-    const [sponsorPhone, setSponsorPhone] = useState(0);
-    const [sponsorFound, setSponsorFound] = useState(0);
     
     //Apollo    
     const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors)); 
@@ -110,14 +111,19 @@ export default function ImportSponsors({ open, handleClose }){
     if(sponsor_data || !sponsor_loading ) {
         const sponsorList = sponsor_data.listSponsors.items.map((sponsor) => {
             return SponsorsList.push(sponsor)
-        });
-        console.log("Sponsors Loaded: " + sponsorList.length);
+        });        
     };    
     if(loadingAdd) {
         return <div>Creating Sponsor...</div>
     };    
     if(loadingUpdate) {
        return <div>Updating Sponsor...</div>
+    };
+
+    const testData = () => {
+        previewData.map((individualExcelData, index)=>(
+            console.log(index + " :" + individualExcelData)
+        ))
     };
     
     const AddNewSponsor = (sponsorData) => {        
@@ -172,13 +178,15 @@ export default function ImportSponsors({ open, handleClose }){
             const worksheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[worksheetName];
             const data = XLSX.utils.sheet_to_json(worksheet);
+            console.log("data read from Excel", data);
             setPreviewData(data.slice(0,10));
             setExcelData(data);
         }
     };
 
     const handleDialogClose=() => {
-        setFailures(null);
+        // setMessages(null);
+        // setFailures(null);
         setExcelFile(null);
         setExcelData(null);
         setPreviewData(null);
@@ -187,6 +195,8 @@ export default function ImportSponsors({ open, handleClose }){
     }
 
     const handleImport=() => {
+        processMsgs = [];
+        processFails = [];
         var result = '';
         var sponsorID = '';
         var numAdd = 0;
@@ -197,40 +207,49 @@ export default function ImportSponsors({ open, handleClose }){
         
         //Map through all rows
         excelData.map((row, index) => {
-            //row 0 contains headers, so ignor it
-            //console.log("Row " + index);
-            //if (index!==0) {
+            
+            const sponsor = ConvertDataRow(row);
+            //console.log("Processing spreadsheet row=" + index + " Name: " + sponsor.Name + " Phone: " + sponsor.Phone);
+
+            if (sponsor.Phone.length===0) {
                 sponsorID = '';
-
-                const sponsor = ConvertDataRow(row);
-                //console.log("Processing spreadsheet row=" + index + " Name: " + sponsor.Name + " Phone: " + sponsor.Phone);
-
+            }else{
                 sponsorID = findSponsorID_ByPhone(sponsor.Phone);
-                
-                if (sponsorID==='') {
-                    result = sponsor.Name + " at row " + index + " with Phone: " + sponsor.Phone + " was ADDED"
-                    let addResult = AddNewSponsor(sponsor);
-                    if (addResult.length > 0 ) {
-                        result = sponsor.Name + " at row " + index + " failed to load: " + addResult;
-                        numAddFail += 1;
-                        setFailures(...failures, result);
-                    }else{
-                        numAdd += 1;
-                    };
-                }else{                                        
-                    result = sponsor.Name + " at row " + index + " with Phone: " + sponsor.Phone + " was updated"
-                    let updateResult = UpdateSponsor(sponsorID, sponsor);
-                    if (updateResult.length > 0 ) {
-                        result = sponsor.Name + " at row " + index + " failed to load: " + updateResult;
-                        numUpdateFail += 1;
-                        setFailures(...failures, result);
-                    }else{
-                        numUpdate += 1;
-                    };
+            };
+            
+            if (sponsorID==='') {
+                result = sponsor.Name + " at row " + index + " with Phone: " + sponsor.Phone + " was ADDED"
+                let addResult = AddNewSponsor(sponsor);
+                if (addResult.length > 0 ) {
+                    result = sponsor.Name + " at row " + index + " failed to load: " + addResult;
+                    numAddFail += 1;
+                    //setFailures(...failures, result);
+                    failures.push(result);
+                }else{
+                    numAdd += 1;
                 };
-                console.log(result);
-            //};
+            }else{                                        
+                result = sponsor.Name + " at row " + index + " with Phone: " + sponsor.Phone + " was updated"
+                let updateResult = UpdateSponsor(sponsorID, sponsor);
+                if (updateResult.length > 0 ) {
+                    result = sponsor.Name + " at row " + index + " failed to load: " + updateResult;
+                    numUpdateFail += 1;
+                    //setFailures(...failures, result);
+                    failures.push(result);
+                }else{
+                    numUpdate += 1;
+                };
+            };
+            processMsgs.push(result);
+            
         });
+        processMsgs.push((numAdd+numAddFail+numUpdate+numUpdateFail) + " Records processed");
+        processMsgs.push(numAdd + " Sponsors Added");
+        processMsgs.push(numUpdate + " Sponsors Updated");
+        console.log("processMsgs: " + processMsgs);
+        console.log("processFails: " + processFails);
+        setMessages(processMsgs);
+        setFailures(processFails);
     };
 
     // onchange event
@@ -246,7 +265,7 @@ export default function ImportSponsors({ open, handleClose }){
                 setExcelData(null);
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(selectedFile);
-                reader.onload=(e)=>{
+                reader.onload=(e)=>{                    
                     setExcelFile(e.target.result);
                 };
             }else{
@@ -259,8 +278,9 @@ export default function ImportSponsors({ open, handleClose }){
     };
 
     return(
+        
         <React.Fragment>
-            <Dialog open={open} onClose={handleClose} >
+            <Dialog open={open} onClose={handleClose} fullWidth="true" maxWidth="xl">
             <DialogTitle>Please Select an Excel File of Sponsor Information</DialogTitle>
             <DialogContent>
                 <div>
@@ -301,6 +321,32 @@ export default function ImportSponsors({ open, handleClose }){
                         )}
                     </div>
                 </div>
+                <div>
+                    {messages?(
+                        <Paper elevation={6}>
+                        <List>
+                            {messages.map((item) => {
+                                <ListItem>{item}</ListItem>
+                            })}
+                        </List>
+                        </Paper>
+                    ):(
+                        <div>No messages</div>
+                    )}
+                </div>
+                {/* <div>
+                    {failures?(
+                        <Paper elevation={6}>
+                        <List>
+                            {failures.map((item) => {
+                                <ListItem>{item}</ListItem>
+                            })}
+                        </List>
+                        </Paper>
+                    ):(
+                        <div>No failures</div>
+                    )}
+                </div> */}
             </DialogContent>
             <DialogActions>
                 <Button variant="outlined" onClick={handleDialogClose}>Cancel</Button>
