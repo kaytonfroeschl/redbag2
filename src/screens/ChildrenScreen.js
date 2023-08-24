@@ -7,6 +7,7 @@ import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateChildForm from '../components/Child/CreateChildForm';
 import ChildSideDrawer from '../components/Child/ChildSideDrawer';
+import ChildImport from '../components/Child/ChildImport';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -125,6 +126,7 @@ export default function ChildrenScreen () {
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [NCOpen, setNCOpen] = React.useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
 
 
@@ -186,6 +188,14 @@ export default function ChildrenScreen () {
         return;
     }
     setNCOpen(false);
+  } 
+
+  const handleImportOpen = () => {
+    setImportOpen(true);
+  }
+
+  const handleImportClose = () => {
+    setImportOpen(false);
   }
 
 
@@ -194,14 +204,19 @@ export default function ChildrenScreen () {
   return (
     <React.Fragment>
      <Button 
-            sx={{
-                m:1,
-                ml: 3
-            }}
-            onClick={handleNCOpen}
-            variant="contained">
-            New Child
-        </Button>
+        sx={{m:1, ml: 3}}
+        onClick={handleNCOpen}
+        variant="contained"
+        >
+        New Child
+      </Button>
+      <Button
+        sx={{m: 1, mr: 3}}
+        variant="text"
+        onClick={handleImportOpen}
+        >
+        Import
+      </Button>
     <Box 
         sx={{ 
             display: 'flex',
@@ -252,7 +267,7 @@ export default function ChildrenScreen () {
       </Main>
       <CreateChildForm open={NCOpen} handleClose={handleNCClose} />
       <ChildSideDrawer child_id={currentKid.id} open={drawerOpen} handleClose={handleSpecialDrawerClose}  />
-
+      <ChildImport open={importOpen} handleClose={handleImportClose} />
     </React.Fragment>
   )
 }
