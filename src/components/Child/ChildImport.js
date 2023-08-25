@@ -15,9 +15,10 @@ import {
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { createChild, updateChild } from '../../graphql/mutations';
-import { listChildren, listSponsors } from '../../graphql/queries';
+import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
 
 var currentSponsors = [];
+var currentRBLs = [];
 var currentChildren = [];
 
 const ConvertDataRow = (row) => {
@@ -63,8 +64,19 @@ const findSponsorID_ByPhone = (searchPhone) => {
         if (sponsor.Phone===searchPhone) {
             found = sponsor.id;
         };
-    });
-    
+    });    
+    return found;    
+};
+
+const findRBL_ByName = (searchName) => {
+    let found = '';
+    let name = '';
+    currentRBLs.map((rbl) => {
+        name = (rbl.FirstName + rbl.LastName).toLowerCase();
+        if (name===searchName) {
+            found = rbl.id;
+        };
+    });    
     return found;    
 };
 
@@ -83,7 +95,7 @@ const findChild_ByChildID = (searchChildID) => {
                 Component Starts Here
 ================================================================================================*/
 export default function ChildImport({ open, handleClose }){
-    console.log("ChildImport Begin");
+    //console.log("ChildImport Begin");
     let processSummaryMsgs = [];
     let processDetailMsgs = [];
     let processFails = [];
@@ -97,14 +109,26 @@ export default function ChildImport({ open, handleClose }){
     const [fileName, setFileName] = useState('');
     //const [excelData, setExcelData] = useState(null);
     
-    //Apollo    
-    const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors)); 
+    //Apollo
     const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren)); 
+    const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
+    const { data: rbl_data, loading: rbl_loading, error: rbl_error } = useQuery(gql(listRBLS));
     const [addChildMutation, { loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
     const [updateChildMutation, { loading: loadingUpdate, error: errorUpdate }] = useMutation(gql(updateChild));
 
+    
+    if(child_data || !child_loading ) {
+        //console.log("Loading Current Child List");
+        child_data.listChildren.items.map((child) => {
+            return currentChildren.push(child)
+        });        
+    };
+    if(child_error) {                
+        setFailures(processFails => [...processFails, "Current Child List Load error: " + child_error]);
+    };
+
     if(sponsor_data || !sponsor_loading ) {
-        console.log("Loading Current Sponsor List");
+        //console.log("Loading Current Sponsor List");
         sponsor_data.listSponsors.items.map((sponsor) => { 
             return currentSponsors.push(sponsor)
         });
@@ -112,15 +136,15 @@ export default function ChildImport({ open, handleClose }){
     if(sponsor_error) {                
         setFailures(processFails => [...processFails, "Current Sponsor List Load error: " + sponsor_error]);
     };
-    
-    if(child_data || !child_loading ) {
-        console.log("Loading Current Child List");
-        child_data.listChildren.items.map((child) => {
-            return currentChildren.push(child)
-        });        
+
+    if(rbl_data || !rbl_loading ) {
+        //console.log("Loading Current RBL List");
+        rbl_data.listRBLS.items.map((sponsor) => { 
+            return currentRBLs.push(sponsor)
+        });
     };
-    if(child_error) {                
-        setFailures(processFails => [...processFails, "Current Child List Load error: " + child_error]);
+    if(rbl_error) {                
+        setFailures(processFails => [...processFails, "Current RBL List Load error: " + rbl_error]);
     };
 
     if(loadingAdd) {
@@ -138,7 +162,7 @@ export default function ChildImport({ open, handleClose }){
     };
     
     const AddNewChild = (childData) => {        
-        console.log("Add Child");
+        //console.log("Add Child");
         try{
             // const response = addSponsorMutation({
             //     variables: 
@@ -162,7 +186,7 @@ export default function ChildImport({ open, handleClose }){
     };
     
     const UpdateChild = (childID, childData) => {        
-        console.log("Update Child");        
+        //.log("Update Child");        
         try{
             // const response = updateSponsorMutation({
             //     variables: 
@@ -186,7 +210,7 @@ export default function ChildImport({ open, handleClose }){
 
     // onchange event
     const handleFile=(e)=>{
-        console.log("Handle File Event");
+        //console.log("Handle File Event");
         setTypeError(null);
         setExcelFile(null);
         let fileTypes = ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv'];
@@ -214,19 +238,17 @@ export default function ChildImport({ open, handleClose }){
     }
 
     const handleImport=() => {
-        console.log("Handle Import Event");
+        //console.log("Handle Import Event");
         processDetailMsgs = [];
         processSummaryMsgs = [];
         processFails = [];
-        var sponsorID = '';
-        var childID = '';
         var numAdd = 0;
         var numAddFail = 0;
         var numUpdate = 0;
         var numUpdateFail = 0;
 
         if(excelFile===null){ 
-            setMessages(["No Excel File Selected"]);
+            setFailures(processFails => [...processFails, "No Excel File"]);
             return
         };
         
@@ -236,16 +258,19 @@ export default function ChildImport({ open, handleClose }){
         excelData = XLSX.utils.sheet_to_json(worksheet);
 
         if(excelData===null){ 
-            setMessages(["Unable to read the Excel File"]);
+            setFailures(processFails => [...processFails, "No Excel Data"]);
             return
         };
-
-        console.log("Aboot to process Data", excelData);
         
         //Map through all rows
         excelData.map((row, index) => {
             
             let child = ConvertDataRow(row);
+
+            let childID = '';
+            let sponsorID = '';
+            let rblID = '';
+            let searchName = '';
             
             if (child.ChildID.length===0) {
                 childID = '';
@@ -257,21 +282,51 @@ export default function ChildImport({ open, handleClose }){
                 sponsorID = '';
             }else{
                 sponsorID = findSponsorID_ByPhone(child.SponsorPhone);
-                //add the sponsorID to the child object so GraphQL will associate them (I hope)
-                child = {...child, sponsorID};
+                if (sponsorID.length===0) {
+                    processFails.push(
+                        "ChildID: " + child.ChildID + 
+                        " at row " + index + 
+                        " Sponsor not found using sponsor's phone number: " + child.SponsorPhone
+                    );
+                }else{
+                    child = {...child, sponsorID};
+                };                
             };
+
+            if (child.RBL.length===0) {
+                rblID = '';
+            }else{
+                searchName = child.RBL.replace(/\s/g, '').toLowerCase();
+                rblID = findRBL_ByName(searchName);                
+                if (rblID.length===0) {
+                    processFails.push(
+                        "ChildID: " + child.ChildID + 
+                        " at row " + index + 
+                        " Red Bag Lady not found using : " + searchName
+                    );
+                }else{
+                    child = {...child, rblID};
+                };                
+            };
+
+            //console.log("Final Child Data looks like this", child);
             
             if (childID==='') {                
                 let addResult = AddNewChild(child);
                 if (addResult.length > 0 ) {
                     numAddFail += 1;
                     processFails.push(
-                        child.ChildID + " at row " + index + " failed to load: " + addResult
+                        "ChildID: " + child.ChildID + 
+                        " at row " + index + 
+                        " failed to load: " + addResult
                     );
                 }else{
                     numAdd += 1;
                     processDetailMsgs.push(
-                        child.ChildID + " at row " + index + " with name: " + child.Name + " was ADDED"
+                        "ChildID: " + child.ChildID + 
+                        " at row " + index + 
+                        " with name: " + child.Name + 
+                        " was ADDED"
                     );
                 };
             }else{                                        
@@ -279,12 +334,17 @@ export default function ChildImport({ open, handleClose }){
                 if (updateResult.length > 0 ) {
                     numUpdateFail += 1;
                     processFails.push(
-                        child.ChildID + " at row " + index + " failed to load: " + updateResult
+                        "ChildID: " + child.ChildID + 
+                        " at row " + index + 
+                        " failed to load: " + updateResult
                     );
                 }else{
                     numUpdate += 1;
                     processDetailMsgs.push(
-                        child.ChildID + " at row " + index + " with name: " + child.Name + " was updated"
+                        "ChildID: " + child.ChildID + 
+                        " at row " + index + 
+                        " with name: " + child.Name + 
+                        " was updated"
                     );
                 };
             };
@@ -302,11 +362,11 @@ export default function ChildImport({ open, handleClose }){
 
         setMessages(processDetailMsgs);
         setFailures(processFails);
-        console.log("End of Handle Import Event");
+        //console.log("End of Handle Import Event");
     };
 
     const showSummaryMessages = () => {
-        console.log("showSummaryMessages begin");
+        //console.log("showSummaryMessages begin");
         if (summaryMsgs.length===0) {
             return <Alert severity="success">No Summary Yet</Alert>
         }else{
@@ -317,7 +377,7 @@ export default function ChildImport({ open, handleClose }){
         };
     };
     const showDetailMessages = () => {
-        console.log("showDetailMessages begin");
+        //console.log("showDetailMessages begin");
         if (messages.length===0) {
             return <Alert severity="success">There Are No Messages</Alert>
         }else{
