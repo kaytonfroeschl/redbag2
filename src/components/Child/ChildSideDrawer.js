@@ -45,7 +45,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 export default function ChildSideDrawer({ child_id, open, handleClose }) {
-    console.log("ChildSideDrawer child_id: " + child_id);
 
 /* ==============================================================================================
                                         Variables
@@ -130,9 +129,7 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
     if(error) {
         console.error(error.message)
     }
-    console.log(data)
     passedChild = handleChildData(data ? data.getChild : null);
-    console.log("passed Child: ", passedChild)
     
 
     return (

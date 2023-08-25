@@ -14,7 +14,6 @@ import MenuItem from '@mui/material/MenuItem';
 
 
 export function EditChildForm ({ open, handleClose, child }){
-    console.log("we are in editCHild form: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -34,7 +33,6 @@ export function EditChildForm ({ open, handleClose, child }){
     
 
     useEffect(() => {
-        console.log("in use effect")
         setFormID(child.passedid)
         setFormName(child.passedName)
         setFormChildID(child.passedChildID)
@@ -139,13 +137,11 @@ export function EditChildForm ({ open, handleClose, child }){
 
     async function handleEdit(e) {
         e.preventDefault();
-        console.log("hello")
         try {
             const response = await editChildMutation({
                 variables: { input: { id: form_id, Firstname: form_name, ChildID: form_childid, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike } },
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
-            console.log("Mutation response: ", response);
             handleClose();
         } catch (error) {
             console.error("Mutation error: ", error);

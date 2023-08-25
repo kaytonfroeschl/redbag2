@@ -33,14 +33,14 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   }),
 );
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-start',
-  }));
+// const DrawerHeader = styled('div')(({ theme }) => ({
+//     display: 'flex',
+//     alignItems: 'center',
+//     padding: theme.spacing(0, 1),
+//     // necessary for content to be below app bar
+//     ...theme.mixins.toolbar,
+//     justifyContent: 'flex-start',
+//   }));
 
 /* ==============================================================================================
                                         Search Bar 
@@ -120,7 +120,6 @@ function createRows(array) {
 
 
 export default function ChildrenScreen () {
-  console.log("ChildrenScreen")
   const [customWidth, setCustomWidth] = React.useState('100%');
   const rowArray = [];
   const [currentKid, setCurrentKid] = useState({});
@@ -135,21 +134,19 @@ export default function ChildrenScreen () {
                                       Populating Grid Rows
 ================================================================================================*/
   //data.listChildren.items ==> an array of children 
-  const { loading, error, data } = useQuery(gql(listChildren)); 
+  const { loading, data } = useQuery(gql(listChildren)); 
   if(data || !loading ) {
-    const childList = data.listChildren.items.map((kid) => {
+    data.listChildren.items.map((kid) => {
         return rowArray.push(kid)
     })
   }
-  console.log("Row Array: ", rowArray)
   const renderedChildren = createRows(rowArray);
-  console.log("Rendered Rows Array: ", renderedChildren);
 
 /* ==============================================================================================
                                       Resize Drawer Callback
 ================================================================================================*/
   const drawerCallback = () => {
-    if(customWidth == '100%'){
+    if(customWidth === '100%'){
         return setCustomWidth('70%')
     } else {
         return setCustomWidth('100%')
@@ -167,13 +164,12 @@ export default function ChildrenScreen () {
 ================================================================================================*/
   const handleDrawerOpen = (data) => {
     setCurrentKid(data);
-    console.log("current kid: ", data)
     setDrawerOpen(true);
   }
 
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-  };
+  // const handleDrawerClose = () => {
+  //   setDrawerOpen(false);
+  // };
 
   const handleSpecialDrawerClose = () => {
     setDrawerOpen(false);
@@ -185,14 +181,13 @@ export default function ChildrenScreen () {
   }
 
   const handleNCClose = (event, reason) => {
-    if (reason && reason == "backdropClick"){
+    if (reason && reason === "backdropClick"){
         return;
     }
     setNCOpen(false);
   } 
 
   const handleImportOpen = () => {
-    console.log("Child Import Button Clicked")
     setImportOpen(true);
   }
 
@@ -200,7 +195,45 @@ export default function ChildrenScreen () {
     setImportOpen(false);
   }
 
-
+  const openSideDrawer = () => {
+    if (drawerOpen) {
+      return (
+        <ChildSideDrawer 
+          child_id={currentKid.id} 
+          open={drawerOpen} 
+          handleClose={handleSpecialDrawerClose}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+  
+  const openImport = () => {
+    if (importOpen) {
+      return (
+        <ChildImport 
+          open={importOpen} 
+          handleClose={handleImportClose}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+  
+  const openCreate = () => {
+    if (NCOpen) {
+      return (
+        <CreateChildForm 
+          open={NCOpen} 
+          handleClose={handleNCClose}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
 
 
   return (
@@ -267,9 +300,9 @@ export default function ChildrenScreen () {
             />
         </Paper>
       </Main>
-      <CreateChildForm open={NCOpen} handleClose={handleNCClose} />
-      <ChildSideDrawer child_id={currentKid.id} open={drawerOpen} handleClose={handleSpecialDrawerClose}  />
-      <ChildImport open={importOpen} handleClose={handleImportClose} />
+      {openSideDrawer()}
+      {openImport()}
+      {openCreate()}
     </React.Fragment>
   )
 }
