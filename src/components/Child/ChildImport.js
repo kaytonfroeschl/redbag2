@@ -27,15 +27,15 @@ const ConvertDataRow = (row) => {
     
     value = hasProperty(row, "RBL Assigned");       child = {...child, RBL: value};
     value = hasProperty(row, "Red Bag Child ID#");  child = {...child, ChildID: value};
-    value = hasProperty(row, "First Name");         child = {...child, Name: value};
+    value = hasProperty(row, "First Name");         child = {...child, Firstname: value};
     value = hasProperty(row, "Preferred Gender");   child = {...child, Gender: value};
     value = hasProperty(row, "Race");               child = {...child, Race: value};
     value = hasProperty(row, "Age");                child = {...child, Age: value};
-    value = hasProperty(row, "Shirt Size");         child = {...child, Shirt: value};
-    value = hasProperty(row, "Pant Size");          child = {...child, Pant: value};
-    value = hasProperty(row, "Shoe Size");          child = {...child, Shoe: value};
+    value = hasProperty(row, "Shirt Size");         child = {...child, ShirtSize: value};
+    value = hasProperty(row, "Pant Size");          child = {...child, PantSize: value};
+    value = hasProperty(row, "Shoe Size");          child = {...child, ShoeSize: value};
     value = hasProperty(row, "Sibling IDs");        child = {...child, Siblings: value};
-    value = hasProperty(row, "Wish List");          child = {...child, WishList:value};
+    value = hasProperty(row, "Wish List");          child = {...child, Wishlist:value};
     value = hasProperty(row, "Additional Info");    child = {...child, Info: value};
     value = hasProperty(row, "Sponsor");            child = {...child, SponsorName: value};    
     value = hasProperty(row, "Sponsor's Mobile #"); child = {...child, SponsorPhone: extractDigits(value)};
@@ -160,24 +160,27 @@ export default function ChildImport({ open, handleClose }){
     if(errorUpdate) {                
         setFailures(processFails => [...processFails, "Update Child error: " + errorUpdate]);
     };
+
+    const CleanChild = (childData) => {
+        let clean = Object.assign({}, childData);   //"shallow" copy
+        delete clean.RBL;
+        delete clean.SponsorName;
+        delete clean.SponsorPhone;
+        delete clean.Comments
+        return clean;
+    };
     
-    const AddNewChild = (childData) => {        
-        //console.log("Add Child");
+    const AddNewChild = async (childData) => {        
+        console.log("Add Child, childData", childData);
+        //we need to remove propertes that are not in the DB
+        let child = CleanChild(childData);
+        console.log("Add Child, clean child", child);
         try{
-            // const response = addSponsorMutation({
-            //     variables: 
-            //     { input: { 
-            //         FirstName: sponsorData.Name, 
-            //         LastName: '',
-            //         Email: sponsorData.Email, 
-            //         Phone: sponsorData.Phone, 
-            //         Institution: sponsorData.Company, 
-            //         Address: sponsorData.Address, 
-            //         YearsActive: sponsorData.YearsActive, 
-            //         } 
-            //     }, 
-            //     refetchQueries: [{ query: gql(listSponsors) }]
-            // });
+            const response = await addChildMutation({
+                variables: 
+                    { input: {child} }, 
+                    refetchQueries: []
+            });
         } catch(error) {
             console.log("Add New Child error ", error);
             return "Create New Child failed with error: " + error;
@@ -185,22 +188,15 @@ export default function ChildImport({ open, handleClose }){
         return "";
     };
     
-    const UpdateChild = (childID, childData) => {        
-        //.log("Update Child");        
+    const UpdateChild = async (childID, childData) => {        
+        console.log("Update Child, childData ", childData);
+        let child = CleanChild(childData);
         try{
-            // const response = updateSponsorMutation({
-            //     variables: 
-            //     { input: { 
-            //         FirstName: sponsorData.Name,
-            //         Email: sponsorData.Email, 
-            //         Phone: sponsorData.Phone, 
-            //         Institution: sponsorData.Company, 
-            //         Address: sponsorData.Address, 
-            //         YearsActive: sponsorData.YearsActive, 
-            //         } 
-            //     }, 
-            //     refetchQueries: [{ query: gql(listSponsors) }]
-            // });
+            const response = await updateChildMutation({
+                variables:
+                    { input: {child} }, 
+                    refetchQueries: [{ query: gql(listChildren) }]
+            });
         } catch(error) {
             console.log("Update Child error ", error);
             return "Update Child failed with error: " + error;
@@ -217,7 +213,6 @@ export default function ChildImport({ open, handleClose }){
         let selectedFile = e.target.files[0];
         if(selectedFile){
             if(fileTypes.includes(selectedFile.type)){
-                console.log("selectedFile is", selectedFile);
                 setFileName(selectedFile.name);
                 let reader = new FileReader();
                 reader.readAsArrayBuffer(selectedFile);
