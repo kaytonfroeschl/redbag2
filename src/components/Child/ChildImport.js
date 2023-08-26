@@ -14,12 +14,50 @@ import {
 } from '@mui/material';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { createChild, updateChild } from '../../graphql/mutations';
 import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
 
 var currentSponsors = [];
 var currentRBLs = [];
 var currentChildren = [];
+
+const getHeaders = (sheet) => {
+    var headers = [];
+    var range = XLSX.utils.decode_range(sheet['!ref']); //get all data from the sheet
+    //range.s is the upper-left corner of the range, range.e is the bottom right
+    var C, R = range.s.r; /* start in the first row */
+    /* walk every column in the range */
+    for(C = range.s.c; C <= range.e.c; ++C) {
+        var cell = sheet[XLSX.utils.encode_cell({c:C, r:R})] /* find the cell in the first row */
+
+        var hdr = "UNKNOWN " + C; // <-- replace with your desired default 
+        if(cell && cell.t) hdr = XLSX.utils.format_cell(cell);
+
+        headers.push(hdr);
+    }
+    return headers;
+};
+
+const ValidateHeaders = (headers) => {
+    let errors = [];
+
+	if (!headers.includes("RBL Assigned")) {errors.push("Missing 'RBL Assigned'")};
+    if (!headers.includes("Red Bag Child ID#")) {errors.push("Missing 'Red Bag Child ID#'")};
+    if (!headers.includes("First Name")) {errors.push("Missing 'First Name'")};
+    if (!headers.includes("Preferred Gender")) {errors.push("Missing 'Preferred Gender'")};
+    if (!headers.includes("Race")) {errors.push("Missing 'Race'")};
+    if (!headers.includes("Age")) {errors.push("Missing 'Age'")};
+    if (!headers.includes("Shirt Size")) {errors.push("Missing 'Shirt Size'")};
+    if (!headers.includes("Pant Size")) {errors.push("Missing 'Pant Size'")};
+    if (!headers.includes("Shoe Size")) {errors.push("Missing 'Shoe Size'")};
+    if (!headers.includes("Sibling IDs")) {errors.push("Missing 'Sibling IDs'")};
+    if (!headers.includes("Wish List")) {errors.push("Missing 'Wish List'")};
+    if (!headers.includes("Additional Info")) {errors.push("Missing 'Additional Info'")};
+    if (!headers.includes("Sponsor")) {errors.push("Missing 'Sponsor'")};
+    if (!headers.includes("Sponsor's Mobile #")) {errors.push("Missing 'Sponsor's Mobile #'")};
+    if (!headers.includes("RBL Comments")) {errors.push("Missing 'RBL Comments'")};
+
+    return errors;
+};
 
 const ConvertDataRow = (row) => {
     var child = {};
@@ -94,7 +132,7 @@ const findChild_ByChildID = (searchChildID) => {
 ==============================================================================================
                 Component Starts Here
 ================================================================================================*/
-export default function ChildImport({ open, handleClose }){
+export default function ChildImport({ open, handleClose, AddChild, UpdateChild }){
     //console.log("ChildImport Begin");
     let processSummaryMsgs = [];
     let processDetailMsgs = [];
@@ -113,9 +151,6 @@ export default function ChildImport({ open, handleClose }){
     const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren)); 
     const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
     const { data: rbl_data, loading: rbl_loading, error: rbl_error } = useQuery(gql(listRBLS));
-    const [addChildMutation, { loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
-    const [updateChildMutation, { loading: loadingUpdate, error: errorUpdate }] = useMutation(gql(updateChild));
-
     
     if(child_data || !child_loading ) {
         //console.log("Loading Current Child List");
@@ -147,64 +182,6 @@ export default function ChildImport({ open, handleClose }){
         setFailures(processFails => [...processFails, "Current RBL List Load error: " + rbl_error]);
     };
 
-    if(loadingAdd) {
-        console.log("Loading Add Child");
-    };
-    if(errorAdd) {                
-        setFailures(processFails => [...processFails, "Create Child error: " + errorAdd]);
-    };
-
-    if(loadingUpdate) {
-        console.log("Loading Update Child");
-    };
-    if(errorUpdate) {                
-        setFailures(processFails => [...processFails, "Update Child error: " + errorUpdate]);
-    };
-
-    const CleanChild = (childData) => {
-        let clean = Object.assign({}, childData);   //"shallow" copy
-        delete clean.RBL;
-        delete clean.SponsorName;
-        delete clean.SponsorPhone;
-        delete clean.Comments
-        return clean;
-    };
-    
-    const AddNewChild = async (childData) => {        
-        console.log("Add Child, childData", childData);
-        //we need to remove propertes that are not in the DB
-        let child = CleanChild(childData);
-        console.log("Add Child, clean child", child);
-        try{
-            const response = await addChildMutation({
-                variables: 
-                    { input: {child} }, 
-                    refetchQueries: []
-            });
-        } catch(error) {
-            console.log("Add New Child error ", error);
-            return "Create New Child failed with error: " + error;
-        };        
-        return "";
-    };
-    
-    const UpdateChild = async (childID, childData) => {        
-        console.log("Update Child, childData ", childData);
-        let child = CleanChild(childData);
-        try{
-            const response = await updateChildMutation({
-                variables:
-                    { input: {child} }, 
-                    refetchQueries: [{ query: gql(listChildren) }]
-            });
-        } catch(error) {
-            console.log("Update Child error ", error);
-            return "Update Child failed with error: " + error;
-        };
-        return "";
-    };
-
-    // onchange event
     const handleFile=(e)=>{
         //console.log("Handle File Event");
         setTypeError(null);
@@ -250,14 +227,28 @@ export default function ChildImport({ open, handleClose }){
         const workbook = XLSX.read(excelFile,{type: 'buffer'});
         const worksheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[worksheetName];
+
+        const headers = getHeaders(worksheet);
+        //console.log("Headers", headers);
+
+        const headerErrors = ValidateHeaders(headers);
+        if (headerErrors.length!==0) {
+            let errorMsg = "Missing columns in the file:\r";
+            errorMsg += headerErrors.map((errMsg) => {
+                return ("  " + errMsg + "\r");
+            });
+            setFailures(processFails => [...processFails, errorMsg]);
+            return;
+        };
+
         excelData = XLSX.utils.sheet_to_json(worksheet);
+        console.log("excelData is", excelData);
 
         if(excelData===null){ 
             setFailures(processFails => [...processFails, "No Excel Data"]);
-            return
+            return;
         };
         
-        //Map through all rows
         excelData.map((row, index) => {
             
             let child = ConvertDataRow(row);
@@ -307,7 +298,8 @@ export default function ChildImport({ open, handleClose }){
             //console.log("Final Child Data looks like this", child);
             
             if (childID==='') {                
-                let addResult = AddNewChild(child);
+                let addResult = AddChild(child);
+                console.log("addResult is ", addResult);
                 if (addResult.length > 0 ) {
                     numAddFail += 1;
                     processFails.push(
@@ -365,8 +357,8 @@ export default function ChildImport({ open, handleClose }){
         if (summaryMsgs.length===0) {
             return <Alert severity="success">No Summary Yet</Alert>
         }else{
-            var showMsgs = summaryMsgs.map((msg) => {
-                return(<Typography>{msg}</Typography>);
+            var showMsgs = summaryMsgs.map((msg, index) => {
+                return(<Typography key={index}>{msg}</Typography>);
             });
             return (<>{showMsgs}</>);
         };
@@ -376,8 +368,8 @@ export default function ChildImport({ open, handleClose }){
         if (messages.length===0) {
             return <Alert severity="success">There Are No Messages</Alert>
         }else{
-            var showMsgs = messages.map((msg) => {
-                return(<Typography>{msg}</Typography>);
+            var showMsgs = messages.map((msg, index) => {
+                return(<Typography key={index}>{msg}</Typography>);
             });
             return (<>{showMsgs}</>);
         };
@@ -386,8 +378,8 @@ export default function ChildImport({ open, handleClose }){
         if (failures.length===0){
             return <Alert severity="success">There Are No Failures</Alert>
         }else{            
-            var showMsgs = failures.map((msg) => {
-                return(<Typography>{msg}</Typography>);
+            var showMsgs = failures.map((msg, index) => {
+                return(<Typography key={index}>{msg}</Typography>);
             });
             
             return (

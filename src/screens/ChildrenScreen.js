@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { listChildren } from '../graphql/queries';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { styled } from '@mui/material/styles';
 import { Paper, Button, Box } from '@mui/material';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
@@ -8,6 +8,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CreateChildForm from '../components/Child/CreateChildForm';
 import ChildSideDrawer from '../components/Child/ChildSideDrawer';
 import ChildImport from '../components/Child/ChildImport';
+import { createChild, updateChild } from '../graphql/mutations';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -127,10 +128,91 @@ export default function ChildrenScreen () {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [NCOpen, setNCOpen] = React.useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  
+/* 
+==============================================================================================
+              Child Database Add and Update 
+================================================================================================*/
+  const [addChildMutation, { loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
+  const [updateChildMutation, { loading: loadingUpdate, error: errorUpdate }] = useMutation(gql(updateChild));
 
+  if(loadingAdd) {
+    console.log("Loading Add Child");
+  };
+  // if(errorAdd) {                
+  //   console.log( "Create Child error: " + errorAdd);
+  //   //How can I communicate this error to whatever component is using this?
+  //   //"Create Child error: " + errorAdd
+  // };
 
+  if(loadingUpdate) {
+    console.log("Loading Update Child");
+  };
+  // if(errorUpdate) {                
+  //   console.log( "Update Child error: " + errorAdd);
+  //   //How can I communicate this error to whatever component is using this?
+  //   //"Update Child error: " + errorUpdate
+  // };
+  
+  const handleAddChild = async (childData) => { 
+    console.log("handleAddChild childData", childData);
+    try{
+      const response = await addChildMutation({
+        variables: { 
+          input: { 
+            Firstname: childData.Firstname, 
+            ChildID: childData.ChildID, 
+            Gender: childData.Gender, 
+            Race: childData.Race, 
+            Age: childData.Age, 
+            Siblings: childData.Siblings, 
+            ShirtSize: childData.ShirtSize, 
+            PantSize: childData.PantSize, 
+            ShoeSize: childData.ShoeSize, 
+            Wishlist: childData.Wishlist, 
+            Info: childData.Info,
+          } 
+        }, 
+        refetchQueries: [{ query: gql(listChildren) }]
+      });
+    }catch(error) {
+      console.log("Add New Child error ", error);
+      return "Create New Child failed with error: " + error;
+    };        
+    return "";
+  };
+  
+  const handleUpdateChild = async (childID, childData) => {
+      try{
+          const response = await updateChildMutation({
+              variables:
+                  {  
+                    input: { 
+                      id: childID,
+                      Firstname: childData.Firstname, 
+                      ChildID: childData.ChildID, 
+                      Gender: childData.Gender, 
+                      Race: childData.Race, 
+                      Age: childData.Age, 
+                      Siblings: childData.Siblings, 
+                      ShirtSize: childData.ShirtSize, 
+                      PantSize: childData.PantSize, 
+                      ShoeSize: childData.ShoeSize, 
+                      Wishlist: childData.Wishlist, 
+                      Info: childData.Info,
+                    } 
+                  }, 
+                  refetchQueries: [{ query: gql(listChildren) }]
+          });
+      } catch(error) {
+          console.log("Update Child error ", error);
+          return "Update Child failed with error: " + error;
+      };
+      return "";
+  };
 
-/* ==============================================================================================
+/* 
+==============================================================================================
                                       Populating Grid Rows
 ================================================================================================*/
   //data.listChildren.items ==> an array of children 
@@ -215,6 +297,8 @@ export default function ChildrenScreen () {
         <ChildImport 
           open={importOpen} 
           handleClose={handleImportClose}
+          AddChild={handleAddChild}
+          UpdateChild={handleUpdateChild}
         />
       )
     }else{
