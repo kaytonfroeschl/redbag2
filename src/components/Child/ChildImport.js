@@ -10,11 +10,13 @@ import {
     Alert,
     Paper,
     Stack,
-    Typography
+    Typography,
+    Box,
 } from '@mui/material';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
+import { Padding } from '@mui/icons-material';
 
 var currentSponsors = [];
 var currentRBLs = [];
@@ -145,6 +147,7 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
     const [excelFile, setExcelFile] = useState(null);
     const [typeError, setTypeError] = useState(null);
     const [fileName, setFileName] = useState('');
+    const [printButton, setPrintButton] = useState('outlined');
     //const [excelData, setExcelData] = useState(null);
     
     //Apollo
@@ -214,10 +217,12 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
         processDetailMsgs = [];
         processSummaryMsgs = [];
         processFails = [];
+        var numProcessed = 0;
         var numAdd = 0;
-        var numAddFail = 0;
-        var numUpdate = 0;
-        var numUpdateFail = 0;
+        // var numAddFail = 0;
+        // var numUpdate = 0;
+        // var numUpdateFail = 0;
+        var numFail = 0;
 
         if(excelFile===null){ 
             setFailures(processFails => [...processFails, "No Excel File"]);
@@ -233,11 +238,11 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
 
         const headerErrors = ValidateHeaders(headers);
         if (headerErrors.length!==0) {
-            let errorMsg = "Missing columns in the file:\r";
-            errorMsg += headerErrors.map((errMsg) => {
-                return ("  " + errMsg + "\r");
+            processFails.push("Missing columns in the file:");
+            headerErrors.map((errMsg) => {
+                return processFails.push("  " + errMsg);
             });
-            setFailures(processFails => [...processFails, errorMsg]);
+            setFailures(processFails);
             return;
         };
 
@@ -257,11 +262,32 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
             let sponsorID = '';
             let rblID = '';
             let searchName = '';
+
+            numProcessed += 1;
             
             if (child.ChildID.length===0) {
-                childID = '';
-            }else{
-                childID = findChild_ByChildID(child.ChildID);
+                processFails.push(
+                    "Row " + index + 
+                    " Does NOT have a 'Red Bag Child ID#' value."
+                );
+            };
+
+            if (child.Firstname.length===0) {
+                processFails.push(
+                    "ChildID: " + child.ChildID + 
+                    " at row " + index + 
+                    " Does NOT have a 'First Name' value."
+                );
+            };
+
+            childID = findChild_ByChildID(child.ChildID);
+            if (childID.length > 0 ) {
+                processFails.push(
+                    "ChildID: " + child.ChildID + 
+                    " at row " + index + 
+                    " Already exists in the database! Updates are NOT ALLOWED."
+                );
+
             };
 
             if (child.SponsorPhone.length===0) {
@@ -296,59 +322,64 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
             };
 
             //console.log("Final Child Data looks like this", child);
-            
-            if (childID==='') {                
-                let addResult = AddChild(child);
-                console.log("addResult is ", addResult);
-                if (addResult.length > 0 ) {
-                    numAddFail += 1;
-                    processFails.push(
-                        "ChildID: " + child.ChildID + 
-                        " at row " + index + 
-                        " failed to load: " + addResult
-                    );
-                }else{
-                    numAdd += 1;
-                    processDetailMsgs.push(
-                        "ChildID: " + child.ChildID + 
-                        " at row " + index + 
-                        " with name: " + child.Name + 
-                        " was ADDED"
-                    );
+
+            if (processFails.length===0) {          
+                if (childID==='') {                
+                    let addResult = AddChild(child);
+                    console.log("addResult is ", addResult);
+                    if (addResult.length > 0 ) {
+                        numFail += 1;
+                        processFails.push(
+                            "ChildID: " + child.ChildID + 
+                            " at row " + index + 
+                            " failed to load: " + addResult
+                        );
+                    }else{                    
+                        numAdd += 1;
+                        processDetailMsgs.push(
+                            "ChildID: " + child.ChildID + 
+                            " at row " + index + 
+                            " with name: " + child.Firstname + 
+                            " was ADDED"
+                        );
+                    };
+                //}else{                                     
+                    // let updateResult = UpdateChild(childID, child);
+                    // if (updateResult.length > 0 ) {
+                    //     numUpdateFail += 1;
+                    //     processFails.push(
+                    //         "ChildID: " + child.ChildID + 
+                    //         " at row " + index + 
+                    //         " failed to load: " + updateResult
+                    //     );
+                    // }else{
+                    //     numUpdate += 1;
+                    //     processDetailMsgs.push(
+                    //         "ChildID: " + child.ChildID + 
+                    //         " at row " + index + 
+                    //         " with name: " + child.Firstname + 
+                    //         " was updated"
+                    //     );
+                    // };
+                
                 };
-            }else{                                        
-                let updateResult = UpdateChild(childID, child);
-                if (updateResult.length > 0 ) {
-                    numUpdateFail += 1;
-                    processFails.push(
-                        "ChildID: " + child.ChildID + 
-                        " at row " + index + 
-                        " failed to load: " + updateResult
-                    );
-                }else{
-                    numUpdate += 1;
-                    processDetailMsgs.push(
-                        "ChildID: " + child.ChildID + 
-                        " at row " + index + 
-                        " with name: " + child.Name + 
-                        " was updated"
-                    );
-                };
-            };
-            
+            }else{  
+                //if we already have identified a bad row, do not try to insert it.
+                numFail += 1;
+            };            
         });
-        processSummaryMsgs.push((numAdd+numAddFail+numUpdate+numUpdateFail) + " Records processed");
+        processSummaryMsgs.push((numProcessed) + " Records processed");
         
-        processSummaryMsgs.push(numAdd + " Children Added");
-        processSummaryMsgs.push(numAddFail + " Children Adds Failed");
-        
-        processSummaryMsgs.push(numUpdate + " Children Updated");
-        processSummaryMsgs.push(numUpdateFail + " Children Updates Failed");
+        processSummaryMsgs.push(numAdd + " Children were Added");
+        processSummaryMsgs.push(numFail + " Children were not added");
+        // processSummaryMsgs.push(numUpdate + " Children Updated");
+        // processSummaryMsgs.push(numUpdateFail + " Children Updates Failed");
 
         setSummaryMsgs(processSummaryMsgs);
 
         setMessages(processDetailMsgs);
         setFailures(processFails);
+        setPrintButton("contained");
         //console.log("End of Handle Import Event");
     };
 
@@ -390,26 +421,42 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
         };
     };
 
+    const print = () => {window.print()};
+
     return(
         
         <React.Fragment>
             <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth="xl">
             <DialogTitle>Please Select an Excel File of Child Information</DialogTitle>
             <DialogContent>
-            <Button variant="contained" component="label">
-                Select File
-                <input type="file" onChange={handleFile} hidden/>
-            </Button>
 
             <Stack spacing={2}>
-                <div>
-                    {fileName&&(
-                        <h3>Ready to Import Child File: {fileName}</h3>
-                    )}
-                    {typeError&&(
-                        <Alert severity="error">{typeError}</Alert>
-                    )}
-                </div>
+                {fileName&&(
+                    <h3>Ready to Import Child File: {fileName}</h3>
+                )}
+
+                <Box 
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        p: 1,
+                        m: 1,
+                        bgcolor: 'background.paper',
+                        borderRadius: 1,
+                    }}
+                >
+                    <Button variant="contained" component="label">
+                        Select File
+                        <input type="file" onChange={handleFile} hidden/>
+                    </Button>
+                    <Button variant={printButton} onClick={print}>
+                        Print
+                    </Button>
+                </Box>
+
+                {typeError&&(
+                    <Alert severity="error">{typeError}</Alert>
+                )}
 
                 <div>
                     <Paper elevation={6}>
