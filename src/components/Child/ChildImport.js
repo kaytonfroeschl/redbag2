@@ -14,13 +14,13 @@ import {
     Box,
 } from '@mui/material';
 
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
-import { Padding } from '@mui/icons-material';
+// import { gql, useMutation, useQuery } from '@apollo/client';
+// import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
+//import { Padding } from '@mui/icons-material';
 
-var currentSponsors = [];
-var currentRBLs = [];
-var currentChildren = [];
+// var currentSponsors = [];
+// var currentRBLs = [];
+// var currentChildren = [];
 
 const getHeaders = (sheet) => {
     var headers = [];
@@ -78,7 +78,7 @@ const ConvertDataRow = (row) => {
     value = hasProperty(row, "Wish List");          child = {...child, Wishlist:value};
     value = hasProperty(row, "Additional Info");    child = {...child, Info: value};
     value = hasProperty(row, "Sponsor");            child = {...child, SponsorName: value};    
-    value = hasProperty(row, "Sponsor's Mobile #"); child = {...child, SponsorPhone: extractDigits(value)};
+    value = hasProperty(row, "Sponsor's Mobile #"); child = {...child, SponsorPhone: extractDigits(''+value)};
     value = hasProperty(row, "RBL Comments");       child = {...child, Comments: value};
     
     return child;
@@ -94,47 +94,15 @@ const hasProperty = (PropertyObject, PropertyName) => {
 
 const extractDigits = (textValue) => {
     // Replace all non-digit characters with an empty string
+    if (textValue.length===0) {return ''}
     const digits = textValue.replace(/\D/g, ''); 
     return digits;
-};
-
-const findSponsorID_ByPhone = (searchPhone) => {
-    let found = '';
-    currentSponsors.map((sponsor) => {
-        if (sponsor.Phone===searchPhone) {
-            found = sponsor.id;
-        };
-    });    
-    return found;    
-};
-
-const findRBL_ByName = (searchName) => {
-    let found = '';
-    let name = '';
-    currentRBLs.map((rbl) => {
-        name = (rbl.FirstName + rbl.LastName).toLowerCase();
-        if (name===searchName) {
-            found = rbl.id;
-        };
-    });    
-    return found;    
-};
-
-const findChild_ByChildID = (searchChildID) => {
-    let found = '';
-    currentChildren.map((child) => {
-        if (child.ChildID===searchChildID) {
-            found = child.id;
-        };
-    });
-    
-    return found;    
 };
 /* 
 ==============================================================================================
                 Component Starts Here
 ================================================================================================*/
-export default function ChildImport({ open, handleClose, AddChild, UpdateChild }){
+export default function ChildImport({ open, handleClose, childList, sponsorList, rblList, AddChild }){
     //console.log("ChildImport Begin");
     let processSummaryMsgs = [];
     let processDetailMsgs = [];
@@ -149,46 +117,92 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
     const [fileName, setFileName] = useState('');
     const [printButton, setPrintButton] = useState('outlined');
     //const [excelData, setExcelData] = useState(null);
+
+    //console.log("Prop 'childList'", childList);
+    
+    //---------------------------------------------------- 
+    //      Find Functions 
+    //----------------------------------------------------
+    const findSponsorID_ByPhone = (searchPhone) => {
+        let found = '';
+        sponsorList.map((sponsor) => {
+            if (extractDigits(sponsor.Phone)===searchPhone) {
+                found = sponsor.id;
+            };
+        });    
+        return found;    
+    };
+
+    const findRBL_ByName = (searchName) => {
+        let found = '';
+        let name = '';
+        rblList.map((rbl) => {
+            name = (rbl.FirstName + rbl.LastName).toLowerCase();
+            if (name===searchName) {
+                found = rbl.id;
+            };
+        });    
+        return found;    
+    };
+
+    const findChild_ByChildID = (searchChildID) => {
+        let found = '';        
+        childList.map((child) => {
+            if (child.ChildID===searchChildID) {
+                found = child.id;
+            };
+        });
+        return found;        
+    };
+
+
+
     
     //Apollo
-    const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren)); 
-    const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
-    const { data: rbl_data, loading: rbl_loading, error: rbl_error } = useQuery(gql(listRBLS));
+    // //const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren)); 
+    // const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
+    // const { data: rbl_data, loading: rbl_loading, error: rbl_error } = useQuery(gql(listRBLS));
     
-    if(child_data || !child_loading ) {
-        //console.log("Loading Current Child List");
-        child_data.listChildren.items.map((child) => {
-            return currentChildren.push(child)
-        });        
-    };
-    if(child_error) {                
-        setFailures(processFails => [...processFails, "Current Child List Load error: " + child_error]);
-    };
+    // if(child_data || !child_loading ) {
+    //     //console.log("Loading Current Child List");
+    //     child_data.listChildren.items.map((child) => {
+    //         return currentChildren.push(child)
+    //     });
+    //     console.log("Loading Current Child List, it has " + currentChildren.length + " entries");
+    // };
+    // if(child_error) {                
+    //     setFailures(processFails => [...processFails, "Current Child List Load error: " + child_error]);
+    // };
 
-    if(sponsor_data || !sponsor_loading ) {
-        //console.log("Loading Current Sponsor List");
-        sponsor_data.listSponsors.items.map((sponsor) => { 
-            return currentSponsors.push(sponsor)
-        });
-    };
-    if(sponsor_error) {                
-        setFailures(processFails => [...processFails, "Current Sponsor List Load error: " + sponsor_error]);
-    };
+    // if(sponsor_data || !sponsor_loading ) {
+    //     //console.log("Loading Current Sponsor List");
+    //     sponsor_data.listSponsors.items.map((sponsor) => { 
+    //         return currentSponsors.push(sponsor)
+    //     });
+    //     console.log("Loading Current Sponsor List, it has " + currentSponsors.length + " entries");
+    // };
+    // if(sponsor_error) {                
+    //     setFailures(processFails => [...processFails, "Current Sponsor List Load error: " + sponsor_error]);
+    // };
 
-    if(rbl_data || !rbl_loading ) {
-        //console.log("Loading Current RBL List");
-        rbl_data.listRBLS.items.map((sponsor) => { 
-            return currentRBLs.push(sponsor)
-        });
-    };
-    if(rbl_error) {                
-        setFailures(processFails => [...processFails, "Current RBL List Load error: " + rbl_error]);
-    };
+    // if(rbl_data || !rbl_loading ) {
+    //     //console.log("Loading Current RBL List");
+    //     rbl_data.listRBLS.items.map((sponsor) => { 
+    //         return currentRBLs.push(sponsor)
+    //     });
+    //     console.log("Loading Current RBL List, it has " + currentRBLs.length + " entries");
+    // };
+    // if(rbl_error) {                
+    //     setFailures(processFails => [...processFails, "Current RBL List Load error: " + rbl_error]);
+    // };
 
     const handleFile=(e)=>{
         //console.log("Handle File Event");
         setTypeError(null);
         setExcelFile(null);
+        setFailures([]);
+        setMessages([]);
+        setSummaryMsgs([]);
         let fileTypes = ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv'];
         let selectedFile = e.target.files[0];
         if(selectedFile){
@@ -247,7 +261,7 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
         };
 
         excelData = XLSX.utils.sheet_to_json(worksheet);
-        console.log("excelData is", excelData);
+        //console.log("excelData is", excelData);
 
         if(excelData===null){ 
             setFailures(processFails => [...processFails, "No Excel Data"]);
@@ -255,36 +269,47 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
         };
         
         excelData.map((row, index) => {
-            
+            //console.log("row", row);
+
             let child = ConvertDataRow(row);
+            //console.log("child (from row)", child);
 
             let childID = '';
             let sponsorID = '';
             let rblID = '';
             let searchName = '';
-
+            let childError = false;
+            
             numProcessed += 1;
+            let rowNum = index +2;
+            console.log("Processing ChildID: " + child.ChildID + ", row #" + rowNum);
             
             if (child.ChildID.length===0) {
+                console.log("no ChildID");
+                childError = true;
                 processFails.push(
-                    "Row " + index + 
+                    "Row " + rowNum + 
                     " Does NOT have a 'Red Bag Child ID#' value."
                 );
             };
 
             if (child.Firstname.length===0) {
+                console.log("no first name");
+                childError = true;
                 processFails.push(
                     "ChildID: " + child.ChildID + 
-                    " at row " + index + 
+                    " at row " + rowNum + 
                     " Does NOT have a 'First Name' value."
                 );
             };
 
             childID = findChild_ByChildID(child.ChildID);
             if (childID.length > 0 ) {
+                console.log("ChildID already exists");
+                childError = true;
                 processFails.push(
                     "ChildID: " + child.ChildID + 
-                    " at row " + index + 
+                    " at row " + rowNum + 
                     " Already exists in the database! Updates are NOT ALLOWED."
                 );
 
@@ -295,12 +320,15 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
             }else{
                 sponsorID = findSponsorID_ByPhone(child.SponsorPhone);
                 if (sponsorID.length===0) {
+                    console.log("No sponsor with that phone number");
+                    childError = true;
                     processFails.push(
                         "ChildID: " + child.ChildID + 
-                        " at row " + index + 
+                        " at row " + rowNum + 
                         " Sponsor not found using sponsor's phone number: " + child.SponsorPhone
                     );
                 }else{
+                    console.log("Sponsor Found");
                     child = {...child, sponsorID};
                 };                
             };
@@ -311,34 +339,38 @@ export default function ChildImport({ open, handleClose, AddChild, UpdateChild }
                 searchName = child.RBL.replace(/\s/g, '').toLowerCase();
                 rblID = findRBL_ByName(searchName);                
                 if (rblID.length===0) {
+                    console.log("No RBL");
+                    childError = true;
                     processFails.push(
                         "ChildID: " + child.ChildID + 
-                        " at row " + index + 
+                        " at row " + rowNum + 
                         " Red Bag Lady not found using : " + searchName
                     );
                 }else{
+                    console.log("RBL found");
                     child = {...child, rblID};
                 };                
             };
 
             //console.log("Final Child Data looks like this", child);
 
-            if (processFails.length===0) {          
+            if (!childError) {          
                 if (childID==='') {                
-                    let addResult = AddChild(child);
-                    console.log("addResult is ", addResult);
+                    let addResult = AddChild(child);                    
                     if (addResult.length > 0 ) {
+                        console.log("Add Failed");
                         numFail += 1;
                         processFails.push(
                             "ChildID: " + child.ChildID + 
-                            " at row " + index + 
+                            " at row " + rowNum + 
                             " failed to load: " + addResult
                         );
                     }else{                    
+                        console.log("Child Added");
                         numAdd += 1;
                         processDetailMsgs.push(
                             "ChildID: " + child.ChildID + 
-                            " at row " + index + 
+                            " at row " + rowNum + 
                             " with name: " + child.Firstname + 
                             " was ADDED"
                         );
