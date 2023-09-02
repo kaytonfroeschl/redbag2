@@ -103,7 +103,9 @@ export default function ChildrenScreen () {
   //---------------------------------------------------- 
   //      Child Stuff
   //----------------------------------------------------
-  const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren)); 
+
+  //---------------- List Children ----------------
+  const { data: child_data, loading: child_loading, error: child_error, refetch: child_Refetch } = useQuery(gql(listChildren)); 
   if(child_loading) {console.log("Child List is loading")};  
   if(child_error) {console.log("Child List Load error: " + rbl_error)};
   if(child_data && !child_loading) {
@@ -127,16 +129,26 @@ export default function ChildrenScreen () {
       childList.push(kid)
     });
   };
+  
+  const getChildLIst = () => {
+    return child_data.listChildren.items;
+  };
 
   //---------------- Add Child ----------------
-  const [addChildMutation, { loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
+  const [addChildMutation, {data: addData, loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
   if(loadingAdd) {console.log("Loading Add Child Mutation")};
   if(errorAdd) {console.log( "Create Child Mutation error: " + errorAdd)};
 
-  const handleAddChild = async (childData) => { 
-    console.log("handleAddChild, about to call addChildMutation. ChildID" + childData.ChildID);
-    try{
-      const response = await addChildMutation({
+  //const handleAddChild = async (childData) => { 
+  const handleAddChild = (childData) => {
+    console.log("handleAddChild, about to call addChildMutation. ChildID: " + childData.ChildID);
+    try{      
+      //------> How to force a re-load of the childList?
+      // refetchQueries: [{ query: gql(listChildren) }] does not work
+      // refetchQueries: ["ListChildren"] does not work
+      // awaitRefetchQueries does not work
+      //const response = await addChildMutation({
+        const response = addChildMutation({
         variables: { 
           input: { 
             Firstname: childData.Firstname, 
@@ -152,10 +164,11 @@ export default function ChildrenScreen () {
             Info: childData.Info,
           } 
         }, 
-        refetchQueries: [{ query: gql(listChildren) }]
+        //refetchQueries: [{ query: gql(listChildren) }],
+        //awaitRefetchQueries: true,
       });
-      console.log("End of Add Child Mutation: child_data.listChildren.items has " + child_data.listChildren.items.length + " entries");
-      console.log("End of Add Child Mutation: childList has " + childList.length + " entries");
+      //child_Refetch();      
+      console.log("End of Add Child Mutation (after childList.refetch): child_data.listChildren.items has " + child_data.listChildren.items.length + " entries");
     }catch(error) {
       console.log("Add Child Mutation error ", error);
       return "Create New Child failed with error: " + error;
@@ -272,23 +285,23 @@ export default function ChildrenScreen () {
   //       Import Child Spreadsheet
   //----------------------------------------------------
   const handleImportOpen = () => {
-    console.log("handleImportOpent");
+    //console.log("handleImportOpent");
     setImportOpen(true);
   }
 
   const handleImportClose = () => {
-    console.log("handleImportClose");
+    //.log("handleImportClose");
     setImportOpen(false);
   }
   
   const openImport = () => {
     if (importOpen) {
-      console.log("openImport");
+      //console.log("openImport");
       return (
         <ChildImport 
           open={importOpen} 
           handleClose={handleImportClose}
-          childList={child_data.listChildren.items}
+          GetChildList={getChildLIst}
           sponsorList={sponsor_data.listSponsors.items}
           rblList={rbl_data.listRBLS.items}
           AddChild={handleAddChild}

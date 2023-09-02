@@ -102,12 +102,13 @@ const extractDigits = (textValue) => {
 ==============================================================================================
                 Component Starts Here
 ================================================================================================*/
-export default function ChildImport({ open, handleClose, childList, sponsorList, rblList, AddChild }){
+export default function ChildImport({ open, handleClose, GetChildList, sponsorList, rblList, AddChild }){
     //console.log("ChildImport Begin");
     let processSummaryMsgs = [];
     let processDetailMsgs = [];
     let processFails = [];
     let excelData = null;
+    let childList = [];
     //Use State
     const [summaryMsgs, setSummaryMsgs] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -355,8 +356,10 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             //console.log("Final Child Data looks like this", child);
 
             if (!childError) {          
-                if (childID==='') {                
-                    let addResult = AddChild(child);                    
+                if (childID==='') {
+                    console.log("ChildImport: about to call ChildScreen.handleAddChild");
+                    let addResult = AddChild(child);
+                    console.log("ChildImport: after call to ChildScreen.handleAddChild. Result: " + addResult);
                     if (addResult.length > 0 ) {
                         console.log("Add Failed");
                         numFail += 1;
@@ -374,6 +377,12 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
                             " with name: " + child.Firstname + 
                             " was ADDED"
                         );
+                        //------> How to force a re-load of the childList right here?
+                        // refetchQueries: [{ query: gql(listChildren) }], does not work
+                        // refetchQueries: ["ListChildren"], does not work
+                        // awaitRefetchQueries does not work
+                        // childList = GetChildList();
+                        // console.log("childList has " + childList.length + " entries");
                     };
                 //}else{                                     
                     // let updateResult = UpdateChild(childID, child);
