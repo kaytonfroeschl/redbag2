@@ -290,8 +290,9 @@ export default function ChildrenScreen () {
   }
 
   const handleImportClose = () => {
-    //.log("handleImportClose");
+    console.log("handleImportClose");
     setImportOpen(false);
+    child_Refetch();
   }
   
   const openImport = () => {

@@ -84,6 +84,27 @@ const ConvertDataRow = (row) => {
     return child;
 };
 
+const CheckDataForErrors = (dataFromSS) => {
+    const sorted = dataFromSS.sort((a, b) => {
+        const childA = hasProperty(a, "Red Bag Child ID#").toUpperCase();
+        const childB = hasProperty(b, "Red Bag Child ID#").toUpperCase();
+        if (childA < childB) {return -1};
+        if (childA > childB) {return  1}
+        return 0;
+      });
+    
+    let lastChildID = '';
+    let errors = [];
+    sorted.map((childRow) => {
+        const ssChildID = hasProperty(childRow, "Red Bag Child ID#");
+        if(ssChildID === lastChildID) {
+            errors.push("ChildID: '" + ssChildID + "' is associated with to two different rows.")
+        };
+        lastChildID = ssChildID;
+    });
+    return errors;
+};
+
 const hasProperty = (PropertyObject, PropertyName) => {
     if (PropertyObject.hasOwnProperty(PropertyName)) {
         return PropertyObject[PropertyName];
@@ -156,47 +177,6 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
         return found;        
     };
 
-
-
-    
-    //Apollo
-    // //const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren)); 
-    // const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
-    // const { data: rbl_data, loading: rbl_loading, error: rbl_error } = useQuery(gql(listRBLS));
-    
-    // if(child_data || !child_loading ) {
-    //     //console.log("Loading Current Child List");
-    //     child_data.listChildren.items.map((child) => {
-    //         return currentChildren.push(child)
-    //     });
-    //     console.log("Loading Current Child List, it has " + currentChildren.length + " entries");
-    // };
-    // if(child_error) {                
-    //     setFailures(processFails => [...processFails, "Current Child List Load error: " + child_error]);
-    // };
-
-    // if(sponsor_data || !sponsor_loading ) {
-    //     //console.log("Loading Current Sponsor List");
-    //     sponsor_data.listSponsors.items.map((sponsor) => { 
-    //         return currentSponsors.push(sponsor)
-    //     });
-    //     console.log("Loading Current Sponsor List, it has " + currentSponsors.length + " entries");
-    // };
-    // if(sponsor_error) {                
-    //     setFailures(processFails => [...processFails, "Current Sponsor List Load error: " + sponsor_error]);
-    // };
-
-    // if(rbl_data || !rbl_loading ) {
-    //     //console.log("Loading Current RBL List");
-    //     rbl_data.listRBLS.items.map((sponsor) => { 
-    //         return currentRBLs.push(sponsor)
-    //     });
-    //     console.log("Loading Current RBL List, it has " + currentRBLs.length + " entries");
-    // };
-    // if(rbl_error) {                
-    //     setFailures(processFails => [...processFails, "Current RBL List Load error: " + rbl_error]);
-    // };
-
     const handleFile=(e)=>{
         //console.log("Handle File Event");
         setTypeError(null);
@@ -253,7 +233,7 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
 
         const headerErrors = ValidateHeaders(headers);
         if (headerErrors.length!==0) {
-            processFails.push("Missing columns in the file:");
+            processFails.push("Missing columns in the file " + fileName);
             headerErrors.map((errMsg) => {
                 return processFails.push("  " + errMsg);
             });
@@ -265,7 +245,14 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
         //console.log("excelData is", excelData);
 
         if(excelData===null){ 
-            setFailures(processFails => [...processFails, "No Excel Data"]);
+            setFailures(processFails => [...processFails, "No Excel Data in file: " + fileName]);
+            return;
+        };
+
+        let preProcessErrors = CheckDataForErrors(excelData);
+        if(preProcessErrors.length > 0) {
+            preProcessErrors.push("No Data Was Loaded from file: " + fileName);
+            setFailures(preProcessErrors);
             return;
         };
         
@@ -377,12 +364,6 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
                             " with name: " + child.Firstname + 
                             " was ADDED"
                         );
-                        //------> How to force a re-load of the childList right here?
-                        // refetchQueries: [{ query: gql(listChildren) }], does not work
-                        // refetchQueries: ["ListChildren"], does not work
-                        // awaitRefetchQueries does not work
-                        // childList = GetChildList();
-                        // console.log("childList has " + childList.length + " entries");
                     };
                 //}else{                                     
                     // let updateResult = UpdateChild(childID, child);
@@ -409,12 +390,13 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
                 numFail += 1;
             };            
         });
-        processSummaryMsgs.push((numProcessed) + " Records processed");
+        processSummaryMsgs.push("The File: " + fileName + " was processed.");
+        processSummaryMsgs.push("   " + (numProcessed) + " Records processed");
         
-        processSummaryMsgs.push(numAdd + " Children were Added");
-        processSummaryMsgs.push(numFail + " Children were not added");
-        // processSummaryMsgs.push(numUpdate + " Children Updated");
-        // processSummaryMsgs.push(numUpdateFail + " Children Updates Failed");
+        processSummaryMsgs.push("   " + numAdd + " Children were Added");
+        processSummaryMsgs.push("   " + numFail + " Children were not added");
+        // processSummaryMsgs.push("   " + numUpdate + " Children Updated");
+        // processSummaryMsgs.push("   " + numUpdateFail + " Children Updates Failed");
 
         setSummaryMsgs(processSummaryMsgs);
 
