@@ -14,13 +14,6 @@ import {
     Box,
 } from '@mui/material';
 
-// import { gql, useMutation, useQuery } from '@apollo/client';
-// import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
-//import { Padding } from '@mui/icons-material';
-
-// var currentSponsors = [];
-// var currentRBLs = [];
-// var currentChildren = [];
 
 const getHeaders = (sheet) => {
     var headers = [];
@@ -105,6 +98,12 @@ const CheckDataForErrors = (dataFromSS) => {
     return errors;
 };
 
+const validateRequiredProperties = (child, rowNum) => {
+    if (child.ChildID.length===0) {return "Row " + rowNum + " Does NOT have a 'Red Bag Child ID#' value."};
+    if (child.Firstname.length===0) {return "Row " + rowNum + " Does NOT have a 'First Name' value."};
+    return '';
+};
+
 const hasProperty = (PropertyObject, PropertyName) => {
     if (PropertyObject.hasOwnProperty(PropertyName)) {
         return PropertyObject[PropertyName];
@@ -119,94 +118,175 @@ const extractDigits = (textValue) => {
     const digits = textValue.replace(/\D/g, ''); 
     return digits;
 };
+    
+//---------------------------------------------------- 
+//      Find Functions 
+//----------------------------------------------------
+const findSponsorID_ByPhone = (searchPhone, sponsorList) => {
+    let found = '';
+    sponsorList.map((sponsor) => {
+        if (extractDigits(sponsor.Phone)===searchPhone) {
+            found = sponsor.id;
+        };
+    });    
+    return found;    
+};
+
+const findRBL_ByName = (searchName, rblList) => {
+    let found = '';
+    let name = '';
+    rblList.map((rbl) => {
+        name = (rbl.FirstName + rbl.LastName).toLowerCase();
+        if (name===searchName) {
+            found = rbl.id;
+        };
+    });    
+    return found;    
+};
+
+const findChild_ByChildID = (searchChildID, childList) => {
+    let found = '';        
+    childList.map((child) => {
+        if (child.ChildID===searchChildID) {
+            found = child.id;
+        };
+    });
+    return found;        
+};
 /* 
 ==============================================================================================
                 Component Starts Here
 ================================================================================================*/
-export default function ChildImport({ open, handleClose, GetChildList, sponsorList, rblList, AddChild }){
+export default function ChildImport({ open, handleClose, childList, sponsorList, rblList, AddChild }){
     //console.log("ChildImport Begin");
     let processSummaryMsgs = [];
     let processDetailMsgs = [];
     let processFails = [];
-    let excelData = null;
-    let childList = [];
+    let ExcelFileName = '';
     //Use State
     const [summaryMsgs, setSummaryMsgs] = useState([]);
     const [messages, setMessages] = useState([]);
     const [failures, setFailures] = useState([]);
-    const [excelFile, setExcelFile] = useState(null);
+    const [dataToProcess, setDataToProcess] = useState(null);
     const [typeError, setTypeError] = useState(null);
     const [fileName, setFileName] = useState('');
+    const [fileInfo, setFileInfo] = useState('');
     const [printButton, setPrintButton] = useState('outlined');
-    //const [excelData, setExcelData] = useState(null);
+    const [fileButton, setFileButton] = useState('contained');
+    const [importButton, setImportButton] = useState('outlined');
 
-    //console.log("Prop 'childList'", childList);
-    
-    //---------------------------------------------------- 
-    //      Find Functions 
-    //----------------------------------------------------
-    const findSponsorID_ByPhone = (searchPhone) => {
-        let found = '';
-        sponsorList.map((sponsor) => {
-            if (extractDigits(sponsor.Phone)===searchPhone) {
-                found = sponsor.id;
-            };
-        });    
-        return found;    
-    };
-
-    const findRBL_ByName = (searchName) => {
-        let found = '';
-        let name = '';
-        rblList.map((rbl) => {
-            name = (rbl.FirstName + rbl.LastName).toLowerCase();
-            if (name===searchName) {
-                found = rbl.id;
-            };
-        });    
-        return found;    
-    };
-
-    const findChild_ByChildID = (searchChildID) => {
-        let found = '';        
-        childList.map((child) => {
-            if (child.ChildID===searchChildID) {
-                found = child.id;
-            };
-        });
-        return found;        
-    };
-
+    //-----------------------------------------------------------------
+    //      User Selectes a file from the file picker
+    //-----------------------------------------------------------------
     const handleFile=(e)=>{
-        //console.log("Handle File Event");
-        setTypeError(null);
-        setExcelFile(null);
+        console.log("handleFile, BEGIN");
+        setTypeError("");
+        setDataToProcess(null);
         setFailures([]);
         setMessages([]);
         setSummaryMsgs([]);
-        let fileTypes = ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv'];
-        let selectedFile = e.target.files[0];
-        if(selectedFile){
-            if(fileTypes.includes(selectedFile.type)){
-                setFileName(selectedFile.name);
-                let reader = new FileReader();
-                reader.readAsArrayBuffer(selectedFile);
-                reader.onload=(e)=>{ 
-                    setExcelFile(e.target.result);
-                };
-            }else{
-                setTypeError('File must be an Excel file type (*.xlsx)');
-            }
-        }
+
+        ExcelFileName = '';
+        setPrintButton("outlined");
+        setImportButton("outlined");
+        
+        const fileToProcess = e.target.files[0]        
+        const isValidFile = validateFileType(fileToProcess);        
+        if(isValidFile.length > 0) {
+            console.log("handleFile, not a valid file: " + isValidFile);
+            setTypeError(isValidFile);
+        }else{
+            console.log("handleFile, before loadSpreadsheetFile ");
+            loadSpreadsheetFile(fileToProcess);
+            console.log("handleFile, after loadSpreadsheetFile");
+        };
+        console.log("handleFile, END");
     };
 
-    const handleDialogClose=() => {
-        setExcelFile(null);
-        setFileName('');
-        setTypeError(null);
-        handleClose();
-    }
+    const validateFileType = (selectedFile) => {        
+        let fileTypes = ['application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv'];
+        
+        if(selectedFile){
+            if(fileTypes.includes(selectedFile.type)){
+                ExcelFileName = selectedFile.name
+                setFileInfo("Selected File is '" + ExcelFileName + "'");
+                setFileName(ExcelFileName);                
+                return '';    
+            }else{
+                return "File must be an Excel file type (*.xlsx)";
+            }
+        };
+        
+        return '';
+    };
 
+    const loadSpreadsheetFile = (fileToProcess) => {
+        console.log("1. loadSpreadsheetFile, begin.  Input parm is: ", fileToProcess);
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(fileToProcess);
+        reader.onload=(e)=>{ 
+            console.log("2. loadSpreadsheetFile, reader.onload, about to call validateFileContents");
+            stupidCallBackToContinueLoadingFile(e.target.result);
+        };
+        console.log("3. loadSpreadsheetFile, done.");
+    };
+
+    const stupidCallBackToContinueLoadingFile = (arrayBuffer) => {
+        let result = validateFileContents(arrayBuffer);
+        setTypeError(result);
+    };
+
+    const validateFileContents = (arrayBuffer) => {
+        console.log("validateFileContents BEGIN");
+        if(arrayBuffer){
+            const workbook = XLSX.read(arrayBuffer,{type: 'buffer'});
+            const worksheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[worksheetName];
+    
+            const headers = getHeaders(worksheet);
+            //console.log("validateFileContents, Headers", headers);
+    
+            const headerErrors = ValidateHeaders(headers);
+            if (headerErrors.length!==0) {
+                let errorMsg = "Missing columns in the file... ";
+                headerErrors.map((errMsg) => {
+                    errorMsg += "\n   " + errMsg;
+                });
+                return errorMsg;
+            };
+            
+            console.log("validateFileContents Loading Excel Data");
+            let excelData = XLSX.utils.sheet_to_json(worksheet);
+            console.log("validateFileContents, excelData is", excelData);
+    
+            if(excelData.length===0){ 
+                console.log("validateFileContents No Excel Data");
+                return "No Excel Data in file: " + fileName;
+            };
+    
+            let preProcessErrors = CheckDataForErrors(excelData);
+            if(preProcessErrors.length > 0) {
+                console.log("validateFileContents preProcessErrors (dup ChildIDs in SS)");
+                return "Errors in file: " + preProcessErrors;
+            };
+
+            console.log("validateFileContents No errors");
+
+            setFileButton("outlined");
+            setImportButton("contained");
+            setFileInfo("Ready to import spreadsheet: '" + ExcelFileName + "' with " + excelData.length + " data rows");
+            setDataToProcess(excelData);
+
+            return '';
+
+        }else{
+            return "Problem loading the Spreadsheet File: " + fileName;
+        };
+    };
+
+    //-----------------------------------------------------------------
+    //      User clicks "Import" button
+    //-----------------------------------------------------------------
     const handleImport=() => {
         //console.log("Handle Import Event");
         processDetailMsgs = [];
@@ -214,49 +294,9 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
         processFails = [];
         var numProcessed = 0;
         var numAdd = 0;
-        // var numAddFail = 0;
-        // var numUpdate = 0;
-        // var numUpdateFail = 0;
         var numFail = 0;
 
-        if(excelFile===null){ 
-            setFailures(processFails => [...processFails, "No Excel File"]);
-            return
-        };
-        
-        const workbook = XLSX.read(excelFile,{type: 'buffer'});
-        const worksheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[worksheetName];
-
-        const headers = getHeaders(worksheet);
-        //console.log("Headers", headers);
-
-        const headerErrors = ValidateHeaders(headers);
-        if (headerErrors.length!==0) {
-            processFails.push("Missing columns in the file " + fileName);
-            headerErrors.map((errMsg) => {
-                return processFails.push("  " + errMsg);
-            });
-            setFailures(processFails);
-            return;
-        };
-
-        excelData = XLSX.utils.sheet_to_json(worksheet);
-        //console.log("excelData is", excelData);
-
-        if(excelData===null){ 
-            setFailures(processFails => [...processFails, "No Excel Data in file: " + fileName]);
-            return;
-        };
-
-        let preProcessErrors = CheckDataForErrors(excelData);
-        if(preProcessErrors.length > 0) {
-            preProcessErrors.push("No Data Was Loaded from file: " + fileName);
-            setFailures(preProcessErrors);
-            return;
-        };
-        
-        excelData.map((row, index) => {
+        dataToProcess.map((row, index) => {
             //console.log("row", row);
 
             let child = ConvertDataRow(row);
@@ -266,50 +306,36 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
             let sponsorID = '';
             let rblID = '';
             let searchName = '';
-            let childError = false;
+            let fatalError = false;
+            let result = '';
             
             numProcessed += 1;
             let rowNum = index +2;
             console.log("Processing ChildID: " + child.ChildID + ", row #" + rowNum);
-            
-            if (child.ChildID.length===0) {
-                console.log("no ChildID");
-                childError = true;
-                processFails.push(
-                    "Row " + rowNum + 
-                    " Does NOT have a 'Red Bag Child ID#' value."
-                );
-            };
 
-            if (child.Firstname.length===0) {
-                console.log("no first name");
-                childError = true;
-                processFails.push(
-                    "ChildID: " + child.ChildID + 
-                    " at row " + rowNum + 
-                    " Does NOT have a 'First Name' value."
-                );
-            };
-
-            childID = findChild_ByChildID(child.ChildID);
-            if (childID.length > 0 ) {
-                console.log("ChildID already exists");
-                childError = true;
-                processFails.push(
-                    "ChildID: " + child.ChildID + 
-                    " at row " + rowNum + 
-                    " Already exists in the database! Updates are NOT ALLOWED."
-                );
-
+            result = validateRequiredProperties(child);
+            if(result.length > 0) {
+                processFails.push(result);
+                fatalError = true;
+            }else{
+                childID = findChild_ByChildID(child.ChildID, childList);
+                if (childID.length > 0 ) {
+                    fatalError = true;
+                    processFails.push(
+                        "ChildID: " + child.ChildID + 
+                        " at row " + rowNum + 
+                        " Already exists in the database! Updates are NOT ALLOWED."
+                    );
+                };
             };
 
             if (child.SponsorPhone.length===0) {
                 sponsorID = '';
             }else{
-                sponsorID = findSponsorID_ByPhone(child.SponsorPhone);
+                sponsorID = findSponsorID_ByPhone(child.SponsorPhone, sponsorList);
                 if (sponsorID.length===0) {
                     console.log("No sponsor with that phone number");
-                    childError = true;
+                    fatalError = true;
                     processFails.push(
                         "ChildID: " + child.ChildID + 
                         " at row " + rowNum + 
@@ -325,10 +351,9 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
                 rblID = '';
             }else{
                 searchName = child.RBL.replace(/\s/g, '').toLowerCase();
-                rblID = findRBL_ByName(searchName);                
+                rblID = findRBL_ByName(searchName, rblList);                
                 if (rblID.length===0) {
-                    console.log("No RBL");
-                    childError = true;
+                    fatalError = true;
                     processFails.push(
                         "ChildID: " + child.ChildID + 
                         " at row " + rowNum + 
@@ -342,11 +367,12 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
 
             //console.log("Final Child Data looks like this", child);
 
-            if (!childError) {          
+            if (fatalError ) {
+                //if we already have identified a bad row, do not try to insert it.
+                numFail += 1;
+            }else{
                 if (childID==='') {
-                    console.log("ChildImport: about to call ChildScreen.handleAddChild");
                     let addResult = AddChild(child);
-                    console.log("ChildImport: after call to ChildScreen.handleAddChild. Result: " + addResult);
                     if (addResult.length > 0 ) {
                         console.log("Add Failed");
                         numFail += 1;
@@ -383,13 +409,10 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
                     //         " was updated"
                     //     );
                     // };
-                
                 };
-            }else{  
-                //if we already have identified a bad row, do not try to insert it.
-                numFail += 1;
-            };            
-        });
+            };
+        }); //end if data processing loop
+
         processSummaryMsgs.push("The File: " + fileName + " was processed.");
         processSummaryMsgs.push("   " + (numProcessed) + " Records processed");
         
@@ -402,14 +425,19 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
 
         setMessages(processDetailMsgs);
         setFailures(processFails);
+        setFileInfo(fileName + " was imported");
         setPrintButton("contained");
+        setImportButton("outlined");
         //console.log("End of Handle Import Event");
     };
 
+    //-----------------------------------------------------------------
+    //      Render support stuff
+    //-----------------------------------------------------------------
     const showSummaryMessages = () => {
         //console.log("showSummaryMessages begin");
         if (summaryMsgs.length===0) {
-            return <Alert severity="success">No Summary Yet</Alert>
+            return <Alert severity="success">No Import Summary Messages</Alert>
         }else{
             var showMsgs = summaryMsgs.map((msg, index) => {
                 return(<Typography key={index}>{msg}</Typography>);
@@ -420,7 +448,7 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
     const showDetailMessages = () => {
         //console.log("showDetailMessages begin");
         if (messages.length===0) {
-            return <Alert severity="success">There Are No Messages</Alert>
+            return <Alert severity="success">No Import Detail Messages</Alert>
         }else{
             var showMsgs = messages.map((msg, index) => {
                 return(<Typography key={index}>{msg}</Typography>);
@@ -430,7 +458,7 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
     };
     const showFailures = () => {
         if (failures.length===0){
-            return <Alert severity="success">There Are No Failures</Alert>
+            return <Alert severity="success">No Import Failures</Alert>
         }else{            
             var showMsgs = failures.map((msg, index) => {
                 return(<Typography key={index}>{msg}</Typography>);
@@ -446,16 +474,32 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
 
     const print = () => {window.print()};
 
+    //-----------------------------------------------------------------
+    //      User closes import dialog
+    //-----------------------------------------------------------------
+    const handleDialogClose=() => {
+        setDataToProcess(null);
+        setFileName('');
+        setTypeError(null);
+        handleClose();
+    }
+
+    /* 
+    ==============================================================================================
+                    User Interface
+    ================================================================================================*/
     return(
         
         <React.Fragment>
             <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth="xl">
-            <DialogTitle>Please Select an Excel File of Child Information</DialogTitle>
+            <DialogTitle>Import Child Informaton</DialogTitle>
             <DialogContent>
 
             <Stack spacing={2}>
-                {fileName&&(
-                    <h3>Ready to Import Child File: {fileName}</h3>
+                {fileInfo&&(
+                    <div>
+                        <h3>{fileInfo}</h3>
+                    </div>
                 )}
 
                 <Box 
@@ -468,7 +512,7 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
                         borderRadius: 1,
                     }}
                 >
-                    <Button variant="contained" component="label">
+                    <Button variant={fileButton} component="label">
                         Select File
                         <input type="file" onChange={handleFile} hidden/>
                     </Button>
@@ -503,7 +547,7 @@ export default function ChildImport({ open, handleClose, GetChildList, sponsorLi
             </DialogContent>
             <DialogActions>
                 <Button variant="outlined" onClick={handleDialogClose}>Cancel</Button>
-                <Button variant="contained" onClick={handleImport}>Import</Button>
+                <Button variant={importButton} onClick={handleImport}>Import</Button>
             </DialogActions>
             </Dialog>
         </React.Fragment>

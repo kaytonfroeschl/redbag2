@@ -109,7 +109,7 @@ export default function ChildrenScreen () {
   if(child_loading) {console.log("Child List is loading")};  
   if(child_error) {console.log("Child List Load error: " + rbl_error)};
   if(child_data && !child_loading) {
-    console.log("We have child data, rebuilding childList", child_data.listChildren.items);
+    //console.log("We have child data, rebuilding childList", child_data.listChildren.items);
     child_data.listChildren.items.map((kid) => {
       
       let rblName = '';
@@ -290,7 +290,7 @@ export default function ChildrenScreen () {
   }
 
   const handleImportClose = () => {
-    console.log("handleImportClose");
+    //console.log("handleImportClose");
     setImportOpen(false);
     child_Refetch();
   }
@@ -302,7 +302,7 @@ export default function ChildrenScreen () {
         <ChildImport 
           open={importOpen} 
           handleClose={handleImportClose}
-          GetChildList={getChildLIst}
+          childList={child_data.listChildren.items}
           sponsorList={sponsor_data.listSponsors.items}
           rblList={rbl_data.listRBLS.items}
           AddChild={handleAddChild}
