@@ -162,6 +162,8 @@ export default function ChildrenScreen () {
             ShoeSize: childData.ShoeSize, 
             Wishlist: childData.Wishlist, 
             Info: childData.Info,
+            rblID: childData.rblID,
+            sponsorID: childData.sponsorID,
           } 
         }, 
         //refetchQueries: [{ query: gql(listChildren) }],

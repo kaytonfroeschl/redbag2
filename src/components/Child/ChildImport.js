@@ -136,7 +136,8 @@ const findRBL_ByName = (searchName, rblList) => {
     let found = '';
     let name = '';
     rblList.map((rbl) => {
-        name = (rbl.FirstName + rbl.LastName).toLowerCase();
+        name = (rbl.FirstName.replace(/\s/g,'') + rbl.LastName.replace(/\s/g,'')).toLowerCase();
+        console.log("find RBL, Name='" + name + "'");
         if (name===searchName) {
             found = rbl.id;
         };
@@ -365,7 +366,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
                 };                
             };
 
-            //console.log("Final Child Data looks like this", child);
+            console.log("Final Child Data looks like this", child);
 
             if (fatalError ) {
                 //if we already have identified a bad row, do not try to insert it.
