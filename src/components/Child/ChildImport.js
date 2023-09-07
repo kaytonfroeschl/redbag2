@@ -137,7 +137,6 @@ const findRBL_ByName = (searchName, rblList) => {
     let name = '';
     rblList.map((rbl) => {
         name = (rbl.FirstName.replace(/\s/g,'') + rbl.LastName.replace(/\s/g,'')).toLowerCase();
-        console.log("find RBL, Name='" + name + "'");
         if (name===searchName) {
             found = rbl.id;
         };
