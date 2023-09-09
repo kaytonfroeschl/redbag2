@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { listSponsors } from '../graphql/queries';
+import { createSponsor, deleteSponsor } from '../graphql/mutations';
 import { styled } from '@mui/material/styles';
 import { Paper, Button, Box } from '@mui/material';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
@@ -9,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CreateSponsorForm from '../components/Sponsor/CreateSponsorForm';
 import SponsorSideDrawer from '../components/Sponsor/SponsorSideDrawer';
 import SponsorImport from '../components/Sponsor/SponsorImport';
+import DeleteSponsor from '../components/Sponsor/DeleteSponsor';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -91,10 +93,8 @@ export default function SponsorScreen () {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-
   const sponsorArray = [];
   const [currSponsor, setCurrSponsor] = useState({});
-
   const [customWidth, setCustomWidth] = React.useState('100%');
 
 /* ==============================================================================================
@@ -111,38 +111,10 @@ export default function SponsorScreen () {
     const renderedSponsors = createRows(sponsorArray);
     //console.log("Rendered Rows Array: ", renderedSponsors);
 
-/* ==============================================================================================
-                                      Resize Drawer Callback
+/* 
+==============================================================================================
+                                      Side Drawer (Sponsor Edit)
 ================================================================================================*/
-  const drawerCallback = () => {
-    if(customWidth == '100%'){
-        return setCustomWidth('70%')
-    } else {
-        return setCustomWidth('100%')
-    }
-  }
-
-  useEffect(() => {
-      if(editOpen){
-          drawerCallback()
-      }
-    }, [editOpen])
-
-
-/* ==============================================================================================
-                                      Handle Functions
-================================================================================================*/
-  const handleNSOpen = () => {
-    setNSOpen(true);
-  }
-
-  const handleNSClose = (event, reason) => {
-    if (reason && reason == "backdropClick"){
-        return;
-    }
-    setNSOpen(false);
-  }
-
   const handleEditOpen = (row) => {
     if (row===null) {
       setCurrSponsor(0);
@@ -152,40 +124,177 @@ export default function SponsorScreen () {
     }
   }
 
+  const openSideDrawer = () => {
+    if (editOpen) {
+      return (
+        //<SponsorSideDrawer open={editOpen} handleClose={handleSpecialEditClose} sponsor_id={currSponsor.id} />
+        <SponsorSideDrawer 
+          sponsor_id={currSponsor.id}
+          open={editOpen} 
+          handleClose={handleEditClose}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+
   const handleEditClose = () => {
     setEditOpen(false);
-  } 
-
-  const handleImportOpen = () => {
-    console.log("handleImport Open")
-    setImportOpen(true);
+    
+    if(customWidth === '100%'){
+      return setCustomWidth('70%');
+    } else {
+        return setCustomWidth('100%');
+    };
   }
 
-  const handleImportClose = () => {
-    setImportOpen(false);
+  // useEffect(() => {
+  //   if(editOpen){
+  //       drawerCallback()
+  //   }
+  // }, [editOpen])
+/* 
+================================================================================================
+                                      Sponsor Create
+================================================================================================*/
+  const openCreateSponsor = () => {    
+    if(NSOpen) {
+      console.log("About to open CreateSponsorForm");
+      return <CreateSponsorForm open={NSOpen} handleClose={handleNSClose} />
+    }else{
+      return <></>
+    }
   }
 
-  const handleSpecialEditClose = () => {
-    setEditOpen(false);
-    drawerCallback();
+  const handleNSOpen = () => {
+    setNSOpen(true);
+  }
+
+  const handleNSClose = (event, reason) => {
+    if (reason && reason === "backdropClick"){
+        return;
+    }
+    setNSOpen(false);
+  }
+  /* 
+  ================================================================================================
+                                        Sponsor Delete
+  ================================================================================================*/
+    const openDeleteSponsor = () => {
+    if (deleteOpen) {
+      console.log("openDeleteSponsor open it")
+      return (
+        <DeleteSponsor 
+          open={deleteOpen}
+          sponsor={currSponsor}
+          deleteSponsor={sponsorDelete}
+          handleClose={handleDeleteClose}
+        />
+      )
+    }else{
+      console.log("openDeleteSponsor Exit");
+      return (<></>);
+    }
   }
 
   const handleDeleteOpen = (row) => {
-    //setCurrentSponsor(row);
+    //console.log("handleDeleteOpen ", row);
+    setCurrSponsor(row);
     setDeleteOpen(true);
   }
 
   const handleDeleteClose = (event, reason) => {
-    if(reason && reason == 'backdropClick'){
+    if(reason && reason === 'backdropClick'){
         return;
     }
     setDeleteOpen(false);
   }
 
+  //---------------- Delete Sponsor ----------------
+  const [deleteSponsorMutation, {data: sponsorDelData, loading: sponsorDelLoading, error: sponsorDelError }] = useMutation(gql(deleteSponsor));
+  if(sponsorDelLoading) {console.log("Loading Delete Sponsor Mutation")};
+  if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
 
+  const sponsorDelete = () => {
+    console.log("sponsorDelete, about to call deleteSponsorMutation for sponsor ", currSponsor);
+    // try{
+    //   const response = deleteSponsorMutation({variables: {input: {id: currSponsor.id}}});
+    //   console.log("Delete Sponsor response: " + response);
+    // }catch(error) {
+    //   console.log("Delete Sponsor Mutation error ", error);
+    //   return "Delete Sponsor failed with error: " + error;
+    // };        
+    return "";
+  }
+/* 
+================================================================================================
+                                      Import Sponsor Spreadsheet
+================================================================================================*/
+  const handleImportOpen = () => {
+    //console.log("handleImportOpen");
+    setImportOpen(true);
+  };
+
+  const handleImportClose = () => {
+    //console.log("handleImportClose");
+    setImportOpen(false);
+    sponsor_Refetch();
+  };
+  
+  const openImportDialog = () => {
+    if (importOpen) {
+      return (
+        <SponsorImport 
+          open={importOpen}
+          handleClose={handleImportClose}
+          AddSponsor={handleSponsorAdd}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+
+  //---------------- List Sponsors ----------------
+  const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error, refetch: sponsor_Refetch } = useQuery(gql(listSponsors));
+  if(sponsor_loading) {console.log("Sponsor List is loading")};  
+  if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
+
+  //---------------- Add Sponsor ----------------
+  const [addSponsorMutation, {data: sponsorAddData, loading: sponsorAddLoading, error: sponsorAddError }] = useMutation(gql(createSponsor));
+  if(sponsorAddLoading) {console.log("Loading Sponsor Add Mutation")};
+  if(sponsorAddError) {console.log( "Create Sponsor Mutation error: " + sponsorAddError)};
+
+  const handleSponsorAdd = (sponsorData) => {
+    console.log("handleSponosorAdd, about to call addSponsorMutation.", sponsorData);
+    try{
+        const response = addSponsorMutation({
+        variables: { 
+          input: { 
+            FirstName: sponsorData.FirstName,
+            LastName: sponsorData.LastName,
+            Phone: "",
+            Email: "",
+            Address: sponsorData.Address,
+            YearsActive: sponsorData.YearsActive,
+            Institution: sponsorData.Institution,
+          } 
+        }, 
+      });
+    }catch(error) {
+      console.log("Add Sponsor Mutation error ", error);
+      return "Create New Sponsor failed with error: " + error;
+    };        
+    return "";
+  };
+
+/* 
+================================================================================================
+                                      User Interface
+================================================================================================*/
   return (
     <React.Fragment>
-      
      
     <Box 
         sx={{ 
@@ -265,9 +374,10 @@ export default function SponsorScreen () {
             />
         </Paper>
       </Main>
-      <CreateSponsorForm open={NSOpen} handleClose={handleNSClose} />
-      <SponsorSideDrawer open={editOpen} handleClose={handleSpecialEditClose} sponsor_id={currSponsor.id} />
-      <SponsorImport open={importOpen} handleClose={handleImportClose} />
+      {openCreateSponsor()}
+      {openSideDrawer()}
+      {openDeleteSponsor()}
+      {openImportDialog()}
 
     </React.Fragment>
   )

@@ -185,6 +185,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         setFailures([]);
         setMessages([]);
         setSummaryMsgs([]);
+        setFileName("");
 
         ExcelFileName = '';
         setPrintButton("outlined");
@@ -261,7 +262,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
     
             if(excelData.length===0){ 
                 console.log("validateFileContents No Excel Data");
-                return "No Excel Data in file: " + fileName;
+                return "No Excel Data in file";
             };
     
             let preProcessErrors = CheckDataForErrors(excelData);
@@ -280,7 +281,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             return '';
 
         }else{
-            return "Problem loading the Spreadsheet File: " + fileName;
+            return "Problem loading the Spreadsheet File";
         };
     };
 

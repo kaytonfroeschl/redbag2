@@ -256,7 +256,7 @@ export default function ChildrenScreen () {
       }
     }, [drawerOpen])
   
-    const handleDrawerOpen = (data) => {
+  const handleDrawerOpen = (data) => {
     setCurrentKid(data);
     setDrawerOpen(true);
   }
