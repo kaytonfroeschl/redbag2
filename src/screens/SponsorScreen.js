@@ -101,7 +101,7 @@ export default function SponsorScreen () {
                                       Populating Grid Rows
 ================================================================================================*/
     
-    const { loading, error, data } = useQuery(gql(listSponsors)); 
+    const { loading, error, data, refetch: sponsor_Refetch } = useQuery(gql(listSponsors)); 
     if(data || !loading ) {
       const sponsorList = data.listSponsors.items.map((sponsor) => {
           return sponsorArray.push(sponsor)
@@ -205,9 +205,12 @@ export default function SponsorScreen () {
   }
 
   const handleDeleteClose = (event, reason) => {
-    if(reason && reason === 'backdropClick'){
-        return;
-    }
+    // if(reason && reason === 'backdropClick'){
+    //     return;
+    // }
+    //sponsor_Refetch();
+    setCurrSponsor(null);
+    console.log("handleDeleteClose")
     setDeleteOpen(false);
   }
 
@@ -217,14 +220,15 @@ export default function SponsorScreen () {
   if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
 
   const sponsorDelete = () => {
-    console.log("sponsorDelete, about to call deleteSponsorMutation for sponsor ", currSponsor);
-    // try{
-    //   const response = deleteSponsorMutation({variables: {input: {id: currSponsor.id}}});
-    //   console.log("Delete Sponsor response: " + response);
-    // }catch(error) {
-    //   console.log("Delete Sponsor Mutation error ", error);
-    //   return "Delete Sponsor failed with error: " + error;
-    // };        
+    try{
+      const response = deleteSponsorMutation({variables: {input: {id: currSponsor.id}}});
+      sponsor_Refetch();
+      setCurrSponsor(null);
+      setDeleteOpen(false);
+    }catch(error) {
+      console.log("Delete Sponsor Mutation error ", error);
+      return "Delete Sponsor failed with error: " + error;
+    };
     return "";
   }
 /* 
@@ -256,10 +260,10 @@ export default function SponsorScreen () {
     }
   }
 
-  //---------------- List Sponsors ----------------
-  const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error, refetch: sponsor_Refetch } = useQuery(gql(listSponsors));
-  if(sponsor_loading) {console.log("Sponsor List is loading")};  
-  if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
+  // //---------------- List Sponsors ----------------
+  // const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error, refetch: sponsor_Refetch } = useQuery(gql(listSponsors));
+  // if(sponsor_loading) {console.log("Sponsor List is loading")};  
+  // if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
 
   //---------------- Add Sponsor ----------------
   const [addSponsorMutation, {data: sponsorAddData, loading: sponsorAddLoading, error: sponsorAddError }] = useMutation(gql(createSponsor));
