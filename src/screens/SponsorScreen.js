@@ -93,23 +93,20 @@ export default function SponsorScreen () {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-  const sponsorArray = [];
   const [currSponsor, setCurrSponsor] = useState({});
   const [customWidth, setCustomWidth] = React.useState('100%');
 
 /* ==============================================================================================
                                       Populating Grid Rows
 ================================================================================================*/
-    
+    const sponsorArray = [];
     const { loading, error, data, refetch: sponsor_Refetch } = useQuery(gql(listSponsors)); 
     if(data || !loading ) {
       const sponsorList = data.listSponsors.items.map((sponsor) => {
           return sponsorArray.push(sponsor)
       })
     }
-    //console.log("Sponsor Array: ", sponsorArray)
     const renderedSponsors = createRows(sponsorArray);
-    //console.log("Rendered Rows Array: ", renderedSponsors);
 
 /* 
 ==============================================================================================
@@ -183,7 +180,6 @@ export default function SponsorScreen () {
   ================================================================================================*/
     const openDeleteSponsor = () => {
     if (deleteOpen) {
-      console.log("openDeleteSponsor open it")
       return (
         <DeleteSponsor 
           open={deleteOpen}
@@ -193,7 +189,6 @@ export default function SponsorScreen () {
         />
       )
     }else{
-      console.log("openDeleteSponsor Exit");
       return (<></>);
     }
   }
@@ -205,12 +200,10 @@ export default function SponsorScreen () {
   }
 
   const handleDeleteClose = (event, reason) => {
-    // if(reason && reason === 'backdropClick'){
-    //     return;
-    // }
-    //sponsor_Refetch();
-    setCurrSponsor(null);
-    console.log("handleDeleteClose")
+    if(reason && reason === 'backdropClick'){
+        return;
+    }
+    console.log("handleDeleteClose (user cancel delete)")
     setDeleteOpen(false);
   }
 
@@ -222,9 +215,11 @@ export default function SponsorScreen () {
   const sponsorDelete = () => {
     try{
       const response = deleteSponsorMutation({variables: {input: {id: currSponsor.id}}});
-      sponsor_Refetch();
       setCurrSponsor(null);
       setDeleteOpen(false);
+      //console.log("Delete Sponsor Mutation response: ", response);
+      sponsor_Refetch();
+      console.log("Delete Sponsor Mutation complete, num sponsors in renderedSponsors list is: " + renderedSponsors.length);
     }catch(error) {
       console.log("Delete Sponsor Mutation error ", error);
       return "Delete Sponsor failed with error: " + error;
