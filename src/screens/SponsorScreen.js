@@ -102,11 +102,14 @@ export default function SponsorScreen () {
     const sponsorArray = [];
     const { loading, error, data, refetch: sponsor_Refetch } = useQuery(gql(listSponsors)); 
     if(data || !loading ) {
+      console.log("Part 1: Sponsor Data about to build sponsorArray. data.listSponsors.items", data.listSponsors.items)
       const sponsorList = data.listSponsors.items.map((sponsor) => {
           return sponsorArray.push(sponsor)
       })
+      console.log("Part 2: Sponsor Data sponsorArray", sponsorArray)
     }
     const renderedSponsors = createRows(sponsorArray);
+    console.log("Part 3: renderedSponsors built.  renderedSponsors", renderedSponsors)
 
 /* 
 ==============================================================================================
