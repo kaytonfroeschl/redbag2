@@ -180,11 +180,17 @@ export default function ChildrenScreen () {
     if(child_loading) {return <div>Child List is loading</div>};  
     if(child_error) {return <div>Child List Load error: " + {rbl_error}</div>};    
     if(child_data.listChildren.items.length===0) {return <div>There are no children to list</div>};
+    console.log("Children ", child_data.listChildren.items);
     return (
       <DataGrid
         rows= {child_data.listChildren.items}
         columns={[
-          { field: 'RBLName',     headerName: 'RBL', flex: .8},
+          { field: 'RBL',         headerName: 'RBL', flex: .8,
+            valueGetter: (params) => {
+              if(params.row.RBL) {return(params.row.RBL.LastName);}
+              return "";           
+            }
+          },
           { field: 'ChildID',     headerName: 'ID', flex: .4 },
           { field: 'Firstname',   headerName: 'First Name', flex: .5 },
           { field: 'Gender',      headerName: 'Gender', flex: .2 },
@@ -193,7 +199,16 @@ export default function ChildrenScreen () {
           { field: 'PantSize',    headerName: 'Pant Size', flex: .5 },
           { field: 'ShoeSize',    headerName: 'Shoe Size', flex: .5 },
           { field: 'Siblings',    headerName: 'Siblings', flex: .5 },
-          { field: 'SponsorInfo', headerName: 'Sponsor', flex: 1.3},
+          { field: 'Sponsor', headerName: 'Sponsor', flex: 1.3,
+            valueGetter: (params) => {
+              if(params.row.Sponsor) {
+                return(
+                  params.row.Sponsor.FirstName + " " + params.row.Sponsor.LastName + " " + params.row.Sponsor.Institution
+                );
+              }
+              return "";
+            }
+          },
           { field: 'actions',     headerName: "More Actions", flex: .7,
               renderCell: (params) => {
                 return (
@@ -202,8 +217,8 @@ export default function ChildrenScreen () {
                   </Button>)}
           }
         ]}
-          initialState={{pagination: {paginationModel: { page: 0, pageSize: 10 },},}}
-          pageSizeOptions={[12]}
+          // initialState={{pagination: {paginationModel: { page: 0, pageSize: 10 },},}}
+          // pageSizeOptions={[12]}
           slots={{ toolbar: QuickSearchToolbar }}
       />
     )
