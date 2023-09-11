@@ -13,7 +13,6 @@ import {
 } from '@mui/material';
 
 export default function DeleteChild({ open, handleClose, child }) {
-    //console.log("THIS IS THE CHILD TO DELETE", child)
    /*const [deleteChildMutation] = useMutation(deleteChild);
 
     const handleDelete = async () => {

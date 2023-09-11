@@ -9,8 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import ClearIcon from '@mui/icons-material/Clear';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import EditSponsorForm from './EditSponsorForm';
-import DeleteSponsor from './DeleteSponsor';
+import { DataGrid } from '@mui/x-data-grid';
 
 /* =============================== Drawer Styling ================================================*/
 const drawerWidth = 360;
@@ -43,13 +42,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
   }));
 
-  export default function SponsorSideDrawer({ open, handleClose, sponsor_id }){
+  export default function SponsorSideDrawer({ open, handleClose, sponsor }){
    /* ==============================================================================================
                                         Variables
    ==============================================================================================*/
    const [editOpen, setEditOpen] = useState(false);
    const [deleteOpen, setDeleteOpen] = useState(false);
-   let passedSponsor = {}
 
    /* ==============================================================================================
                                         Handle Functions
@@ -76,48 +74,27 @@ const DrawerHeader = styled('div')(({ theme }) => ({
         setDeleteOpen(false);
     }
 
-    function handleSponsorData(data) {
-        if (data) {
-            return {
-              passedAddress: data.Address,
-              passedEmail: data.Email,
-              passedName: data.FirstName + " " + data.LastName,
-              passedInst: data.Institution,
-              passedPhone: data.Phone,
-              passedYA: data.YearsActive,
-              id: data.id  
-            }
-        } else {
-            return {
-                passedAddress: null,
-                passedEmail: null,
-                passedName: null,
-                passedInst: null,
-                passedPhone: null,
-                passedYA: null,
-                id: null,
-            }
+    const uiChildList = () => {
+        if(sponsor.Children.items.length === 0 ) {
+            return (<div>No Children</div>)
+        }else{
+            return (
+                <DataGrid
+                    rows = {sponsor.Children.items}
+                    columns={ [
+                        { field: 'ChildID',   headerName: 'First Name', flex: 1},
+                        { field: 'Firstname',    headerName: 'Last Name', flex: 1},
+                        { field: 'RBL.LastName', headerName: 'RBL', flex: 1},
+                    ]}
+                />
+            )
         }
-    }
+    };
 
-    /* ==============================================================================================
-                                Apollo Call to Query Current Child
-                                And setting Child data for Edit Child COmponent
+/* 
+===============================================================================================
+                                User Interface
 ================================================================================================*/  
-    const { loading, error, data } = useQuery(gql(getSponsor), {
-        variables : { id: sponsor_id },
-    }); 
-
-    if(loading){
-        return <div>Loading...</div>
-    }
-    if(error) {
-        console.error(error.message)
-    }
-    //console.log(data)
-    passedSponsor = handleSponsorData(data ? data.getSponsor : null);
-    //console.log("passed Sponsor: ", passedSponsor)
-
     return (
         <React.Fragment>
             <Drawer
@@ -155,20 +132,21 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                 </Typography>
             </DrawerHeader>
             <Divider />
+
             <Typography 
                 sx={{
                     mt:1,
                     ml: 1,
                     fontWeight:'bold',
                     fontSize: 24,
-                }}>{data ? passedSponsor.passedName : "N/A"}</Typography>
+                }}>{sponsor ? sponsor.FirstName + " " + sponsor.LastName : "N/A"}</Typography>
                 <Typography 
                 sx={{
                     mt:1,
                     ml: 1,
                     fontSize: 20,
                     fontStyle:'oblique'
-                }}>{data ? passedSponsor.passedInst : " "}</Typography>
+                }}>{sponsor ? sponsor.Institution : " "}</Typography>
                 <Typography
                     style={{
                         color:'#01579b'
@@ -189,58 +167,45 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                     sx={{
                         display: 'flex',
                         flexDirection: 'column',
-                        mt: 1
-                    }}
-                >
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            mt: 1,
-                            ml: 1
-                        }}
-                    >
-                        <Typography sx={{pb: 1}}>Email&nbsp;&nbsp;</Typography>
-                        <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? passedSponsor.passedEmail : "N/A"}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            mt: 1,
-                            ml: 1
-                        }}
-                    >
-                        <Typography sx={{pb: 1}}>Phone&nbsp;&nbsp;</Typography>
-                        <Typography sx={{fontWeight: 'bold',pb: 1}}>{data ? passedSponsor.passedPhone : "N/A"}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            mt: 1,
-                            ml: 1
-                        }}
-                    >
-                        <Typography sx={{pb: 1}}>Address&nbsp;&nbsp;</Typography>
-                        <Typography sx={{fontWeight: 'bold',pb: 5}}>{data ? passedSponsor.passedAddress : "N/A"}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            mt: 1,
-                            ml: 1
-                        }}
-                    >
-                        <Typography sx={{pb: 1}}>Years Active&nbsp;&nbsp;</Typography>
-                        <Typography sx={{fontWeight: 'bold',pb: 4}}>{data ? passedSponsor.passedYA : "N/A"}</Typography>
-                    </Box>
-
-
-
+                    }}>
+                    <Typography sx={{pb: 1}}>Email</Typography>
+                    <Typography sx={{pb: 1}}>Phone</Typography>
+                    <Typography sx={{pb: 8}}>Address</Typography>
+                    <Typography sx={{pb: 4}}>Years Active</Typography>
                 </Box>
-            <Box>
+                <Box
+                sx={{
+                    mt: 1,
+                    ml: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                }}>
+                    <Typography sx={{fontWeight: 'bold', pb: 1}}>{sponsor ? sponsor.Email : "N/A"}</Typography>
+                    <Typography sx={{fontWeight: 'bold',pb: 1}}>{sponsor ? sponsor.Phone : "N/A"}</Typography>
+                    <Typography sx={{fontWeight: 'bold',pb: 5}}>{sponsor ? sponsor.Address : "N/A"}</Typography>
+                    <Typography sx={{fontWeight: 'bold',pb: 4}}>{sponsor ? sponsor.YearsActive : "N/A"}</Typography>
+                </Box>
+            </Box>
+            <Typography
+                style={{
+                    color:'#01579b'
+                }}
+                sx={{
+                    ml: 1,
+                    mt: 1,
+                    fontWeight: 500
+                }}>Children Sponsored</Typography>
+            <Divider
+                sx={{
+                    borderBottomWidth: 1.5
+                }}
+                style={{
+                    background:'#01579b'
+                }}/>
+
+            <Typography sx={{mt: 1, ml: 1, }}>{uiChildList()}</Typography>
+
+            <Box sx={{textAlign:'center'}}>
                 <Button 
                     variant="contained"
                     sx={{

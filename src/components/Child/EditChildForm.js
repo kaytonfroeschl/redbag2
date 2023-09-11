@@ -20,7 +20,6 @@ import {
 
 
 export function EditChildForm ({ open, handleClose, child }){
-    console.log("EDIT Child: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -225,7 +224,6 @@ export function EditChildForm ({ open, handleClose, child }){
                 variables: { input: { id: form_id, Firstname: form_name, ChildID: form_childid, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike, rblID: RBLDatabaseID, sponsorID: sponsorDatabaseID} },
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
-            console.log("Mutation response: ", response);
             handleClose();
         } catch (error) {
             console.error("Mutation error: ", error);

@@ -14,7 +14,8 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
   headers: {
     'X-Api-Key': "da2-w644unwyf5horee6lorhb5wive"
-  }
+  },
+  connectToDevTools: true
 });
 
 
