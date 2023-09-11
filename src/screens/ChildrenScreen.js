@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { listChildren } from '../graphql/queries';
 import { gql, useQuery } from '@apollo/client';
-import { styled } from '@mui/material/styles';
 import { Paper, Button, Box } from '@mui/material';
+import { darken, lighten, styled } from '@mui/material/styles';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateChildForm from '../components/Child/CreateChildForm';
 import ChildSideDrawer from '../components/Child/ChildSideDrawer';
+
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -75,11 +76,13 @@ function QuickSearchToolbar() {
 ================================================================================================*/
 
 function createRows(array) {
+  console.log("ARRAY: ", array)
   const kidArr = array.map((kid) => {
-    if(kid.Sponsor !== null){
+    if(kid.Sponsor !== null && kid.RBL !== null){
+      //both filled
       return {
         id: kid.id,
-        rbl: "",
+        rbl: kid.RBL.FirstName + " " + kid.RBL.LastName,
         childid: kid.ChildID,
         age: kid.Age,
         name: kid.Firstname,
@@ -93,6 +96,44 @@ function createRows(array) {
         addInfo: kid.Info,
         sponsorName: kid.Sponsor.FirstName + " " + kid.Sponsor.LastName,
         sponsorPhone: kid.Sponsor.Phone
+      }
+    } else if(kid.Sponsor !== null && kid.RBL === null){
+      //sponsor not null rbl is null
+      return {
+        id: kid.id,
+        rbl: '',
+        childid: kid.ChildID,
+        age: kid.Age,
+        name: kid.Firstname,
+        gender: kid.Gender,
+        race: kid.Race,
+        shirtsize: kid.ShirtSize,
+        pantsize: kid.PantSize,
+        shoesize: kid.ShoeSize,
+        siblings: kid.Siblings,
+        wishlist: kid.Wishlist,
+        addInfo: kid.Info,
+        sponsorName: kid.Sponsor.FirstName + " " + kid.Sponsor.LastName,
+        sponsorPhone: kid.Sponsor.Phone
+      }
+    } else if(kid.Sponsor === null && kid.RBL !== null){
+      //fill in RBL not sponsor
+      return {
+        id: kid.id,
+        rbl: kid.RBL.FirstName + " " + kid.RBL.LastName,
+        childid: kid.ChildID,
+        age: kid.Age,
+        name: kid.Firstname,
+        gender: kid.Gender,
+        race: kid.Race,
+        shirtsize: kid.ShirtSize,
+        pantsize: kid.PantSize,
+        shoesize: kid.ShoeSize,
+        siblings: kid.Siblings,
+        wishlist: kid.Wishlist,
+        addInfo: kid.Info,
+        sponsorName: " ",
+        sponsorPhone: " "
       }
     } else {
       return {
@@ -138,9 +179,7 @@ export default function ChildrenScreen () {
         return rowArray.push(kid)
     })
   }
-  //console.log("Row Array: ", rowArray)
   const renderedChildren = createRows(rowArray);
-  //console.log("Rendered Rows Array: ", renderedChildren);
 
 /* ==============================================================================================
                                       Resize Drawer Callback
@@ -211,9 +250,12 @@ export default function ChildrenScreen () {
       <Main sx={{width: customWidth }} open={drawerOpen}>
         <Paper elevation={1}>
             <DataGrid
+                sx={{
+                  
+                }}
                 rows= {renderedChildren}
                 columns={[
-                    { field: 'rbl', headerName: 'RBL Lady', flex: .8},
+                    { field: 'rbl', headerName: 'RBL Lady', flex: .9},
                     { field: 'childid', headerName: 'ID', flex: .6 },
                     { field: 'name', headerName: 'Name', flex: .7 },
                     { field: 'gender', headerName: 'Gender', flex: .4 },

@@ -94,7 +94,9 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                 passedWishlist: data.Wishlist,
                 passedInfo: data.Info,
                 passedBike: data.Bike,
-                passedSiblings: data.Siblings
+                passedSiblings: data.Siblings,
+                passedSponsor: data.Sponsor,
+                passedRBL: data.RBL
             }
         }
         else {
@@ -111,7 +113,9 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                 passedWishlist: null,
                 passedInfo: null,
                 passedBike: null,
-                passedSiblings: null
+                passedSiblings: null,
+                passedSponsor: null,
+                passedRBL: null
             }
         }
       }
@@ -131,7 +135,8 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
         console.error(error.message)
     }
     passedChild = handleChildData(data ? data.getChild : null);
-    //console.log("passed Child: ", passedChild)
+    console.log("passed Child: ", passedChild)
+    console.log("data!!: ", data ? data.getChild : null)
     
 
     return (
@@ -193,14 +198,12 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                             fontWeight:'bold',
                             fontSize: 24,
                     }}>{data ? data.getChild.Firstname : "N/A"}</Typography>
-                    <Typography 
-                        style={{
-                            color:'red'
-                        }}
-                        sx={{
-                            ml: 1,
-                            fontSize: 16,
-                    }}>RBL</Typography>
+                    {data
+                        ? data.getChild.RBL !== null 
+                            ? <Typography style={{ color: `${data.getChild.RBL.Color}` }} sx={{ ml: 1, fontSize: 16}}>{data.getChild.RBL.FirstName + " " + data.getChild.RBL.LastName}</Typography>
+                            : <Typography sx={{ ml: 1, fontSize: 16}}>{" "}</Typography>
+                        : <Typography sx={{ ml: 1, fontSize: 16}}>{""}</Typography>
+                    }
                 </Box>
                 <Box
                     sx={{
@@ -342,8 +345,6 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                     }}
                     style={{ wordWrap: "break-word" }}
                 >{data ? data.getChild.Wishlist : "N/A"}</Typography>
-
-                {/* TODO: you need to add checks for if additional field has info then display if not then dont display */}
                 <Typography
                     style={{
                         color:'#01579b'
@@ -368,6 +369,30 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                     }}
                     style={{ wordWrap: "break-word" }}
                     >{data ? data.getChild.Info : "N/A"}</Typography>
+                    <Typography
+                    style={{
+                        color:'#01579b'
+                    }}
+                    sx={{
+                        ml: 1,
+                        fontWeight: 500
+                    }}>Siblings</Typography>
+                <Divider
+                    sx={{
+                        borderBottomWidth: 1.5
+                    }}
+                    style={{
+                        background:'#01579b'
+                }}/>
+                {/* =============================== Siblings Information ====================================== */}
+                <Typography
+                    sx={{
+                        pb: 1,
+                        mt:1,
+                        ml: 1
+                    }}
+                    style={{ wordWrap: "break-word" }}
+                    >{data ? data.getChild.Siblings : "N/A"}</Typography>
                 <Typography
                     style={{
                         color:'#01579b'
@@ -409,18 +434,18 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                             flexDirection: 'column',
                             flexGrow: 1,
                         }}>
-                            { data 
-                                ? data.getChild.Sponsor !== null 
-                                    ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.FirstName + " " +  data.getChild.Sponsor.LastName}</Typography>
-                                    : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}</Typography>
-                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}å</Typography>
-                                }
-                             { data 
-                                ? data.getChild.Sponsor !== null 
-                                    ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.Phone}</Typography>
-                                    : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}</Typography>
-                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{"N/A"}å</Typography>
-                                }
+                        { data 
+                            ? data.getChild.Sponsor !== null 
+                                ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.FirstName + " " +  data.getChild.Sponsor.LastName}</Typography>
+                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
+                            : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
+                            }
+                        { data 
+                            ? data.getChild.Sponsor !== null 
+                                ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.Phone}</Typography>
+                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
+                            : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
+                            }
                     </Box>
                 </Box>
                 <Box

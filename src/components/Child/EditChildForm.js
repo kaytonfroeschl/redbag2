@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateChild } from '../../graphql/mutations';
-import { listChildren, getChild } from '../../graphql/queries';
-import Dialog from '@mui/material/Dialog';
-import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
+import { listChildren, listSponsors, listRBLS, getChild } from '../../graphql/queries';
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Button,
+    Box,
+    FormControl,
+    Typography,
+    Divider,
+    TextField,
+    MenuItem,
+    Autocomplete
+} from '@mui/material';
+
 
 
 export function EditChildForm ({ open, handleClose, child }){
-    //console.log("we are in editCHild form: ", child)
+    console.log("EDIT Child: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -32,9 +38,23 @@ export function EditChildForm ({ open, handleClose, child }){
     const [form_info, setFormInfo] = useState('');
     const [form_bike, setFormBike] = useState('');
     
+    const [incomingSponsorID, setIncomingSponsorID] = useState("");
+    const [incomingSponsorLabel, setIncomingSponsorLabel] = useState("");
+    const [sponsorDatabaseID, setSponsorDatabaseID] = useState("");
+
+    const [incomingRBLID, setIncomingRBLID] = useState("");
+    const [incomingRBLLabel, setIncomingRBLLabel] = useState("");
+    const [RBLDatabaseID, setRBLDatabaseID] = useState("");
+
+
+
+    let sponsorAutoArray = [];
+    const sponsorArray = [];
+    let RBLArray = [];
+    let RBLAutoArray = [];
+    
 
     useEffect(() => {
-        //console.log("in use effect")
         setFormID(child.passedid)
         setFormName(child.passedName)
         setFormChildID(child.passedChildID)
@@ -48,9 +68,26 @@ export function EditChildForm ({ open, handleClose, child }){
         setFormWishlist(child.passedWishlist)
         setFormInfo(child.passedInfo)
         setFormBike(child.passedBike)
+        if(child.passedSponsor !== null){
+            console.log("not null", child.passedSponsor.id, " ", child.passedSponsor.FirstName)
+            setIncomingSponsorID(child.passedSponsor.id)
+            setIncomingSponsorLabel(child.passedSponsor.FirstName)
+            setSponsorDatabaseID(child.passedSponsor.id)
+        }
+        if(child.passedRBL !== null){
+            setIncomingRBLID(child.passedRBL.id);
+            setIncomingRBLLabel(child.passedRBL.FirstName + " " + child.passedRBL.LastName)
+            setRBLDatabaseID(child.passedRBL.id);
+            console.log("not null", child.passedRBL.FirstName + " " + child.passedRBL.LastName)
+        }
+        
     }, [child])
 
+    console.log("incomingSponsor id: ", incomingSponsorID)
+    console.log("Sponsor database ID: ", sponsorDatabaseID)
 
+    console.log("incoming id: ", incomingRBLID);
+    console.log("RBL Database ID: ", RBLDatabaseID);
 
 /* ==============================================================================================
                                         OnChange Handle Functions 
@@ -103,10 +140,6 @@ export function EditChildForm ({ open, handleClose, child }){
         setFormBike(event.target.value);
     }
 
-    function handleEditClose() {
-        //console.log("edit close")
-    }
-
     function resetValues() {
         setFormName('');
         setFormChildID('');
@@ -127,6 +160,54 @@ export function EditChildForm ({ open, handleClose, child }){
         handleClose();
     }
 
+    function createNameArray(array) {
+        let tempArr = [];
+        let list = array.map((sponsor) => {
+            tempArr.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
+        })
+        //console.log("New Array: ", tempArr)
+        return tempArr
+    }
+
+    function createAutoRBL(array) {
+        let tempArr = [];
+        let list = array.map((RBL) => {
+            tempArr.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
+        })
+        return tempArr;
+    }
+
+    function handleSpecialEdit(e) {
+        handleEdit(e);
+    }
+/*===============================================================================================
+                                     Grabbing a list of Sponsors
+                                     From Backend
+================================================================================================*/
+    const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
+    if(sData || !sLoading ) {
+    const sponsorList = sData.listSponsors.items.map((sponsor) => {
+        return sponsorArray.push(sponsor)
+        //console.log(sponsor.FirstName)
+    })
+    }
+    sponsorAutoArray = createNameArray(sponsorArray);
+    console.log("Sponsor Array: ", sponsorArray);
+    //console.log("Sponsor AutoComplete Array: ", sponsorAutoArray);
+
+/*============================================= Apollo Call =================================================
+                                              Listing RBLS
+===========================================================================================================*/
+    const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
+    if(RBL_data || !RBL_loading ) {
+    const RBLList = RBL_data.listRBLS.items.map((RBL) => {
+        return RBLArray.push(RBL)
+    })
+    }
+    RBLAutoArray = createAutoRBL(RBLArray);
+    console.log("List of RBLS: ", RBLArray)
+    //console.log("RBL Auto Array: ", RBLAutoArray)
+
 /* ==============================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
@@ -139,10 +220,9 @@ export function EditChildForm ({ open, handleClose, child }){
 
     async function handleEdit(e) {
         e.preventDefault();
-        console.log("hello")
         try {
             const response = await editChildMutation({
-                variables: { input: { id: form_id, Firstname: form_name, ChildID: form_childid, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike } },
+                variables: { input: { id: form_id, Firstname: form_name, ChildID: form_childid, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike, rblID: RBLDatabaseID, sponsorID: sponsorDatabaseID} },
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
@@ -165,6 +245,35 @@ export function EditChildForm ({ open, handleClose, child }){
                         variant="outlined"
                         fullWidth
                     > 
+                    {/*===================== RBL Assigned  =========================================*/}
+                    <Typography
+                        style={{
+                            fontWeight: 500
+                        }}
+                        sx={{
+                            mt: 2
+                        }}>Red Bag Lady</Typography>
+                    <Divider
+                        sx={{borderBottomWidth: 1.5}}
+                        style={{background: 'black'}}
+                    />
+                    <Autocomplete
+                        options = {RBLAutoArray}
+                        defaultValue={{ label: incomingRBLLabel, id: incomingRBLID }}
+                        getOptionLabel={option => option.label}
+                        renderInput={(params) => (
+                        <TextField {...params} label="" variant="standard" />
+                        )}
+                        onChange={(e, value) => {
+                            if (value != null){
+                                setRBLDatabaseID(value.id)
+                            } else {
+                                setRBLDatabaseID(null);
+                            }
+                            
+                        }}
+                        sx={{ mb: 2, mt: 2}}
+                    />
                     <Typography
                         style={{
                             fontWeight: 500
@@ -363,12 +472,39 @@ export function EditChildForm ({ open, handleClose, child }){
                             onChange={handleFormSiblings}
                             />
                     </Box>
+                    {/*===================== Sponsor Assigned  =========================================*/}
+                    <Typography
+                        style={{
+                            fontWeight: 500
+                        }}
+                        sx={{
+                            mt: 2
+                        }}>Assign a Sponsor</Typography>
+                    <Divider
+                        sx={{mb:2, borderBottomWidth: 1.5}}
+                        style={{background: 'black'}}
+                    />
+                    <Autocomplete
+                        options = {sponsorAutoArray}
+                        defaultValue={{ id: incomingSponsorID, label: incomingSponsorLabel }}
+                        getOptionLabel={option => option.label}
+                        renderInput={(params) => (
+                        <TextField {...params} label="Sponsor" variant="standard" />
+                        )}
+                        onChange={(e, value) => {
+                            if(value !== null){
+                                setSponsorDatabaseID(value.id)
+                            } else {
+                                setSponsorDatabaseID(null)
+                            }
+                        }}
+                    />
                     </FormControl>
                     </Box>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={handleEdit}>Update</Button>
+                    <Button onClick={handleSpecialEdit}>Update</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>
