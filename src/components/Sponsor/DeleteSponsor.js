@@ -16,8 +16,8 @@ export default function DeleteSponsor({open, sponsor, deleteSponsor, handleClose
     const sponsorInfo = () => {
         return (
             <div>
-                <div>{sponsor.name}</div>
-                <div>{sponsor.companyName}</div>
+                <div>{sponsor.FirstName} {sponsor.LastName}</div>
+                <div>{sponsor.Institution}</div>
             </div>
         );
     }

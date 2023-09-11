@@ -96,20 +96,58 @@ export default function SponsorScreen () {
   const [currSponsor, setCurrSponsor] = useState({});
   const [customWidth, setCustomWidth] = React.useState('100%');
 
-/* ==============================================================================================
-                                      Populating Grid Rows
+/* 
+================================================================================================
+                                      Sponsor List
 ================================================================================================*/
-    const sponsorArray = [];
-    const { loading, error, data, refetch: sponsor_Refetch } = useQuery(gql(listSponsors)); 
-    if(data || !loading ) {
-      console.log("Part 1: Sponsor Data about to build sponsorArray. data.listSponsors.items", data.listSponsors.items)
-      const sponsorList = data.listSponsors.items.map((sponsor) => {
-          return sponsorArray.push(sponsor)
-      })
-      console.log("Part 2: Sponsor Data sponsorArray", sponsorArray)
+    const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
+    // if(sponsor_loading) {console.log("Sponsor List is loading")};  
+    // if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
+    if(sponsor_data) {console.log("Sponsor List has been loaded: ", sponsor_data.listSponsors.items)};
+
+    const uiListSponsors = () => {
+      if(sponsor_loading) {return <div>Loading sponsors</div>}
+      if(sponsor_loading) {return <div>Error Loading sponsors: {sponsor_error}</div>}
+      
+      if(sponsor_data.listSponsors.items.length === 0) {
+        return(<div>No Sponosors</div>);
+      }else{
+        return (
+          <DataGrid
+            rows = {sponsor_data.listSponsors.items}
+            columns={ [
+              { field: 'FirstName',   headerName: 'First Name', flex: 1},
+              { field: 'LastName',    headerName: 'Last Name', flex: 1},
+              { field: 'Institution', headerName: 'Institution Name', flex: 1},
+              { field: 'Email',       headerName: 'Email Address', flex: 1},
+              { field: 'Phone',       headerName: 'Phone Number', flex: 1},
+              { field: 'actions',      headerName: "More Actions", flex: .8,
+                renderCell: (params) => {
+                  return (
+                    <React.Fragment>
+                      <Button
+                        onClick={(e) => handleEditOpen(params.row)}
+                        variant="text"
+                      >
+                        <EditIcon />
+                      </Button>
+        
+                      <Button
+                        onClick={(e) => handleDeleteOpen(params.row)}
+                        variant="text"
+                      >
+                        <DeleteIcon />
+                      </Button>
+                    </React.Fragment>
+                  );
+                }
+              }
+            ]}
+            slots={{ toolbar: QuickSearchToolbar }}
+          />
+        )
+      }
     }
-    const renderedSponsors = createRows(sponsorArray);
-    console.log("Part 3: renderedSponsors built.  renderedSponsors", renderedSponsors)
 
 /* 
 ==============================================================================================
@@ -129,7 +167,7 @@ export default function SponsorScreen () {
       return (
         //<SponsorSideDrawer open={editOpen} handleClose={handleSpecialEditClose} sponsor_id={currSponsor.id} />
         <SponsorSideDrawer 
-          sponsor_id={currSponsor.id}
+          sponsor={currSponsor}
           open={editOpen} 
           handleClose={handleEditClose}
         />
@@ -149,11 +187,6 @@ export default function SponsorScreen () {
     };
   }
 
-  // useEffect(() => {
-  //   if(editOpen){
-  //       drawerCallback()
-  //   }
-  // }, [editOpen])
 /* 
 ================================================================================================
                                       Sponsor Create
@@ -211,18 +244,25 @@ export default function SponsorScreen () {
   }
 
   //---------------- Delete Sponsor ----------------
-  const [deleteSponsorMutation, {data: sponsorDelData, loading: sponsorDelLoading, error: sponsorDelError }] = useMutation(gql(deleteSponsor));
+  const [deleteSponsorMutation, {
+    data: sponsorDelData, 
+    loading: sponsorDelLoading, 
+    error: sponsorDelError
+  }] = useMutation(gql(deleteSponsor));
+  
   if(sponsorDelLoading) {console.log("Loading Delete Sponsor Mutation")};
   if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
 
   const sponsorDelete = () => {
     try{
-      const response = deleteSponsorMutation({variables: {input: {id: currSponsor.id}}});
+      const response = deleteSponsorMutation({
+        variables: {input: {id: currSponsor.id}},
+        refetchQueries: [{ query: gql(listSponsors) }],
+      });
       setCurrSponsor(null);
       setDeleteOpen(false);
       //console.log("Delete Sponsor Mutation response: ", response);
-      sponsor_Refetch();
-      console.log("Delete Sponsor Mutation complete, num sponsors in renderedSponsors list is: " + renderedSponsors.length);
+      console.log("Delete Sponsor Mutation complete, num sponsors in sponsor list is: " + sponsor_data.listSponsors.items.length);
     }catch(error) {
       console.log("Delete Sponsor Mutation error ", error);
       return "Delete Sponsor failed with error: " + error;
@@ -241,7 +281,6 @@ export default function SponsorScreen () {
   const handleImportClose = () => {
     //console.log("handleImportClose");
     setImportOpen(false);
-    sponsor_Refetch();
   };
   
   const openImportDialog = () => {
@@ -258,13 +297,13 @@ export default function SponsorScreen () {
     }
   }
 
-  // //---------------- List Sponsors ----------------
-  // const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error, refetch: sponsor_Refetch } = useQuery(gql(listSponsors));
-  // if(sponsor_loading) {console.log("Sponsor List is loading")};  
-  // if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
-
   //---------------- Add Sponsor ----------------
-  const [addSponsorMutation, {data: sponsorAddData, loading: sponsorAddLoading, error: sponsorAddError }] = useMutation(gql(createSponsor));
+  const [addSponsorMutation, {
+    data: sponsorAddData, 
+    loading: sponsorAddLoading, 
+    error: sponsorAddError,
+  }] = useMutation(gql(createSponsor));
+
   if(sponsorAddLoading) {console.log("Loading Sponsor Add Mutation")};
   if(sponsorAddError) {console.log( "Create Sponsor Mutation error: " + sponsorAddError)};
 
@@ -297,85 +336,24 @@ export default function SponsorScreen () {
 ================================================================================================*/
   return (
     <React.Fragment>
-     
-    <Box 
+      <Box 
         sx={{ 
-            display: 'flex',
-            width: customWidth
-            }}
+          display: 'flex',
+          width: customWidth
+        }}
       />
       <Main sx={{width: customWidth }} open={editOpen}>
         <Paper elevation={1}>
-          <Box
-            sx={{
-              display:'flex',
-              justifyContent:'space-between'
-            }}
-            >
-            <Button 
-              sx={{
-                  m:1,
-                  ml: 3
-              }}
-              onClick={handleNSOpen}
-              variant="contained">
-              New Sponsor
-            </Button>
-            <Button
-              sx={{
-                m: 1,
-                mr: 3
-              }}
-              variant="text"
-              onClick={handleImportOpen}
-            >
-              Import
-            </Button>
+          <Box sx={{display:'flex', justifyContent:'space-between'}}>
+            <Button sx={{m:1, ml:3}} variant="contained" onClick={handleNSOpen} >New Sponsor</Button>
+            <Button sx={{M:1, mr:3}} variant="text" onClick={handleImportOpen}>Import</Button>
           </Box>
-            <DataGrid
-                rows = {renderedSponsors}
-                columns={ [
-                  { field: 'name', headerName: 'Name', flex: 1},
-                  { field: 'companyName', headerName: 'Institution Name', flex: 1},
-                  { field: 'email', headerName: 'Email', flex: 1},
-                  { field: 'phone', headerName: 'Phone Number', flex: 1},
-                  {field: 'actions',
-                  headerName: "More Actions",
-                  flex: .8,
-                  renderCell: (params) => {
-                      return (
-                          <React.Fragment>
-                              <Button
-                              onClick={(e) => handleEditOpen(params.row)}
-                              variant="text"
-                              >
-                                  <EditIcon />
-                              </Button>
-              
-                              <Button
-                              onClick={(e) => handleDeleteOpen(params.row)}
-                              variant="text"
-                              >
-                                  <DeleteIcon />
-                              </Button>
-              
-                          </React.Fragment>
-              
-                        );
-                         }
-                  
-                  }
-              ]}
-                initialState={{
-                pagination: {
-                    paginationModel: { page: 0, pageSize: 10 },
-                },
-                }}
-                pageSizeOptions={[12]}
-                slots={{ toolbar: QuickSearchToolbar }}
-            />
+
+          {uiListSponsors()}
+
         </Paper>
       </Main>
+
       {openCreateSponsor()}
       {openSideDrawer()}
       {openDeleteSponsor()}
