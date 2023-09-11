@@ -179,11 +179,29 @@ export default function ChildrenScreen () {
         return rowArray.push(kid)
     })
   }
-  const renderedChildren = createRows(rowArray);
 
-/* ==============================================================================================
-                                      Resize Drawer Callback
-================================================================================================*/
+  const handleNewChildClose = (event, reason) => {
+    if (reason && reason === "backdropClick"){
+        return;
+    }
+    setNCOpen(false);
+  }
+  
+  const openCreateChild = () => {
+    if (NCOpen) {
+      return (
+        <CreateChildForm 
+          open={NCOpen} 
+          handleClose={handleNewChildClose}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+  //---------------------------------------------------- 
+  //      Child Side Drawer
+  //----------------------------------------------------
   const drawerCallback = () => {
     if(customWidth == '100%'){
         return setCustomWidth('70%')
@@ -196,14 +214,13 @@ export default function ChildrenScreen () {
       if(drawerOpen){
           drawerCallback()
       }
-    }, [drawerOpen])
+    }, [drawerOpen]);
 
 /* ==============================================================================================
                                       Handle Functions
 ================================================================================================*/
   const handleDrawerOpen = (data) => {
     setCurrentKid(data);
-    //console.log("current kid: ", data)
     setDrawerOpen(true);
   }
 

@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateChild } from '../../graphql/mutations';
-import { listChildren, listSponsors, listRBLS, getChild } from '../../graphql/queries';
-import {
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Button,
-    Box,
-    FormControl,
-    Typography,
-    Divider,
-    TextField,
-    MenuItem,
-    Autocomplete
-} from '@mui/material';
-
+import { listChildren, getChild } from '../../graphql/queries';
+import Dialog from '@mui/material/Dialog';
+import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import Typography from '@mui/material/Typography';
+import Divider from '@mui/material/Divider';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 
 
 export function EditChildForm ({ open, handleClose, child }){
-    console.log("EDIT Child: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/

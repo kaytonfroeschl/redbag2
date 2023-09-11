@@ -96,6 +96,8 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                 passedBike: data.Bike,
                 passedSiblings: data.Siblings,
                 passedSponsor: data.Sponsor,
+                passedRBL: data.RBL,
+                passedSponsor: data.Sponsor,
                 passedRBL: data.RBL
             }
         }
@@ -114,6 +116,8 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                 passedInfo: null,
                 passedBike: null,
                 passedSiblings: null,
+                passedSponsor: null,
+                passedRBL: null,
                 passedSponsor: null,
                 passedRBL: null
             }
@@ -369,6 +373,30 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                     }}
                     style={{ wordWrap: "break-word" }}
                     >{data ? data.getChild.Info : "N/A"}</Typography>
+                    <Typography
+                    style={{
+                        color:'#01579b'
+                    }}
+                    sx={{
+                        ml: 1,
+                        fontWeight: 500
+                    }}>Siblings</Typography>
+                <Divider
+                    sx={{
+                        borderBottomWidth: 1.5
+                    }}
+                    style={{
+                        background:'#01579b'
+                }}/>
+                {/* =============================== Siblings Information ====================================== */}
+                <Typography
+                    sx={{
+                        pb: 1,
+                        mt:1,
+                        ml: 1
+                    }}
+                    style={{ wordWrap: "break-word" }}
+                    >{data ? data.getChild.Siblings : "N/A"}</Typography>
                     <Typography
                     style={{
                         color:'#01579b'
