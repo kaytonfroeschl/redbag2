@@ -179,6 +179,7 @@ export default function ChildrenScreen () {
         return rowArray.push(kid)
     })
   }
+  const renderedChildren = createRows(rowArray);
 
   const handleNewChildClose = (event, reason) => {
     if (reason && reason === "backdropClick"){
