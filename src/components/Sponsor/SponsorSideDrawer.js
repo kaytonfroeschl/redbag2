@@ -10,6 +10,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { DataGrid } from '@mui/x-data-grid';
+import EditSponsorForm from './EditSponsorForm';
 
 /* =============================== Drawer Styling ================================================*/
 const drawerWidth = 360;
@@ -184,7 +185,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                     <Typography sx={{fontWeight: 'bold',pb: 1}}>{sponsor ? sponsor.Phone : "N/A"}</Typography>
                     <Typography sx={{fontWeight: 'bold',pb: 5}}>{sponsor ? sponsor.Address : "N/A"}</Typography>
                     <Typography sx={{fontWeight: 'bold',pb: 4}}>{sponsor ? sponsor.YearsActive : "N/A"}</Typography>
-                </Box>
             </Box>
             <Typography
                 style={{
@@ -217,7 +217,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                 >Edit</Button>
             </Box>
         </Drawer>
-        <EditSponsorForm open={editOpen} handleClose={handleEditClose} sponsor={passedSponsor} />
+        {/* <EditSponsorForm open={editOpen} handleClose={handleEditClose} sponsor={sponsor} /> */}
         </React.Fragment>
     )
  

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { listChildren, listSponsors, listRBLS } from '../graphql/queries';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { styled } from '@mui/material/styles';
 import { Paper, Button, Box } from '@mui/material';
 import { darken, lighten, styled } from '@mui/material/styles';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
