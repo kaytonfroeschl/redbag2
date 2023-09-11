@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { createSponsor, updateSponsor } from '../graphql/mutations';
-import { listSponsors } from '../graphql/queries';
+import { listSponsors, listRBLS } from '../graphql/queries';
 import {
   TextField,
   Button
@@ -12,6 +12,7 @@ export default function DenseTable() {
   const [form_phone, setFormPhone] = useState('');
   let sponsorArray = [];
   let renderedSponsorArray = [];
+  let RBLArray = [];
 
 /*============================================= Handle Functions =================================================*/
   function handleFormPhone(event) {
@@ -46,7 +47,9 @@ export default function DenseTable() {
     return arr;
   }
 
-/*============================================= Apollo Call =================================================*/
+/*============================================= Apollo Call =================================================
+                                              Listing Sponsors
+===========================================================================================================*/
   const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors)); 
   if(sponsor_data || !sponsor_loading ) {
     const sponsorList = sponsor_data.listSponsors.items.map((sponsor) => {
@@ -57,6 +60,19 @@ export default function DenseTable() {
   console.log("List of Sponsors: ", sponsorArray)
   renderedSponsorArray = renderSponsors(sponsorArray);
   console.log("rendered Sponsor Arry: ", renderedSponsorArray)
+
+/*============================================= Apollo Call =================================================
+                                              Listing RBLS
+===========================================================================================================*/
+  const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
+    if(RBL_data || !RBL_loading ) {
+      const RBLList = RBL_data.listRBLS.items.map((RBL) => {
+          return RBLArray.push(RBL)
+      })
+    }
+
+    console.log("List of RBLS: ", RBLArray)
+  
 
   return (
     <React.Fragment>
@@ -69,6 +85,7 @@ export default function DenseTable() {
         style = {{width: 150}}
     />
     <Button variant='contained' onClick={handleButtonClick}>Submit</Button>
+
     </React.Fragment>
   );
 }

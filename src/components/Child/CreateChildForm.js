@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { createChild } from '../../graphql/mutations';
-import { listChildren, listSponsors } from '../../graphql/queries';
+import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
 import {
     Dialog,
     DialogActions,
@@ -41,6 +41,9 @@ export function CreateChildForm ({ open, handleClose }){
 
     let sponsorAutoArray = [];
     const sponsorArray = [];
+
+    let RBLAutoArray = [];
+    let RBLArray = [];
 
 /* ==============================================================================================
                                         Handle Functions 
@@ -144,12 +147,33 @@ export function CreateChildForm ({ open, handleClose }){
         let tempArr = [];
         let list = array.map((sponsor) => {
             tempArr.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
+           
         })
         //console.log("New Array: ", tempArr)
         return tempArr
     }
 
-    
+    function createAutoRBL(array) {
+        let tempArr = [];
+        let list = array.map((RBL) => {
+            tempArr.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
+        })
+        return tempArr;
+    }
+
+
+/*============================================= Apollo Call =================================================
+                                              Listing RBLS
+===========================================================================================================*/
+    const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
+    if(RBL_data || !RBL_loading ) {
+    const RBLList = RBL_data.listRBLS.items.map((RBL) => {
+        return RBLArray.push(RBL)
+    })
+    }
+    RBLAutoArray = createAutoRBL(RBLArray);
+    console.log("List of RBLS: ", RBLArray)
+    console.log("RBL Auto Array: ", RBLAutoArray)
 
 /* ==============================================================================================
                                      Grabbing a list of Sponsors
@@ -175,10 +199,10 @@ export function CreateChildForm ({ open, handleClose }){
     
     async function handleCreate(e) {
         e.preventDefault();
-        //console.log("form_sponsor info: ", form_sponsor)
+        console.log("form_sponsor info: ", form_sponsor)
         try {
             const response = await addChildMutation({
-                variables: { input: { Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike, sponsorID: form_sponsor.id }},
+                variables: { input: { Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike}},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
@@ -201,6 +225,30 @@ export function CreateChildForm ({ open, handleClose }){
                         variant="outlined"
                         fullWidth
                     > 
+                    {/*===================== RBL Assigned  =========================================*/}
+                    <Typography
+                        style={{
+                            fontWeight: 500
+                        }}
+                        sx={{
+                            mt: 2
+                        }}>Red Bag Lady</Typography>
+                    <Divider
+                        sx={{borderBottomWidth: 1.5}}
+                        style={{background: 'black'}}
+                    />
+                    <Autocomplete
+                        options = {RBLAutoArray}
+                        //defaultValue={{ label: selectSponsorName, id: selectSponsorID }}
+                        getOptionLabel={option => option.label}
+                        renderInput={(params) => (
+                        <TextField {...params} label="" variant="standard" />
+                        )}
+                        onChange={(e, value) => {
+                            //setSelectRBL(value)
+                        }}
+                        sx={{ mb: 2, mt: 2}}
+                    />
                     <Typography
                         style={{
                             fontWeight: 500
