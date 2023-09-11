@@ -8,7 +8,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import CreateChildForm from '../components/Child/CreateChildForm';
 import ChildSideDrawer from '../components/Child/ChildSideDrawer';
 import ChildImport from '../components/Child/ChildImport';
-import { createChild, updateChild } from '../graphql/mutations';
+import ChildExport from '../components/Child/ChildExport';
+import { createChild } from '../graphql/mutations';
+import { ClientDevice } from 'aws-amplify';
 
 
 /* ==============================================================================================
@@ -83,6 +85,7 @@ export default function ChildrenScreen () {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [NCOpen, setNCOpen] = React.useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   //---------------------------------------------------- 
   //      RBL Stuff
@@ -180,7 +183,7 @@ export default function ChildrenScreen () {
     if(child_loading) {return <div>Child List is loading</div>};  
     if(child_error) {return <div>Child List Load error: " + {rbl_error}</div>};    
     if(child_data.listChildren.items.length===0) {return <div>There are no children to list</div>};
-    console.log("Children ", child_data.listChildren.items);
+    //console.log("Children ", child_data.listChildren.items);
     return (
       <DataGrid
         rows= {child_data.listChildren.items}
@@ -292,6 +295,94 @@ export default function ChildrenScreen () {
     };        
     return "";
   };
+
+  //---------------------------------------------------- 
+  //       Export Child Spreadsheet
+  //----------------------------------------------------
+  const handleExportOpen = () => {
+    setExportOpen(true);
+  }
+
+  const handleExportClose = () => {
+    setExportOpen(false);
+  }
+
+  const FormatChildrenListForExport = () => {
+    return (
+      child_data.listChildren.items.map((child) => {
+        return (
+          {
+            "Child ID": child.ChildID,
+            "First Name": child.Firstname,
+            Gender: child.Gender,
+            Race: child.Race,
+            Age: child.Age,
+            Siblings: child.Siblings,
+            Bike: child.Bike,
+            "Pant Size": child.PantSize,
+            "Shirt Size": child.ShirtSize,
+            "Shoe Size": child.ShoeSize,
+            "Wish List": child.Wishlist,
+            Information: child.Info,
+            RBL: getRBLInfo(child.RBL),
+            Sponsor: getSponsorInfo(child.Sponsor),
+            "DB Identifier": child.id
+          }
+        )
+      })
+    )
+  }
+
+  const getRBLInfo = (rbl) => {
+    if(rbl) {
+      return (
+        rbl.FirstName + " " +
+        rbl.LastName
+      );
+    }
+    return '';
+  }
+
+  const getSponsorInfo = (sponsor) => {
+    let Name = "";
+
+    if ( ! sponsor) { return ""};
+
+    console.log(sponsor);
+    
+    if(sponsor.FirstName) {
+        Name = sponsor.FirstName
+    };
+
+    if(sponsor.LastName) { 
+        if(Name.length > 0 ) { Name += " "}
+        Name += sponsor.LastName
+    };
+
+    if(sponsor.Institution) {
+        if(Name.length > 0) {
+            Name = Name + " (" + sponsor.Institution + ")"
+        }else{
+            Name = sponsor.Institution
+        }
+    };
+
+    return Name;
+  };
+  
+  const openExport = () => {
+    if (exportOpen) {
+      return (
+        <ChildExport 
+          open={exportOpen} 
+          handleClose={handleExportClose}
+          childList={FormatChildrenListForExport()}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
 /* 
 ================================================================================================
                 User Interface starts here
@@ -300,6 +391,7 @@ export default function ChildrenScreen () {
     <React.Fragment>
       <Button sx={{m:1,ml:3}} onClick={handleNewChildOpen} variant="contained">New Child</Button>
       <Button sx={{m:1,mr:3}} onClick={handleImportOpen}   variant="text">Import</Button>
+      <Button sx={{m:1,mr:3}} onClick={handleExportOpen}   variant="text">Export</Button>
 
       <Box sx={{display: 'flex',width: customWidth}}/>
       
@@ -311,6 +403,7 @@ export default function ChildrenScreen () {
         
       {openSideDrawer()}
       {openImport()}
+      {openExport()}
       {openCreateChild()}
   </React.Fragment>
   )
