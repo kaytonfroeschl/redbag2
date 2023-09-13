@@ -50,6 +50,17 @@ const DrawerHeader = styled('div')(({ theme }) => ({
    const [editOpen, setEditOpen] = useState(false);
    const [deleteOpen, setDeleteOpen] = useState(false);
 
+    /* ==============================================================================================
+                                    Apollo call to get backend sponsor
+   ==============================================================================================*/
+   const { loading, error, data } = useQuery(gql(getSponsor), {
+        variables : { id: sponsor.id },
+    });
+
+    if (loading) {
+        return <div>Loading...</div>
+    }
+
    /* ==============================================================================================
                                         Handle Functions
    ==============================================================================================*/
@@ -140,14 +151,14 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                     ml: 1,
                     fontWeight:'bold',
                     fontSize: 24,
-                }}>{sponsor ? sponsor.FirstName + " " + sponsor.LastName : "N/A"}</Typography>
+                }}>{data ? data.getSponsor.FirstName + " " + data.getSponsor.LastName : "N/A"}</Typography>
                 <Typography 
                 sx={{
                     mt:1,
                     ml: 1,
                     fontSize: 20,
                     fontStyle:'oblique'
-                }}>{sponsor ? sponsor.Institution : " "}</Typography>
+                }}>{data ? data.getSponsor.Institution : " "}</Typography>
                 <Typography
                     style={{
                         color:'#01579b'
@@ -166,26 +177,55 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                 }}/>
                 <Box
                     sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
+                        display:'flex',
+                        flexDirection: 'column'
                     }}>
-                    <Typography sx={{pb: 1}}>Email</Typography>
-                    <Typography sx={{pb: 1}}>Phone</Typography>
-                    <Typography sx={{pb: 8}}>Address</Typography>
-                    <Typography sx={{pb: 4}}>Years Active</Typography>
+                    <Box
+                        sx={{
+                            mt: 1,
+                            ml: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+
+                        }}>
+                        <Typography sx={{pb: 1}}>Email&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? data.getSponsor.Email : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            mt: 1,
+                            ml: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+
+                        }}>
+                        <Typography sx={{pb: 1}}>Phone&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? data.getSponsor.Phone : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            mt: 1,
+                            ml: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+
+                        }}>
+                        <Typography sx={{pb: 1}}>Address&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? data.getSponsor.Address : "N/A"}</Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            mt: 1,
+                            ml: 1,
+                            display: 'flex',
+                            flexDirection: 'row',
+
+                        }}>
+                        <Typography sx={{pb: 1}}>Years Active&nbsp;&nbsp;</Typography>
+                        <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? data.getSponsor.YearsActive : "N/A"}</Typography>
+                    </Box>
                 </Box>
-                <Box
-                sx={{
-                    mt: 1,
-                    ml: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}>
-                    <Typography sx={{fontWeight: 'bold', pb: 1}}>{sponsor ? sponsor.Email : "N/A"}</Typography>
-                    <Typography sx={{fontWeight: 'bold',pb: 1}}>{sponsor ? sponsor.Phone : "N/A"}</Typography>
-                    <Typography sx={{fontWeight: 'bold',pb: 5}}>{sponsor ? sponsor.Address : "N/A"}</Typography>
-                    <Typography sx={{fontWeight: 'bold',pb: 4}}>{sponsor ? sponsor.YearsActive : "N/A"}</Typography>
-            </Box>
+
             <Typography
                 style={{
                     color:'#01579b'
@@ -217,7 +257,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                 >Edit</Button>
             </Box>
         </Drawer>
-        {/* <EditSponsorForm open={editOpen} handleClose={handleEditClose} sponsor={sponsor} /> */}
+        <EditSponsorForm open={editOpen} handleClose={handleEditClose} sponsor={sponsor} /> 
         </React.Fragment>
     )
  

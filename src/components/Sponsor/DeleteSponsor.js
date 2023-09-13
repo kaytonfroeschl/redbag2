@@ -7,6 +7,8 @@ import {
     Button,
     Paper,
     Stack,
+    Box,
+    Typography
 } from '@mui/material';
 
 export default function DeleteSponsor({open, sponsor, deleteSponsor, handleClose}){
@@ -28,19 +30,50 @@ export default function DeleteSponsor({open, sponsor, deleteSponsor, handleClose
      
     return(
         <React.Fragment>
-            <Dialog open={open} onClose={handleClose} fullWidth={true} maxWidth="xl">
-            <DialogTitle>Are you sure you wish to permanently remove this SPONSOR?</DialogTitle>
+            <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Are you sure you want to delete this Sponsor?</DialogTitle>
             <DialogContent>
-                <Paper elevation={3}>
-                    <Stack spacing={2}>
-                        {sponsorInfo()}
-                    </Stack>
-                </Paper>
-            </DialogContent>
-            <DialogActions>
-                <Button variant="outlined" onClick={handleClose}>Cancel</Button>
-                <Button variant="contained" onClick={deleteSponsor}>DELETE!</Button>
-            </DialogActions>
+                    <Box
+                        sx={{
+                            textAlign: 'center'
+                        }}
+                    >
+                        <Typography
+                            sx={{
+                                fontWeight: 'bold',
+                                fontSize: 'h6.fontSize'
+                            }}
+                        >
+                            {sponsorInfo()}</Typography>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                        }}    
+                    >  
+                        <Button 
+                            sx={{
+                                ":hover": {
+                                    color: 'black',
+                                    bgcolor: 'red'
+                                },
+                                backgroundColor: 'red',
+                                color: 'white',
+                                m: 1
+                            }}
+                            onClick={handleClose}
+                        >No, don't Delete!</Button>
+                        <Button 
+                            sx={{
+                                m: 1
+                            }}
+                            onClick={deleteSponsor}
+                        >Yes I am sure</Button>
+                    </Box>
+                    
+                </DialogActions>
             </Dialog>
         </React.Fragment>
     )

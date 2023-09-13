@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
-import { getChild } from '../../graphql/queries';
+import { gql, useQuery, useMutation } from '@apollo/client';
+import { getChild, listChildren } from '../../graphql/queries';
+import { deleteChild } from '../../graphql/mutations';
 import { styled } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
 import Typography from '@mui/material/Typography';
@@ -44,104 +45,108 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   }));
 
 
-export default function ChildSideDrawer({ child_id, open, handleClose }) {
-
+export default function ChildSideDrawer({ child, open, handleClose }) {
+console.log("Child Drawer child: ", child)
     
 /* ==============================================================================================
                                         Variables
    ==============================================================================================*/
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
-    let passedChild = {}
+
+    
+/* ==============================================================================================
+                                    Grabbing data from the backend
+==============================================================================================*/
+const { loading, error, data } = useQuery(gql(getChild), {
+    variables : { id: child.id },
+});
+//---------------- Delete Child ----------------
+const [deleteChildMutation, {
+    data: childDelData, 
+    loading: childDelLoading, 
+    error: childDelError
+}] = useMutation(gql(deleteChild));
+
+if (loading) {
+    return <div>Loading...</div>
+}
+
 
 /* ==============================================================================================
-                                        Handle Functions
-   ==============================================================================================*/
+                                    Handle Functions
+==============================================================================================*/
     const handleEditOpen = () => {
         setEditOpen(true);
       }
     
-      const handleEditClose = (event, reason) => {
-        if (reason && reason == 'backdropClick'){
-          return;
-        }
-        setEditOpen(false);
-      }
-
-      const handleDeleteOpen = () => {
-        setDeleteOpen(true);
-      }
-
-      const handleDeleteClose = (event, reason) => {
+    const handleEditClose = (event, reason) => {
         if (reason && reason == 'backdropClick'){
             return;
-          }
-          setDeleteOpen(false);
-      }
-
-      function handleChildData(data){
-        if (data){
-            return {
-                passedName: data.Firstname,
-                passedChildID: data.ChildID,
-                passedid: data.id,
-                passedAge: data.Age,
-                passedGender: data.Gender,
-                passedRace: data.Race,
-                passedShirt: data.ShirtSize,
-                passedPant: data.PantSize,
-                passedShoe: data.ShoeSize,
-                passedWishlist: data.Wishlist,
-                passedInfo: data.Info,
-                passedBike: data.Bike,
-                passedSiblings: data.Siblings,
-                passedSponsor: data.Sponsor,
-                passedRBL: data.RBL,
-                passedSponsor: data.Sponsor,
-                passedRBL: data.RBL
-            }
         }
-        else {
-            return {
-                passedName: null,
-                passedChildID: null,
-                passedid: null,
-                passedAge: null,
-                passedGender: null,
-                passedRace: null,
-                passedShirt: null,
-                passedPant: null,
-                passedShoe: null,
-                passedWishlist: null,
-                passedInfo: null,
-                passedBike: null,
-                passedSiblings: null,
-                passedSponsor: null,
-                passedRBL: null,
-                passedSponsor: null,
-                passedRBL: null
-            }
+        setEditOpen(false);
+    }
+
+    const handleDeleteOpen = () => {
+        setDeleteOpen(true);
+    }
+
+    const handleDeleteClose = (event, reason) => {
+        if (reason && reason == 'backdropClick'){
+            return;
         }
-      }
-
-/* ==============================================================================================
-                                Apollo Call to Query Current Child
-                                And setting Child data for Edit Child COmponent
-================================================================================================*/  
-    const { loading, error, data } = useQuery(gql(getChild), {
-        variables : { id: child_id },
-    }); 
-
-    if(loading){
-        return <div>Loading...</div>
+        setDeleteOpen(false);
     }
-    if(error) {
-        console.error(error.message)
+
+    const onEditOpen = () => {
+        if(editOpen) {
+            return (
+                
+                <EditChildForm 
+                    open={editOpen}
+                    handleClose={handleEditClose}
+                    child={child}
+                />
+            )
+        }
     }
-    passedChild = handleChildData(data ? data.getChild : null);
-    console.log("passed Child: ", passedChild)
-    console.log("data!!: ", data ? data.getChild : null)
+/* 
+  ================================================================================================
+                                        Child Delete
+  ================================================================================================*/  
+    if(childDelLoading) {console.log("Loading Delete Child Mutation")};
+    if(childDelError) {console.log( "Delete Child Mutation error: " + childDelError)};
     
+    const childDelete = () => {
+    try{
+        const response = deleteChildMutation({
+        variables: {input: {id: child.id}},
+        refetchQueries: [{ query: gql(listChildren) }],
+        });
+        setDeleteOpen(false);
+        handleClose();
+        //console.log("Delete Sponsor Mutation response: ", response);
+    }catch(error) {
+        console.log("Delete Child Mutation error ", error);
+        return "Delete Child failed with error: " + error;
+    };
+        return "";
+    }
+    const onDeleteOpen = () => {
+        if(deleteOpen) {
+            return (
+                <DeleteChild 
+                    open = {deleteOpen}
+                    handleClose = {handleDeleteClose}
+                    child = {child}
+                    deleteChild = {childDelete}
+                />
+            )
+        } else{
+            return(<></>)
+        }
+    }
+
 
     return (
         <React.Fragment>
@@ -388,30 +393,7 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                     style={{
                         background:'#01579b'
                 }}/>
-                {/* =============================== Siblings Information ====================================== */}
-                <Typography
-                    sx={{
-                        pb: 1,
-                        mt:1,
-                        ml: 1
-                    }}
-                    style={{ wordWrap: "break-word" }}
-                    >{data ? data.getChild.Siblings : "N/A"}</Typography>
-                    <Typography
-                    style={{
-                        color:'#01579b'
-                    }}
-                    sx={{
-                        ml: 1,
-                        fontWeight: 500
-                    }}>Siblings</Typography>
-                <Divider
-                    sx={{
-                        borderBottomWidth: 1.5
-                    }}
-                    style={{
-                        background:'#01579b'
-                }}/>
+                
                 {/* =============================== Siblings Information ====================================== */}
                 <Typography
                     sx={{
@@ -462,14 +444,14 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                             flexDirection: 'column',
                             flexGrow: 1,
                         }}>
-                        { data 
+                        { data
                             ? data.getChild.Sponsor !== null 
                                 ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.FirstName + " " +  data.getChild.Sponsor.LastName}</Typography>
                                 : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
                             : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
                             }
-                        { data 
-                            ? data.getChild.Sponsor !== null 
+                        { data
+                            ? data.getChild.Sponsor !== null
                                 ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.Phone}</Typography>
                                 : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
                             : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
@@ -516,8 +498,8 @@ export default function ChildSideDrawer({ child_id, open, handleClose }) {
                 </Box>
                 </Box> 
                 </Drawer>
-                <EditChildForm open={editOpen} handleClose={handleEditClose}  child={passedChild} />
-                <DeleteChild open={deleteOpen} handleClose={handleDeleteClose} child={passedChild} />
+                {onEditOpen()}
+                {onDeleteOpen()}
         </React.Fragment>
     )
 }

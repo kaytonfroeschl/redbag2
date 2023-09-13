@@ -18,70 +18,38 @@ export function EditChildForm ({ open, handleClose, child }){
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
-    const [form_id, setFormID] = useState('');
-    const [form_name, setFormName] = useState('');
-    const [form_childid, setFormChildID] = useState('');
-    const [form_gender, setFormGender] = useState('');
-    const [form_race, setFormRace] = useState('');
-    const [form_age, setFormAge] = useState('');
-    const [form_siblings, setFormSiblings] = useState('');
-    const [form_shirt, setFormShirt] = useState('');
-    const [form_pant, setFormPant] = useState('');
-    const [form_shoe, setFormShoe] = useState('');
-    const [form_wishlist, setFormWishlist] = useState('');
-    const [form_info, setFormInfo] = useState('');
-    const [form_bike, setFormBike] = useState('');
-    
-    const [incomingSponsorID, setIncomingSponsorID] = useState("");
-    const [incomingSponsorLabel, setIncomingSponsorLabel] = useState("");
-    const [sponsorDatabaseID, setSponsorDatabaseID] = useState("");
-
-    const [incomingRBLID, setIncomingRBLID] = useState("");
-    const [incomingRBLLabel, setIncomingRBLLabel] = useState("");
-    const [RBLDatabaseID, setRBLDatabaseID] = useState("");
-
-
-
-    let sponsorAutoArray = [];
-    const sponsorArray = [];
-    let RBLArray = [];
-    let RBLAutoArray = [];
-    
+    const [form_id, setFormID] = useState(child.id);
+    const [form_name, setFormName] = useState(child.Firstname);
+    const [form_childid, setFormChildID] = useState(child.ChildID);
+    const [form_gender, setFormGender] = useState(child.Gender);
+    const [form_race, setFormRace] = useState(child.Race);
+    const [form_age, setFormAge] = useState(child.Age);
+    const [form_siblings, setFormSiblings] = useState(child.Siblings);
+    const [form_shirt, setFormShirt] = useState(child.ShirtSize);
+    const [form_pant, setFormPant] = useState(child.PantSize);
+    const [form_shoe, setFormShoe] = useState(child.ShoeSize);
+    const [form_wishlist, setFormWishlist] = useState(child.Wishlist);
+    const [form_info, setFormInfo] = useState(child.Info);
+    const [form_bike, setFormBike] = useState(child.Bike);
+    const [rblID, setRBLID] = useState('');
+    const [sponsorID, setSponsorID] = useState('');
 
     useEffect(() => {
-        setFormID(child.passedid)
-        setFormName(child.passedName)
-        setFormChildID(child.passedChildID)
-        setFormAge(child.passedAge)
-        setFormGender(child.passedGender)
-        setFormRace(child.passedRace)
-        setFormSiblings(child.passedSiblings)
-        setFormShirt(child.passedShirt)
-        setFormPant(child.passedPant)
-        setFormShoe(child.passedShoe)
-        setFormWishlist(child.passedWishlist)
-        setFormInfo(child.passedInfo)
-        setFormBike(child.passedBike)
-        if(child.passedSponsor !== null){
-            console.log("not null", child.passedSponsor.id, " ", child.passedSponsor.FirstName)
-            setIncomingSponsorID(child.passedSponsor.id)
-            setIncomingSponsorLabel(child.passedSponsor.FirstName)
-            setSponsorDatabaseID(child.passedSponsor.id)
+        if (child.RBL !== null) {
+            setRBLID(child.RBL.id)
+        } else {
+            setRBLID('')
         }
-        if(child.passedRBL !== null){
-            setIncomingRBLID(child.passedRBL.id);
-            setIncomingRBLLabel(child.passedRBL.FirstName + " " + child.passedRBL.LastName)
-            setRBLDatabaseID(child.passedRBL.id);
-            console.log("not null", child.passedRBL.FirstName + " " + child.passedRBL.LastName)
+    
+        if (child.Sponsor !== null) {
+            setSponsorID(child.Sponsor.id)
+        } else {
+            setSponsorID('')
         }
-        
-    }, [child])
+    }, [])
 
-    console.log("incomingSponsor id: ", incomingSponsorID)
-    console.log("Sponsor database ID: ", sponsorDatabaseID)
-
-    console.log("incoming id: ", incomingRBLID);
-    console.log("RBL Database ID: ", RBLDatabaseID);
+    let sponsorArray = [];
+    let RBLArray = [];
 
 /* ==============================================================================================
                                         OnChange Handle Functions 
@@ -154,23 +122,6 @@ export function EditChildForm ({ open, handleClose, child }){
         handleClose();
     }
 
-    function createNameArray(array) {
-        let tempArr = [];
-        let list = array.map((sponsor) => {
-            tempArr.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
-        })
-        //console.log("New Array: ", tempArr)
-        return tempArr
-    }
-
-    function createAutoRBL(array) {
-        let tempArr = [];
-        let list = array.map((RBL) => {
-            tempArr.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
-        })
-        return tempArr;
-    }
-
     function handleSpecialEdit(e) {
         handleEdit(e);
     }
@@ -181,12 +132,12 @@ export function EditChildForm ({ open, handleClose, child }){
     const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
     if(sData || !sLoading ) {
     const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push(sponsor)
+        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
         //console.log(sponsor.FirstName)
     })
     }
-    sponsorAutoArray = createNameArray(sponsorArray);
-    console.log("Sponsor Array: ", sponsorArray);
+    //sponsorAutoArray = createNameArray(sponsorArray);
+    //console.log("Sponsor Array: ", sponsorArray);
     //console.log("Sponsor AutoComplete Array: ", sponsorAutoArray);
 
 /*============================================= Apollo Call =================================================
@@ -195,11 +146,11 @@ export function EditChildForm ({ open, handleClose, child }){
     const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
     if(RBL_data || !RBL_loading ) {
     const RBLList = RBL_data.listRBLS.items.map((RBL) => {
-        return RBLArray.push(RBL)
+        return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
     })
     }
-    RBLAutoArray = createAutoRBL(RBLArray);
-    console.log("List of RBLS: ", RBLArray)
+    //RBLAutoArray = createAutoRBL(RBLArray);
+    //console.log("List of RBLS: ", RBLArray)
     //console.log("RBL Auto Array: ", RBLAutoArray)
 
 /* ==============================================================================================
@@ -216,7 +167,24 @@ export function EditChildForm ({ open, handleClose, child }){
         e.preventDefault();
         try {
             const response = await editChildMutation({
-                variables: { input: { id: form_id, Firstname: form_name, ChildID: form_childid, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike, rblID: RBLDatabaseID, sponsorID: sponsorDatabaseID} },
+                variables: {
+                    input: {
+                        id: form_id,
+                        Firstname: form_name,
+                        ChildID: form_childid,
+                        Gender: form_gender,
+                        Race: form_race,
+                        Age: form_age,
+                        Siblings: form_siblings,
+                        ShirtSize: form_shirt,
+                        PantSize: form_pant,
+                        ShoeSize: form_shoe,
+                        Wishlist: form_wishlist,
+                        Info: form_info,
+                        Bike: form_bike,
+                        rblID: rblID,
+                        sponsorID: sponsorID 
+                    }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
@@ -252,17 +220,17 @@ export function EditChildForm ({ open, handleClose, child }){
                         style={{background: 'black'}}
                     />
                     <Autocomplete
-                        options = {RBLAutoArray}
-                        defaultValue={{ label: incomingRBLLabel, id: incomingRBLID }}
+                        options = {RBLArray}
+                        defaultValue={{ id: child.RBL.id, label: child.RBL.FirstName }}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
                         <TextField {...params} label="" variant="standard" />
                         )}
                         onChange={(e, value) => {
                             if (value != null){
-                                setRBLDatabaseID(value.id)
+                                setRBLID(value.id)
                             } else {
-                                setRBLDatabaseID(null);
+                                setRBLID(null)
                             }
                             
                         }}
@@ -479,17 +447,17 @@ export function EditChildForm ({ open, handleClose, child }){
                         style={{background: 'black'}}
                     />
                     <Autocomplete
-                        options = {sponsorAutoArray}
-                        defaultValue={{ id: incomingSponsorID, label: incomingSponsorLabel }}
+                        options = {sponsorArray}
+                        defaultValue={{ id: child.Sponsor.id, label: child.Sponsor.FirstName }}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
                         <TextField {...params} label="Sponsor" variant="standard" />
                         )}
                         onChange={(e, value) => {
                             if(value !== null){
-                                setSponsorDatabaseID(value.id)
+                                setSponsorID(value.id)
                             } else {
-                                setSponsorDatabaseID(null)
+                                setSponsorID(null)
                             }
                         }}
                     />

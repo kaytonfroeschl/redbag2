@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 
 export default function EditSponsorForm({ open, handleClose, sponsor }){
-    //console.log("EDIT Sponsor: ", sponsor)
+    console.log("EDIT Sponsor: ", sponsor)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -71,7 +71,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
 ================================================================================================*/
     let input;
     const [updateSponsorMutation] = useMutation(gql(updateSponsor));
-    const { loading, error, data } = useQuery((gql(listSponsors)));
+    const { loading, error, data } = useQuery(gql(listSponsors));
     if(loading) {
         return <div>Loading...</div>
     }
@@ -111,6 +111,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                     label="Name"
                     value={form_name}
                     onChange={handleFormName}
+                    defaultValue={sponsor.FirstName}
                     />
                     <TextField
                     margin="normal"
@@ -118,6 +119,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                     label="Optional: Company Name"
                     value={form_inst}
                     onChange={handleFormInst}
+                    defaultValue={sponsor.Institution}
                     />
                     <TextField
                     margin="normal"
@@ -126,6 +128,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                     type={"email"}
                     value={form_email}
                     onChange={handleFormEmail}
+                    defaultValue={sponsor.Email}
                     />
                     <TextField
                     margin="normal"
@@ -133,6 +136,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                     label="Phone"
                     value={form_phone}
                     onChange={handleFormPhone}
+                    defaultValue={sponsor.Phone}
                     />    
                 </Box>
                 </Box>
@@ -147,6 +151,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                     rows={2}
                     value={form_address}
                     onChange={handleFormAddress}
+                    defaultValue={sponsor.Address}
                 />
                <Typography>&nbsp;</Typography>
                 <TextField
@@ -157,6 +162,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                     rows={4}
                     value={form_ya}
                     onChange={handleFormYA}
+                    defaultValue={sponsor.YearsActive}
                 />
                 </Box>
                 </FormControl>

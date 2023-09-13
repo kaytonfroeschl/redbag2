@@ -71,115 +71,75 @@ function QuickSearchToolbar() {
   );
 }
 
-/* ==============================================================================================
-                                        Putting Data in Readable format
-================================================================================================*/
-
-function createRows(array) {
-  console.log("ARRAY: ", array)
-  const kidArr = array.map((kid) => {
-    if(kid.Sponsor !== null && kid.RBL !== null){
-      //both filled
-      return {
-        id: kid.id,
-        rbl: kid.RBL.FirstName + " " + kid.RBL.LastName,
-        childid: kid.ChildID,
-        age: kid.Age,
-        name: kid.Firstname,
-        gender: kid.Gender,
-        race: kid.Race,
-        shirtsize: kid.ShirtSize,
-        pantsize: kid.PantSize,
-        shoesize: kid.ShoeSize,
-        siblings: kid.Siblings,
-        wishlist: kid.Wishlist,
-        addInfo: kid.Info,
-        sponsorName: kid.Sponsor.FirstName + " " + kid.Sponsor.LastName,
-        sponsorPhone: kid.Sponsor.Phone
-      }
-    } else if(kid.Sponsor !== null && kid.RBL === null){
-      //sponsor not null rbl is null
-      return {
-        id: kid.id,
-        rbl: '',
-        childid: kid.ChildID,
-        age: kid.Age,
-        name: kid.Firstname,
-        gender: kid.Gender,
-        race: kid.Race,
-        shirtsize: kid.ShirtSize,
-        pantsize: kid.PantSize,
-        shoesize: kid.ShoeSize,
-        siblings: kid.Siblings,
-        wishlist: kid.Wishlist,
-        addInfo: kid.Info,
-        sponsorName: kid.Sponsor.FirstName + " " + kid.Sponsor.LastName,
-        sponsorPhone: kid.Sponsor.Phone
-      }
-    } else if(kid.Sponsor === null && kid.RBL !== null){
-      //fill in RBL not sponsor
-      return {
-        id: kid.id,
-        rbl: kid.RBL.FirstName + " " + kid.RBL.LastName,
-        childid: kid.ChildID,
-        age: kid.Age,
-        name: kid.Firstname,
-        gender: kid.Gender,
-        race: kid.Race,
-        shirtsize: kid.ShirtSize,
-        pantsize: kid.PantSize,
-        shoesize: kid.ShoeSize,
-        siblings: kid.Siblings,
-        wishlist: kid.Wishlist,
-        addInfo: kid.Info,
-        sponsorName: " ",
-        sponsorPhone: " "
-      }
-    } else {
-      return {
-        id: kid.id,
-        rbl: "",
-        childid: kid.ChildID,
-        age: kid.Age,
-        name: kid.Firstname,
-        gender: kid.Gender,
-        race: kid.Race,
-        shirtSize: kid.ShirtSize,
-        pantSize: kid.PantSize,
-        shoeSize: kid.ShoeSize,
-        siblings: kid.Siblings,
-        wishlist: kid.Wishlist,
-        addInfo: kid.Info,
-        sponsorName: '',
-        sponsorPhone: ''
-      }
-    }
-  })
-  return kidArr;
-}
-
-
 export default function ChildrenScreen () {
   const [customWidth, setCustomWidth] = React.useState('100%');
-  const rowArray = [];
   const [currentKid, setCurrentKid] = useState({});
 
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [NCOpen, setNCOpen] = React.useState(false);
 
+/* ==============================================================================================
+                                      Children List
+================================================================================================*/
+  const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren));
+  if(child_data) {console.log("Children List has been loaded: ", child_data.listChildren.items)};
 
+  const uiListChildren = () => {
+    if (child_loading) {return <div>Loading Children</div>}
+    if (child_loading) {return <div>Error Loading Children: {child_error}</div>}
+
+    if (child_data.listChildren.items.length === 0) {
+      return(<div>No Children</div>);
+    } else{
+      return (
+        <DataGrid
+          sx={{
+            
+          }}
+          rows= {child_data.listChildren.items}
+          columns={[
+              { field: 'RBL.FirstName', headerName: 'RBL Lady', flex: .9},
+              { field: 'ChildID', headerName: 'ID', flex: .6 },
+              { field: 'Firstname', headerName: 'Name', flex: .7 },
+              { field: 'Gender', headerName: 'Gender', flex: .4 },
+              { field: 'Age', headerName: 'Age', type: 'number', flex: .3},
+              { field: 'ShirtSize', headerName: 'Shirt Size', flex: .5 },
+              { field: 'PantSize', headerName: 'Pant Size', flex: .5 },
+              { field: 'ShoeSize', headerName: 'Shoe Size', flex: .5 },
+              { field: 'Siblings', headerName: 'Siblings', flex: .5 },
+              { field: 'Sponsor.FirstName', headerName: 'Sponsor', flex: .9},
+              { field: 'Sponsor.Phone', headerName: 'Sponsor Phone', flex: .9},
+              {field: 'actions',
+              headerName: "More Actions",
+              flex: .7,
+              renderCell: (params) => {
+                  return (
+                      <Button
+                          onClick={(e) => handleDrawerOpen(params.row)}
+                          variant="text"
+                      >
+                          <EditIcon />
+                      </Button>
+                      );
+                      }
+              
+              }
+          ]}
+          initialState={{
+          pagination: {
+              paginationModel: { page: 0, pageSize: 10 },
+          },
+          }}
+          pageSizeOptions={[12]}
+          slots={{ toolbar: QuickSearchToolbar }}
+      />
+      )
+    }
+  }
 
 /* ==============================================================================================
-                                      Populating Grid Rows
+                                      New Child Dialog
 ================================================================================================*/
-  //data.listChildren.items ==> an array of children 
-  const { loading, error, data } = useQuery(gql(listChildren)); 
-  if(data || !loading ) {
-    const childList = data.listChildren.items.map((kid) => {
-        return rowArray.push(kid)
-    })
-  }
-  const renderedChildren = createRows(rowArray);
 
   const handleNewChildClose = (event, reason) => {
     if (reason && reason === "backdropClick"){
@@ -200,9 +160,22 @@ export default function ChildrenScreen () {
       return (<></>);
     }
   }
-  //---------------------------------------------------- 
-  //      Child Side Drawer
-  //----------------------------------------------------
+/* ==============================================================================================
+                                      Child Side Drawer
+================================================================================================*/
+
+  const openSideDrawer = () => {
+    if(drawerOpen) {
+      return (
+        <ChildSideDrawer
+          child = {currentKid}
+          open = {drawerOpen}
+          handleClose = {handleSpecialDrawerClose}
+        />
+      )
+    }
+  }
+
   const drawerCallback = () => {
     if(customWidth == '100%'){
         return setCustomWidth('70%')
@@ -211,11 +184,6 @@ export default function ChildrenScreen () {
     }
   }
 
-  useEffect(() => {
-      if(drawerOpen){
-          drawerCallback()
-      }
-    }, [drawerOpen]);
 
 /* ==============================================================================================
                                       Handle Functions
@@ -223,6 +191,7 @@ export default function ChildrenScreen () {
   const handleDrawerOpen = (data) => {
     setCurrentKid(data);
     setDrawerOpen(true);
+    setCustomWidth('70%');
   }
 
   const handleDrawerClose = () => {
@@ -246,8 +215,6 @@ export default function ChildrenScreen () {
   }
 
 
-
-
   return (
     <React.Fragment>
      <Button 
@@ -267,51 +234,12 @@ export default function ChildrenScreen () {
       />
       <Main sx={{width: customWidth }} open={drawerOpen}>
         <Paper elevation={1}>
-            <DataGrid
-                sx={{
-                  
-                }}
-                rows= {renderedChildren}
-                columns={[
-                    { field: 'rbl', headerName: 'RBL Lady', flex: .9},
-                    { field: 'childid', headerName: 'ID', flex: .6 },
-                    { field: 'name', headerName: 'Name', flex: .7 },
-                    { field: 'gender', headerName: 'Gender', flex: .4 },
-                    { field: 'age', headerName: 'Age', type: 'number', flex: .3},
-                    { field: 'shirtSize', headerName: 'Shirt Size', flex: .5 },
-                    { field: 'pantSize', headerName: 'Pant Size', flex: .5 },
-                    { field: 'shoeSize', headerName: 'Shoe Size', flex: .5 },
-                    { field: 'siblings', headerName: 'Siblings', flex: .5 },
-                    { field: 'sponsorName', headerName: 'Sponsor', flex: .9},
-                    { field: 'sponsorPhone', headerName: 'Sponsor Phone', flex: .9},
-                    {field: 'actions',
-                    headerName: "More Actions",
-                    flex: .7,
-                    renderCell: (params) => {
-                        return (
-                            <Button
-                                onClick={(e) => handleDrawerOpen(params.row)}
-                                variant="text"
-                            >
-                                <EditIcon />
-                            </Button>
-                            );
-                            }
-                    
-                    }
-                ]}
-                initialState={{
-                pagination: {
-                    paginationModel: { page: 0, pageSize: 10 },
-                },
-                }}
-                pageSizeOptions={[12]}
-                slots={{ toolbar: QuickSearchToolbar }}
-            />
+            {uiListChildren()}
         </Paper>
       </Main>
-      <CreateChildForm open={NCOpen} handleClose={handleNCClose} />
-      <ChildSideDrawer child_id={currentKid.id} open={drawerOpen} handleClose={handleSpecialDrawerClose}  />
+
+      {openSideDrawer()}
+      {openCreateChild()}
 
     </React.Fragment>
   )

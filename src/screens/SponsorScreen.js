@@ -74,20 +74,6 @@ function QuickSearchToolbar() {
   );
 }
 
-function createRows(array) {
-  //console.log("in create rows: ", array)
-  const sponArr = array.map((sponsor) => {
-    return {
-      id: sponsor.id,
-      name: sponsor.FirstName + " " + sponsor.LastName,
-      companyName: sponsor.Institution,
-      email: sponsor.Email,
-      phone: sponsor.Phone
-    }
-  })
-  return sponArr;
-}
-
 export default function SponsorScreen () {
   const [NSOpen, setNSOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -95,6 +81,8 @@ export default function SponsorScreen () {
   const [importOpen, setImportOpen] = useState(false);
   const [currSponsor, setCurrSponsor] = useState({});
   const [customWidth, setCustomWidth] = React.useState('100%');
+
+
 
 /* 
 ================================================================================================
@@ -116,8 +104,8 @@ export default function SponsorScreen () {
           <DataGrid
             rows = {sponsor_data.listSponsors.items}
             columns={ [
-              { field: 'FirstName',   headerName: 'First Name', flex: 1},
-              { field: 'LastName',    headerName: 'Last Name', flex: 1},
+              { field: 'FirstName',   headerName: 'Name', flex: 1},
+              //{ field: 'LastName',    headerName: 'Last Name', flex: 1},
               { field: 'Institution', headerName: 'Institution Name', flex: 1},
               { field: 'Email',       headerName: 'Email Address', flex: 1},
               { field: 'Phone',       headerName: 'Phone Number', flex: 1},
@@ -159,18 +147,18 @@ export default function SponsorScreen () {
     }else{
       setCurrSponsor(row);
       setEditOpen(true);
+      setCustomWidth('70%')
     }
   }
 
   const openSideDrawer = () => {
     if (editOpen) {
       return (
-        //<SponsorSideDrawer open={editOpen} handleClose={handleSpecialEditClose} sponsor_id={currSponsor.id} />
-        <SponsorSideDrawer 
-          sponsor={currSponsor}
-          open={editOpen} 
-          handleClose={handleEditClose}
-        />
+          <SponsorSideDrawer 
+            sponsor={currSponsor}
+            open={editOpen} 
+            handleClose={handleEditClose}
+          />        
       )
     }else{
       return (<></>);

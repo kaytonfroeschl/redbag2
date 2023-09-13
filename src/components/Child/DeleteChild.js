@@ -12,7 +12,7 @@ import {
     Divider
 } from '@mui/material';
 
-export default function DeleteChild({ open, handleClose, child }) {
+export default function DeleteChild({ open, handleClose, child, deleteChild }) {
    /*const [deleteChildMutation] = useMutation(deleteChild);
 
     const handleDelete = async () => {
@@ -48,7 +48,7 @@ export default function DeleteChild({ open, handleClose, child }) {
                                 fontSize: 'h6.fontSize'
                             }}
                         >
-                            {child.passedName} {child.passedChildID}</Typography>
+                            {child.Firstname} {child.ChildID}</Typography>
                     </Box>
                 </DialogContent>
                 <DialogActions>
@@ -67,13 +67,13 @@ export default function DeleteChild({ open, handleClose, child }) {
                                 color: 'white',
                                 m: 1
                             }}
-                            onClick={handleDelete}
+                            onClick={handleClose}
                         >No, don't Delete!</Button>
                         <Button 
                             sx={{
                                 m: 1
                             }}
-                            onClick={handleClose}
+                            onClick={deleteChild}
                         >Yes I am sure</Button>
                     </Box>
                     
