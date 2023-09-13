@@ -7,6 +7,10 @@ import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateChildForm from '../components/Child/CreateChildForm';
 import ChildSideDrawer from '../components/Child/ChildSideDrawer';
+import ChildImport from '../components/Child/ChildImport';
+import ChildExport from '../components/Child/ChildExport';
+import { createChild } from '../graphql/mutations';
+import { ClientDevice } from 'aws-amplify';
 
 
 /* ==============================================================================================
@@ -33,18 +37,18 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   }),
 );
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-start',
-  }));
+// const DrawerHeader = styled('div')(({ theme }) => ({
+//     display: 'flex',
+//     alignItems: 'center',
+//     padding: theme.spacing(0, 1),
+//     // necessary for content to be below app bar
+//     ...theme.mixins.toolbar,
+//     justifyContent: 'flex-start',
+//   }));
 
-/* ==============================================================================================
-                                        Search Bar 
-================================================================================================*/
+//---------------------------------------------------- 
+//  Utility Code
+//----------------------------------------------------
 function QuickSearchToolbar() {
   return (
     <Box
@@ -71,76 +75,41 @@ function QuickSearchToolbar() {
   );
 }
 
+/* 
+================================================================================================
+                Component Starts Here
+================================================================================================*/
 export default function ChildrenScreen () {
   const [customWidth, setCustomWidth] = React.useState('100%');
   const [currentKid, setCurrentKid] = useState({});
-
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [NCOpen, setNCOpen] = React.useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
-/* ==============================================================================================
-                                      Children List
-================================================================================================*/
-  const { data: child_data, loading: child_loading, error: child_error } = useQuery(gql(listChildren));
-  if(child_data) {console.log("Children List has been loaded: ", child_data.listChildren.items)};
+  //---------------------------------------------------- 
+  //      RBL Stuff
+  //----------------------------------------------------
+  const { data: rbl_data, loading: rbl_loading, error: rbl_error } = useQuery(gql(listRBLS));
+  if(rbl_loading) {console.log("RBL List is loading")};  
+  if(rbl_error) {console.log("RBL List Load error: " + rbl_error)};
 
-  const uiListChildren = () => {
-    if (child_loading) {return <div>Loading Children</div>}
-    if (child_loading) {return <div>Error Loading Children: {child_error}</div>}
+  //---------------------------------------------------- 
+  //      Sponsor Stuff
+  //----------------------------------------------------
+  const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
+  if(sponsor_loading) {console.log("Sponsor List is loading")};  
+  if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
 
-    if (child_data.listChildren.items.length === 0) {
-      return(<div>No Children</div>);
-    } else{
-      return (
-        <DataGrid
-          sx={{
-            
-          }}
-          rows= {child_data.listChildren.items}
-          columns={[
-              { field: 'RBL.FirstName', headerName: 'RBL Lady', flex: .9},
-              { field: 'ChildID', headerName: 'ID', flex: .6 },
-              { field: 'Firstname', headerName: 'Name', flex: .7 },
-              { field: 'Gender', headerName: 'Gender', flex: .4 },
-              { field: 'Age', headerName: 'Age', type: 'number', flex: .3},
-              { field: 'ShirtSize', headerName: 'Shirt Size', flex: .5 },
-              { field: 'PantSize', headerName: 'Pant Size', flex: .5 },
-              { field: 'ShoeSize', headerName: 'Shoe Size', flex: .5 },
-              { field: 'Siblings', headerName: 'Siblings', flex: .5 },
-              { field: 'Sponsor.FirstName', headerName: 'Sponsor', flex: .9},
-              { field: 'Sponsor.Phone', headerName: 'Sponsor Phone', flex: .9},
-              {field: 'actions',
-              headerName: "More Actions",
-              flex: .7,
-              renderCell: (params) => {
-                  return (
-                      <Button
-                          onClick={(e) => handleDrawerOpen(params.row)}
-                          variant="text"
-                      >
-                          <EditIcon />
-                      </Button>
-                      );
-                      }
-              
-              }
-          ]}
-          initialState={{
-          pagination: {
-              paginationModel: { page: 0, pageSize: 10 },
-          },
-          }}
-          pageSizeOptions={[12]}
-          slots={{ toolbar: QuickSearchToolbar }}
-      />
-      )
-    }
+  //---------------------------------------------------- 
+  //      Child Stuff
+  //----------------------------------------------------
+  
+  //---------------- Create New Child ----------------
+  //<CreateChildForm open={NCOpen} handleClose={handleNCClose} />
+  const handleNewChildOpen = () => {
+    setNCOpen(true);
   }
-
-/* ==============================================================================================
-                                      New Child Dialog
-================================================================================================*/
-
   const handleNewChildClose = (event, reason) => {
     if (reason && reason === "backdropClick"){
         return;
@@ -160,87 +129,282 @@ export default function ChildrenScreen () {
       return (<></>);
     }
   }
-/* ==============================================================================================
-                                      Child Side Drawer
-================================================================================================*/
+
+  //---------------- Edit Child (aka SideDrawer) ----------------
 
   const openSideDrawer = () => {
-    if(drawerOpen) {
+    if (drawerOpen) {
       return (
-        <ChildSideDrawer
-          child = {currentKid}
-          open = {drawerOpen}
-          handleClose = {handleSpecialDrawerClose}
+        <ChildSideDrawer 
+          child_id={currentKid.id} 
+          open={drawerOpen} 
+          handleClose={handleDrawerClose}
         />
       )
+    }else{
+      return (<></>);
     }
   }
 
+  const handleDrawerOpen = (data) => {
+    setCurrentKid(data);
+    setDrawerOpen(true);
+  }
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    drawerCallback();
+  }
+
   const drawerCallback = () => {
-    if(customWidth == '100%'){
+    if(customWidth === '100%'){
         return setCustomWidth('70%')
     } else {
         return setCustomWidth('100%')
     }
   }
+  
+  /*useEffect(() => {
+      if(drawerOpen){
+          drawerCallback()
+      }
+    }, [drawerOpen])*/
 
-
-/* ==============================================================================================
-                                      Handle Functions
-================================================================================================*/
-  const handleDrawerOpen = (data) => {
-    setCurrentKid(data);
-    setDrawerOpen(true);
-    setCustomWidth('70%');
+  //---------------- List Children ----------------
+  
+  const { 
+    data: child_data, 
+    loading: child_loading, 
+    error: child_error, 
+    refetch: child_Refetch 
+  } = useQuery(gql(listChildren)); 
+  
+  const showChildList = () => {
+    if(child_loading) {return <div>Child List is loading</div>};  
+    if(child_error) {return <div>Child List Load error: " + {rbl_error}</div>};    
+    if(child_data.listChildren.items.length===0) {return <div>There are no children to list</div>};
+    //console.log("Children ", child_data.listChildren.items);
+    return (
+      <DataGrid
+        rows= {child_data.listChildren.items}
+        columns={[
+          { field: 'RBL',         headerName: 'RBL', flex: .8,
+            valueGetter: (params) => {
+              if(params.row.RBL) {return(params.row.RBL.LastName);}
+              return "";           
+            }
+          },
+          { field: 'ChildID',     headerName: 'ID', flex: .4 },
+          { field: 'Firstname',   headerName: 'First Name', flex: .5 },
+          { field: 'Gender',      headerName: 'Gender', flex: .2 },
+          { field: 'Age',         headerName: 'Age', type: 'number', flex: .2},
+          { field: 'ShirtSize',   headerName: 'Shirt Size', flex: .5 },
+          { field: 'PantSize',    headerName: 'Pant Size', flex: .5 },
+          { field: 'ShoeSize',    headerName: 'Shoe Size', flex: .5 },
+          { field: 'Siblings',    headerName: 'Siblings', flex: .5 },
+          { field: 'Sponsor', headerName: 'Sponsor', flex: 1.3,
+            valueGetter: (params) => {
+              if(params.row.Sponsor) {
+                return(
+                  params.row.Sponsor.FirstName + " " + params.row.Sponsor.LastName + " " + params.row.Sponsor.Institution
+                );
+              }
+              return "";
+            }
+          },
+          { field: 'actions',     headerName: "More Actions", flex: .7,
+              renderCell: (params) => {
+                return (
+                  <Button onClick={(e) => handleDrawerOpen(params.row)} variant="text">
+                    <EditIcon />
+                  </Button>)}
+          }
+        ]}
+          // initialState={{pagination: {paginationModel: { page: 0, pageSize: 10 },},}}
+          // pageSizeOptions={[12]}
+          slots={{ toolbar: QuickSearchToolbar }}
+      />
+    )
   }
 
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
+  //---------------------------------------------------- 
+  //       Import Child Spreadsheet
+  //----------------------------------------------------
+  const handleImportOpen = () => {
+    //console.log("handleImportOpent");
+    setImportOpen(true);
+  }
+
+  const handleImportClose = () => {
+    //console.log("handleImportClose");
+    setImportOpen(false);
+    child_Refetch();
+  }
+  
+  const openImport = () => {
+    if (importOpen) {
+      //console.log("openImport");
+      return (
+        <ChildImport 
+          open={importOpen} 
+          handleClose={handleImportClose}
+          childList={child_data.listChildren.items}
+          sponsorList={sponsor_data.listSponsors.items}
+          rblList={rbl_data.listRBLS.items}
+          AddChild={handleAddChild}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+
+  //---------------- Add Imported Child ----------------
+
+  const [addChildMutation, {data: addData, loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
+  if(loadingAdd) {console.log("Loading Add Child Mutation")};
+  if(errorAdd) {console.log( "Create Child Mutation error: " + errorAdd)};
+
+  //const handleAddChild = async (childData) => { 
+  const handleAddChild = (childImportData) => {
+    console.log("handleAddChild, about to call addChildMutation. ChildID: " + childImportData.ChildID);
+    try{
+        const response = addChildMutation({
+        variables: { 
+          input: { 
+            Firstname: childImportData.Firstname, 
+            ChildID: childImportData.ChildID, 
+            Gender: childImportData.Gender, 
+            Race: childImportData.Race, 
+            Age: childImportData.Age, 
+            Siblings: childImportData.Siblings, 
+            ShirtSize: childImportData.ShirtSize, 
+            PantSize: childImportData.PantSize, 
+            ShoeSize: childImportData.ShoeSize, 
+            Wishlist: childImportData.Wishlist, 
+            Info: childImportData.Info,
+            rblID: childImportData.rblID,
+            sponsorID: childImportData.sponsorID,
+          } 
+        },
+      });
+      console.log("End of Add Child Mutation (after childList.refetch): child_data.listChildren.items has " + child_data.listChildren.items.length + " entries");
+    }catch(error) {
+      console.log("Add Child Mutation error ", error);
+      return "Create New Child failed with error: " + error;
+    };        
+    return "";
   };
 
-  const handleSpecialDrawerClose = () => {
-    setDrawerOpen(false);
-    drawerCallback();
+  //---------------------------------------------------- 
+  //       Export Child Spreadsheet
+  //----------------------------------------------------
+  const handleExportOpen = () => {
+    setExportOpen(true);
   }
 
-  const handleNCOpen = () => {
-    setNCOpen(true);
+  const handleExportClose = () => {
+    setExportOpen(false);
   }
 
-  const handleNCClose = (event, reason) => {
-    if (reason && reason == "backdropClick"){
-        return;
+  const FormatChildrenListForExport = () => {
+    return (
+      child_data.listChildren.items.map((child) => {
+        return (
+          {
+            "Child ID": child.ChildID,
+            "First Name": child.Firstname,
+            Gender: child.Gender,
+            Race: child.Race,
+            Age: child.Age,
+            Siblings: child.Siblings,
+            Bike: child.Bike,
+            "Pant Size": child.PantSize,
+            "Shirt Size": child.ShirtSize,
+            "Shoe Size": child.ShoeSize,
+            "Wish List": child.Wishlist,
+            Information: child.Info,
+            RBL: getRBLInfo(child.RBL),
+            Sponsor: getSponsorInfo(child.Sponsor),
+            "DB Identifier": child.id
+          }
+        )
+      })
+    )
+  }
+
+  const getRBLInfo = (rbl) => {
+    if(rbl) {
+      return (
+        rbl.FirstName + " " +
+        rbl.LastName
+      );
     }
-    setNCOpen(false);
+    return '';
   }
 
+  const getSponsorInfo = (sponsor) => {
+    let Name = "";
 
+    if ( ! sponsor) { return ""};
+
+    console.log(sponsor);
+    
+    if(sponsor.FirstName) {
+        Name = sponsor.FirstName
+    };
+
+    if(sponsor.LastName) { 
+        if(Name.length > 0 ) { Name += " "}
+        Name += sponsor.LastName
+    };
+
+    if(sponsor.Institution) {
+        if(Name.length > 0) {
+            Name = Name + " (" + sponsor.Institution + ")"
+        }else{
+            Name = sponsor.Institution
+        }
+    };
+
+    return Name;
+  };
+  
+  const openExport = () => {
+    if (exportOpen) {
+      return (
+        <ChildExport 
+          open={exportOpen} 
+          handleClose={handleExportClose}
+          childList={FormatChildrenListForExport()}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+/* 
+================================================================================================
+                User Interface starts here
+================================================================================================*/
   return (
     <React.Fragment>
-     <Button 
-            sx={{
-                m:1,
-                ml: 3
-            }}
-            onClick={handleNCOpen}
-            variant="contained">
-            New Child
-        </Button>
-    <Box 
-        sx={{ 
-            display: 'flex',
-            width: customWidth
-            }}
-      />
+      <Button sx={{m:1,ml:3}} onClick={handleNewChildOpen} variant="contained">New Child</Button>
+      <Button sx={{m:1,mr:3}} onClick={handleImportOpen}   variant="text">Import</Button>
+      <Button sx={{m:1,mr:3}} onClick={handleExportOpen}   variant="text">Export</Button>
+
+      <Box sx={{display: 'flex',width: customWidth}}/>
+      
       <Main sx={{width: customWidth }} open={drawerOpen}>
         <Paper elevation={1}>
-            {uiListChildren()}
+          {showChildList()}
         </Paper>
       </Main>
-
+        
       {openSideDrawer()}
+      {openImport()}
+      {openExport()}
       {openCreateChild()}
-
-    </React.Fragment>
+  </React.Fragment>
   )
 }

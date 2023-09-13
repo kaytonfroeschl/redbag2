@@ -96,7 +96,14 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                     columns={ [
                         { field: 'ChildID',   headerName: 'First Name', flex: 1},
                         { field: 'Firstname',    headerName: 'Last Name', flex: 1},
-                        { field: 'RBL.LastName', headerName: 'RBL', flex: 1},
+                        { field: 'RBL', headerName: 'RBL', flex: 1.3,
+                            valueGetter: (params) => {
+                            if(params.row.RBL) {
+                                return(params.row.RBL.LastName);
+                            }
+                            return "";
+                            }
+                        },
                     ]}
                 />
             )
