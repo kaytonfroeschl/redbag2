@@ -408,7 +408,7 @@ export default function SponsorScreen () {
       let loopCount = 0;
       var success = false;
       do {
-        hash = getRandomInt(9999999999,99999999999);
+        hash = getRandomInt(9999,9999999);
         
         if( ! sponsorPhoneExists(hash)) {success = true};
 
