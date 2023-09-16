@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { listSponsors } from '../graphql/queries';
-import { createSponsor, deleteSponsor } from '../graphql/mutations';
+import { createSponsor, updateSponsor, deleteSponsor } from '../graphql/mutations';
 import { styled } from '@mui/material/styles';
 import { Paper, Button, Box } from '@mui/material';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
@@ -45,7 +45,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
   }));
 
-/* ==============================================================================================
+/* 
+================================================================================================
                                         Search Bar 
 ================================================================================================*/
 function QuickSearchToolbar() {
@@ -87,6 +88,10 @@ function createRows(array) {
   })
   return sponArr;
 }
+/* 
+================================================================================================
+                              Component Begins Here
+================================================================================================*/
 
 export default function SponsorScreen () {
   const [NSOpen, setNSOpen] = useState(false);
@@ -148,11 +153,13 @@ export default function SponsorScreen () {
         )
       }
     }
-
-/* 
-==============================================================================================
-                                      Side Drawer (Sponsor Edit)
-================================================================================================*/
+  /* 
+  ==============================================================================================
+                      Sponsor Update
+  ================================================================================================*/
+  const [updateSponsorMutation, { loading: loadingSponsorUpdate, error: errorSponsorUpdate, data: updatedSponsor }] = useMutation(gql(updateSponsor));
+  if(errorSponsorUpdate) {console.log("Error Loading Sponsor Update: " + errorSponsorUpdate)};
+  
   const handleEditOpen = (row) => {
     if (row===null) {
       setCurrSponsor(0);
@@ -329,6 +336,115 @@ export default function SponsorScreen () {
     };        
     return "";
   };
+  /* 
+  ================================================================================================
+                  Handle Sponsor Hash
+  ================================================================================================*/
+    const handleHashClick = () => {
+      console.log("handleHashClick begin");
+      sponsor_data.listSponsors.items.map( (sponsor) => {        
+        if(sponsor.Phone === "") {          
+          let hash = sponsorHash(sponsor);
+          if(hash !== '') { 
+            let response = updateSponsorPhoneWithHash(sponsor, hash);
+            if(response.lenght > 0) console.log("   Error in mutation: " + response);
+          }
+        }
+      });
+      console.log("handleHashClick end");
+    };
+
+    const updateSponsorPhoneWithHash = (sponsorData, hash) => {        
+      try{
+        const response = updateSponsorMutation({
+            variables: 
+            {input: {
+              id: sponsorData.id,
+              Phone: hash
+            }}, 
+            refetchQueries: [{ query: gql(listSponsors) }]
+        });
+      } catch(error) {
+        return "Update Sponsor failed with error: " + error;
+      };
+      return "";
+    };
+
+    const getRandomInt = (min, max) => {
+      return Math.floor(Math.random() * (max - min) + min);
+    };
+    
+    const firstLetter = (value) => {
+      var firstLetters = value.match(/\b(\w)/g);
+      return firstLetters.join('');
+    };
+    
+    const sponsorFullName = (sponsor) => {
+      let Name = "";
+    
+      if(sponsor.FirstName) {
+          Name = sponsor.FirstName
+      };
+    
+      if(sponsor.LastName) { 
+          if(Name.length > 0 ) { Name += " "}
+          Name += sponsor.LastName
+      };
+    
+      if(sponsor.Institution) {
+          if(Name.length > 0) {
+              Name = Name + " " + sponsor.Institution
+          }else{
+              Name = sponsor.Institution
+          }
+      }
+
+      return Name;
+    };
+    
+    const sponsorHash = (sponsor) => {
+      var hash = '';
+      var name = '';
+      var letters = 'nnn';
+    
+      if(sponsor.Phone > "") return '';
+    
+      name = sponsorFullName(sponsor);    
+      if (name > "") {letters = firstLetter(name)};
+      
+      let loopCount = 0;
+      var success = false;
+      do {
+        hash = letters + getRandomInt(999,9999);
+        
+        if( ! sponsorPhoneExists(hash)) {success = true};
+
+        loopCount += 1;
+        if(loopCount > 10) {
+          console.log("sponsorHash the loop count was exceeded");
+          break;
+        }
+      } while (success===false);
+
+      console.log("   " + hash + " generated for " + name + ", sponsorID: " + sponsor.id);
+      
+      return hash;
+    };
+
+    const sponsorPhoneExists = (hash) => {  
+      let found = '';
+      sponsor_data.listSponsors.items.map((sponsor) => {
+        if (sponsor.Phone === hash) {
+          found = sponsor.id;
+        };
+      });
+      
+      if (found.length > 0 ) {
+        console.log("sponsor found: ", found);
+        return true;
+      }
+      return false;
+    };
 
 /* 
 ================================================================================================
@@ -347,6 +463,7 @@ export default function SponsorScreen () {
           <Box sx={{display:'flex', justifyContent:'space-between'}}>
             <Button sx={{m:1, ml:3}} variant="contained" onClick={handleNSOpen} >New Sponsor</Button>
             <Button sx={{M:1, mr:3}} variant="text" onClick={handleImportOpen}>Import</Button>
+            <Button sx={{M:1, mr:3}} variant="text" onClick={handleHashClick}>Generate Sponsor Phone Numbers</Button>
           </Box>
 
           {uiListSponsors()}
