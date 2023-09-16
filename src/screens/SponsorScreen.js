@@ -374,11 +374,6 @@ export default function SponsorScreen () {
       return Math.floor(Math.random() * (max - min) + min);
     };
     
-    const firstLetter = (value) => {
-      var firstLetters = value.match(/\b(\w)/g);
-      return firstLetters.join('');
-    };
-    
     const sponsorFullName = (sponsor) => {
       let Name = "";
     
@@ -405,17 +400,15 @@ export default function SponsorScreen () {
     const sponsorHash = (sponsor) => {
       var hash = '';
       var name = '';
-      var letters = 'nnn';
-    
+
       if(sponsor.Phone > "") return '';
     
-      name = sponsorFullName(sponsor);    
-      if (name > "") {letters = firstLetter(name)};
+      name = sponsorFullName(sponsor);
       
       let loopCount = 0;
       var success = false;
       do {
-        hash = letters + getRandomInt(999,9999);
+        hash = getRandomInt(9999999999,99999999999);
         
         if( ! sponsorPhoneExists(hash)) {success = true};
 
