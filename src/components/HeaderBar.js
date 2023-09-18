@@ -30,6 +30,7 @@ export default function HeaderBar() {
             <Toolbar
               sx={{
                 pr: '24px', // keep right padding when drawer closed
+                backgroundColor: "rgb(0,135,62)"
               }}
             >
               <Typography
