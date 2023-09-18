@@ -458,14 +458,7 @@ if (loading) {
                             }
                     </Box>
                 </Box>
-                <Box
-                sx={{
-                    position: 'absolute',
-                    bottom: "0",
-                    display: 'flex',
-                    flexDirection:'row',
-                    justifyContent: 'flex-start'
-                }}>
+                <Box>
                 <Box
                     sx={{
                         display: 'flex',

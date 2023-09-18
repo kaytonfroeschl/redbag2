@@ -35,14 +35,12 @@ export function CreateChildForm ({ open, handleClose }){
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
     const [form_bike, setFormBike] = useState('');
-    const [form_sponsor, setFormSponsor] = useState();
+    const [selectRBL, setSelectRBL] = useState();
     const [selectSponsor, setSelectSponsor] = useState();
     
 
-    let sponsorAutoArray = [];
     const sponsorArray = [];
 
-    let RBLAutoArray = [];
     let RBLArray = [];
 
 /* ==============================================================================================
@@ -96,24 +94,7 @@ export function CreateChildForm ({ open, handleClose }){
         setFormBike(event.target.value);
     }
 
-    function handleFormSponsor(event){
-        setFormSponsor(event.target.value);
-    }
 
-    function handleEditClose() {
-        //console.log("edit close")
-    }
-
-    function handleSponsor() {
-        let temp;
-        let sponsorObj = sponsorArray.map((sponsor) => {
-            if (sponsor.id === selectSponsor.id) {
-                temp = sponsor;
-                return sponsor       
-        }})
-        console.log("temp: ", temp)
-        setFormSponsor(temp)
-    }
 
     function resetValues() {
         setID('');
@@ -129,36 +110,13 @@ export function CreateChildForm ({ open, handleClose }){
         setFormWishlist('');
         setFormInfo('');
         setFormBike('');
-        setFormSponsor();
+        setSelectRBL('');
+        setSelectSponsor('');
     }
 
     function handleSpecialClose() {
         resetValues();
         handleClose();
-    }
-
-    function handleSpecialCreate(e) {
-        handleSponsor();
-        console.log("form_sponsor: ", form_sponsor)
-        handleCreate(e);
-    }
-
-    function createNameArray(array) {
-        let tempArr = [];
-        let list = array.map((sponsor) => {
-            tempArr.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
-           
-        })
-        //console.log("New Array: ", tempArr)
-        return tempArr
-    }
-
-    function createAutoRBL(array) {
-        let tempArr = [];
-        let list = array.map((RBL) => {
-            tempArr.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
-        })
-        return tempArr;
     }
 
 
@@ -168,12 +126,12 @@ export function CreateChildForm ({ open, handleClose }){
     const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
     if(RBL_data || !RBL_loading ) {
     const RBLList = RBL_data.listRBLS.items.map((RBL) => {
-        return RBLArray.push(RBL)
+        return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
     })
     }
-    RBLAutoArray = createAutoRBL(RBLArray);
-    console.log("List of RBLS: ", RBLArray)
-    console.log("RBL Auto Array: ", RBLAutoArray)
+    //RBLAutoArray = createAutoRBL(RBLArray);
+    //console.log("List of RBLS: ", RBLArray)
+    //console.log("RBL Auto Array: ", RBLAutoArray)
 
 /* ==============================================================================================
                                      Grabbing a list of Sponsors
@@ -182,11 +140,9 @@ export function CreateChildForm ({ open, handleClose }){
   const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
   if(sData || !sLoading ) {
     const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push(sponsor)
-        //console.log(sponsor.FirstName)
+        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
     })
   }
-  sponsorAutoArray = createNameArray(sponsorArray);
 
 /* ==============================================================================================
                                         Apollo Call to Add New Child
@@ -199,10 +155,25 @@ export function CreateChildForm ({ open, handleClose }){
     
     async function handleCreate(e) {
         e.preventDefault();
-        console.log("form_sponsor info: ", form_sponsor)
         try {
             const response = await addChildMutation({
-                variables: { input: { Firstname: form_name, ChildID: form_id, Gender: form_gender, Race: form_race, Age: form_age, Siblings: form_siblings, ShirtSize: form_shirt, PantSize: form_pant, ShoeSize: form_shoe, Wishlist: form_wishlist, Info: form_info, Bike: form_bike}},
+                variables: {
+                    input: {
+                        Firstname: form_name,
+                        ChildID: form_id,
+                        Gender: form_gender,
+                        Race: form_race,
+                        Age: form_age,
+                        Siblings: form_siblings,
+                        ShirtSize: form_shirt,
+                        PantSize: form_pant,
+                        ShoeSize: form_shoe,
+                        Wishlist: form_wishlist,
+                        Info: form_info,
+                        Bike: form_bike,
+                        rblID: selectRBL,
+                        sponsorID: selectSponsor
+                    }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
@@ -238,14 +209,17 @@ export function CreateChildForm ({ open, handleClose }){
                         style={{background: 'black'}}
                     />
                     <Autocomplete
-                        options = {RBLAutoArray}
-                        //defaultValue={{ label: selectSponsorName, id: selectSponsorID }}
+                        options = {RBLArray}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
                         <TextField {...params} label="" variant="standard" />
                         )}
                         onChange={(e, value) => {
-                            //setSelectRBL(value)
+                            if (value != null){
+                                setSelectRBL(value.id)
+                            } else {
+                                setSelectRBL(null);
+                            }
                         }}
                         sx={{ mb: 2, mt: 2}}
                     />
@@ -461,13 +435,18 @@ export function CreateChildForm ({ open, handleClose }){
                     />
                     <Autocomplete
                         //value={selectSponsor}
-                        options = {sponsorAutoArray}
+                        options = {sponsorArray}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
                         <TextField {...params} label="Sponsor" variant="standard" />
                         )}
                         onChange={(e, value) => {
-                            setSelectSponsor(value)
+                            if(value != null){
+                                setSelectSponsor(value.id);
+                            } else {
+                                setSelectSponsor(null);
+                            }
+                            
                         }}
                     />
                     </FormControl>
@@ -475,7 +454,7 @@ export function CreateChildForm ({ open, handleClose }){
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>
-                    <Button onClick={handleSpecialCreate}>Create</Button>
+                    <Button onClick={handleCreate}>Create</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

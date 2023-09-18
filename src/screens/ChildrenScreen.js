@@ -136,7 +136,7 @@ export default function ChildrenScreen () {
     if (drawerOpen) {
       return (
         <ChildSideDrawer 
-          child_id={currentKid.id} 
+          child={currentKid} 
           open={drawerOpen} 
           handleClose={handleDrawerClose}
         />
@@ -149,6 +149,7 @@ export default function ChildrenScreen () {
   const handleDrawerOpen = (data) => {
     setCurrentKid(data);
     setDrawerOpen(true);
+    setCustomWidth('70%');
   }
 
   const handleDrawerClose = () => {

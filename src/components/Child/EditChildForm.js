@@ -31,20 +31,41 @@ export function EditChildForm ({ open, handleClose, child }){
     const [form_wishlist, setFormWishlist] = useState(child.Wishlist);
     const [form_info, setFormInfo] = useState(child.Info);
     const [form_bike, setFormBike] = useState(child.Bike);
-    const [rblID, setRBLID] = useState('');
-    const [sponsorID, setSponsorID] = useState('');
+    const [rblID, setRBLID] = useState(null);
+    const [sponsorID, setSponsorID] = useState(null);
+
+    const [RBLValue, setRBLValue] = useState('')
+    const [RBLInputValue, setRBLInputValue] = useState('');
+
+    const [sponsorValue, setSponsorValue] = useState('');
+    const [sponsorInputValue, setSponsorInputValue] = useState('');
+
+    // ---------- Default Values for the Autocomplete form --------------
+    const [default_RBLID, setDefault_RBLID] = useState('');
+    const [default_RBLLabel, setDefault_RBLLabel] = useState('');
+
+    const [default_SponsorID, setDefault_SponsorID] = useState('');
+    const [default_SponsorLabel, setDefault_SponsorLabel] = useState('');
 
     useEffect(() => {
         if (child.RBL !== null) {
-            setRBLID(child.RBL.id)
+            console.log("has a RBL")
+            setDefault_RBLID(child.RBL.id)
+            setDefault_RBLLabel(child.RBL.FirstName + " " + child.RBL.LastName);
         } else {
-            setRBLID('')
+            console.log("child does not have an RBL")
+            setDefault_RBLID(null)
+            setDefault_RBLLabel(null)
         }
     
         if (child.Sponsor !== null) {
-            setSponsorID(child.Sponsor.id)
+            console.log("child has a sponsor")
+            setDefault_SponsorID(child.Sponsor.id)
+            setDefault_SponsorLabel(child.Sponsor.FirstName)
         } else {
-            setSponsorID('')
+            console.log("child does not have a sponsor")
+            setDefault_SponsorID(null)
+            setDefault_SponsorLabel(null)
         }
     }, [])
 
@@ -115,6 +136,8 @@ export function EditChildForm ({ open, handleClose, child }){
         setFormWishlist('');
         setFormInfo('');
         setFormBike('');
+        setRBLID('');
+        setSponsorID('');
     }
 
     function handleSpecialClose() {
@@ -132,13 +155,9 @@ export function EditChildForm ({ open, handleClose, child }){
     const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
     if(sData || !sLoading ) {
     const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
-        //console.log(sponsor.FirstName)
+        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName });
     })
     }
-    //sponsorAutoArray = createNameArray(sponsorArray);
-    //console.log("Sponsor Array: ", sponsorArray);
-    //console.log("Sponsor AutoComplete Array: ", sponsorAutoArray);
 
 /*============================================= Apollo Call =================================================
                                               Listing RBLS
@@ -149,9 +168,6 @@ export function EditChildForm ({ open, handleClose, child }){
         return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
     })
     }
-    //RBLAutoArray = createAutoRBL(RBLArray);
-    //console.log("List of RBLS: ", RBLArray)
-    //console.log("RBL Auto Array: ", RBLAutoArray)
 
 /* ==============================================================================================
                                         Apollo Call to Add New Child
@@ -165,6 +181,8 @@ export function EditChildForm ({ open, handleClose, child }){
 
     async function handleEdit(e) {
         e.preventDefault();
+        console.log("RBLID: ", rblID);
+        console.log("SponsorID: ", sponsorID)
         try {
             const response = await editChildMutation({
                 variables: {
@@ -220,20 +238,20 @@ export function EditChildForm ({ open, handleClose, child }){
                         style={{background: 'black'}}
                     />
                     <Autocomplete
+                        value = {RBLValue}
+                        onChange={(_, newValue) => {
+                            setRBLValue(newValue)
+                        }}
+                        inputValue = {RBLInputValue}
+                        onInputChange={(_, newInputValue) => {
+                            setRBLInputValue(newInputValue)
+                        }}
+                        //defaultValue={{ id: default_RBLID, label: default_RBLLabel }}
                         options = {RBLArray}
-                        defaultValue={{ id: child.RBL.id, label: child.RBL.FirstName }}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
-                        <TextField {...params} label="" variant="standard" />
+                            <TextField {...params} label="" variant="standard" />
                         )}
-                        onChange={(e, value) => {
-                            if (value != null){
-                                setRBLID(value.id)
-                            } else {
-                                setRBLID(null)
-                            }
-                            
-                        }}
                         sx={{ mb: 2, mt: 2}}
                     />
                     <Typography
@@ -448,7 +466,7 @@ export function EditChildForm ({ open, handleClose, child }){
                     />
                     <Autocomplete
                         options = {sponsorArray}
-                        defaultValue={{ id: child.Sponsor.id, label: child.Sponsor.FirstName }}
+                        defaultValue={{ id: default_SponsorID, label: default_SponsorLabel }}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
                         <TextField {...params} label="Sponsor" variant="standard" />
