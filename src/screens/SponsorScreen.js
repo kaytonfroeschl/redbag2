@@ -119,7 +119,14 @@ export default function SponsorScreen () {
       }else{
         return (
           <DataGrid
+            initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
+            
+            pageSizeOptions={[10, 20, 30]}
+            
             rows = {sponsor_data.listSponsors.items}
+
+            slots={{ toolbar: QuickSearchToolbar }}
+            
             columns={ [
               { field: 'FirstName',   headerName: 'First Name', flex: 1},
               { field: 'LastName',    headerName: 'Last Name', flex: 1},
@@ -147,9 +154,8 @@ export default function SponsorScreen () {
                   );
                 }
               }
-            ]}
-            slots={{ toolbar: QuickSearchToolbar }}
-          />
+            ]}  //end columns
+          />  //end DataGrid
         )
       }
     }
@@ -445,12 +451,7 @@ export default function SponsorScreen () {
 ================================================================================================*/
   return (
     <React.Fragment>
-      <Box 
-        sx={{ 
-          display: 'flex',
-          width: customWidth
-        }}
-      />
+      <Box sx={{display: 'flex', width: customWidth}} />
       <Main sx={{width: customWidth }} open={editOpen}>
         <Paper elevation={1}>
           <Box sx={{display:'flex', justifyContent:'space-between'}}>
