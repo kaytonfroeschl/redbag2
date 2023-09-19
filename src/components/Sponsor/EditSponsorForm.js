@@ -18,27 +18,14 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
-    const [form_id, setFormID] = useState('');
-    const [form_name, setFormName] = useState('');
-    const [form_street, setStreet] = useState('');
-    const [form_city, setCity] = useState('');
-    const [form_zip, setZip] = useState('');
-    const [form_state, setState] = useState('');
-    const [form_address, setFormAddress] = useState('');
-    const [form_email, setFormEmail] = useState('');
-    const [form_inst, setFormInst] = useState('');
-    const [form_phone, setFormPhone] = useState('');
-    const [form_ya, setFormYA] = useState('');
+    const [form_id, setFormID] = useState(sponsor.id);
+    const [form_name, setFormName] = useState(sponsor.FirstName);
+    const [form_address, setFormAddress] = useState(sponsor.Address);
+    const [form_email, setFormEmail] = useState(sponsor.Email);
+    const [form_inst, setFormInst] = useState(sponsor.Institution);
+    const [form_phone, setFormPhone] = useState(sponsor.Phone);
+    const [form_ya, setFormYA] = useState(sponsor.YearsActive);
 
-    useEffect(() => {
-        setFormID(sponsor.id)
-        setFormName(sponsor.passedName)
-        setFormAddress(sponsor.passedAddress)
-        setFormEmail(sponsor.passedEmail)
-        setFormInst(sponsor.passedInst)
-        setFormPhone(sponsor.passedPhone)
-        setFormYA(sponsor.passedYA)
-    }, [sponsor])
 /* ==============================================================================================
                                         OnChange Handle Functions 
 ================================================================================================*/
@@ -67,7 +54,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
     }
 
 /* ==============================================================================================
-                                        Apollo Call to Add New Child
+                                        Apollo Call 
 ================================================================================================*/
     let input;
     const [updateSponsorMutation] = useMutation(gql(updateSponsor));
@@ -93,7 +80,7 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
     return(
         <React.Fragment>
         <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Edit {sponsor.passedName}</DialogTitle>
+        <DialogTitle style={{fontWeight:'bold'}}>Edit</DialogTitle>
             <DialogContent>
                 <FormControl
                     required={true}

@@ -14,7 +14,8 @@ import {
     Button,
     Divider, 
     MenuItem,
-    Autocomplete
+    Autocomplete,
+    Alert
 } from '@mui/material';
 
 export function CreateChildForm ({ open, handleClose }){
@@ -34,13 +35,13 @@ export function CreateChildForm ({ open, handleClose }){
     const [form_shoe, setFormShoe] = useState('');
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
-    const [form_bike, setFormBike] = useState('');
+    const [form_bike, setFormBike] = useState('N');
     const [selectRBL, setSelectRBL] = useState();
     const [selectSponsor, setSelectSponsor] = useState();
     
 
     const sponsorArray = [];
-
+    let childrenArray = [];
     let RBLArray = [];
 
 /* ==============================================================================================
@@ -119,6 +120,23 @@ export function CreateChildForm ({ open, handleClose }){
         handleClose();
     }
 
+    function childIDCheck(){
+        let arr = childrenArray.map((child) => {
+            if(form_id === child.id){
+                return true
+            }
+        })
+        return false
+    }
+
+    function handleSpecialCreate(){
+        if(childIDCheck){
+            //throw an error
+        }
+         else {
+            handleCreate();
+        }
+    }
 
 /*============================================= Apollo Call =================================================
                                               Listing RBLS
@@ -143,6 +161,17 @@ export function CreateChildForm ({ open, handleClose }){
         return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
     })
   }
+
+/* ==============================================================================================
+                                     Grabbing a list of Sponsors
+                                     From Backend
+================================================================================================*/
+    const { data: children_data, loading: children_loading, error: children_Error } = useQuery(gql(listChildren)); 
+    if(children_data || !children_loading ) {
+    const childrenList = children_data.listChildren.items.map((child) => {
+        return childrenArray.push({ 'id': child.id, 'label': child.FirstName })
+    })
+    }
 
 /* ==============================================================================================
                                         Apollo Call to Add New Child
@@ -454,7 +483,7 @@ export function CreateChildForm ({ open, handleClose }){
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>
-                    <Button onClick={handleCreate}>Create</Button>
+                    <Button onClick={handleSpecialCreate}>Create</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

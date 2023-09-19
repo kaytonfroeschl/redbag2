@@ -46,7 +46,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 export default function ChildSideDrawer({ child, open, handleClose }) {
-console.log("Child Drawer child: ", child)
     
 /* ==============================================================================================
                                         Variables
@@ -99,13 +98,15 @@ if (loading) {
     }
 
     const onEditOpen = () => {
+        let passedChild;
+        data ? passedChild = data : passedChild = ""
         if(editOpen) {
             return (
                 
                 <EditChildForm 
                     open={editOpen}
                     handleClose={handleEditClose}
-                    child={child}
+                    child={passedChild}
                 />
             )
         }
@@ -353,7 +354,9 @@ if (loading) {
                         ml: 1,
                     }}
                     style={{ wordWrap: "break-word" }}
-                >{data ? data.getChild.Wishlist : "N/A"}</Typography>
+                >
+                    {data ? data.getChild.Wishlist : "N/A"}
+                </Typography>
                 <Typography
                     style={{
                         color:'#01579b'
@@ -377,7 +380,9 @@ if (loading) {
                         ml: 1
                     }}
                     style={{ wordWrap: "break-word" }}
-                    >{data ? data.getChild.Info : "N/A"}</Typography>
+                    >
+                        {data ? data.getChild.Bike === 'Y' ? <Typography style={{fontWeight:'bold', color: 'blue'}}>BIKE</Typography> : "" : ""}
+                        {data ? data.getChild.Info : "N/A"}</Typography>
                     <Typography
                     style={{
                         color:'#01579b'

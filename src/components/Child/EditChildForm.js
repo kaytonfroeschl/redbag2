@@ -15,6 +15,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 
 export function EditChildForm ({ open, handleClose, child }){
+console.log("EDIT child: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -34,41 +35,24 @@ export function EditChildForm ({ open, handleClose, child }){
     const [rblID, setRBLID] = useState(null);
     const [sponsorID, setSponsorID] = useState(null);
 
-    const [RBLValue, setRBLValue] = useState('')
+    /*const [RBLValue, setRBLValue] = useState('')
     const [RBLInputValue, setRBLInputValue] = useState('');
 
     const [sponsorValue, setSponsorValue] = useState('');
     const [sponsorInputValue, setSponsorInputValue] = useState('');
 
-    // ---------- Default Values for the Autocomplete form --------------
-    const [default_RBLID, setDefault_RBLID] = useState('');
-    const [default_RBLLabel, setDefault_RBLLabel] = useState('');
-
-    const [default_SponsorID, setDefault_SponsorID] = useState('');
-    const [default_SponsorLabel, setDefault_SponsorLabel] = useState('');
-
     useEffect(() => {
-        if (child.RBL !== null) {
-            console.log("has a RBL")
-            setDefault_RBLID(child.RBL.id)
-            setDefault_RBLLabel(child.RBL.FirstName + " " + child.RBL.LastName);
-        } else {
-            console.log("child does not have an RBL")
-            setDefault_RBLID(null)
-            setDefault_RBLLabel(null)
+        if(child.RBL !== null){
+            setRBLValue(child.RBL.FirstName)
         }
     
-        if (child.Sponsor !== null) {
-            console.log("child has a sponsor")
-            setDefault_SponsorID(child.Sponsor.id)
-            setDefault_SponsorLabel(child.Sponsor.FirstName)
-        } else {
-            console.log("child does not have a sponsor")
-            setDefault_SponsorID(null)
-            setDefault_SponsorLabel(null)
+        if(child.Sponsor !== null){
+            setSponsorValue(child.Sponsor.FirstName);
         }
-    }, [])
+    }, [child])*/
 
+    
+    
     let sponsorArray = [];
     let RBLArray = [];
 
@@ -237,8 +221,7 @@ export function EditChildForm ({ open, handleClose, child }){
                         sx={{borderBottomWidth: 1.5}}
                         style={{background: 'black'}}
                     />
-                    <Autocomplete
-                        value = {RBLValue}
+                    {/*<Autocomplete
                         onChange={(_, newValue) => {
                             setRBLValue(newValue)
                         }}
@@ -246,14 +229,14 @@ export function EditChildForm ({ open, handleClose, child }){
                         onInputChange={(_, newInputValue) => {
                             setRBLInputValue(newInputValue)
                         }}
-                        //defaultValue={{ id: default_RBLID, label: default_RBLLabel }}
+                        defaultValue={{ RBLValue }}
                         options = {RBLArray}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
                             <TextField {...params} label="" variant="standard" />
                         )}
                         sx={{ mb: 2, mt: 2}}
-                    />
+                        />*/}
                     <Typography
                         style={{
                             fontWeight: 500
@@ -464,21 +447,22 @@ export function EditChildForm ({ open, handleClose, child }){
                         sx={{mb:2, borderBottomWidth: 1.5}}
                         style={{background: 'black'}}
                     />
-                    <Autocomplete
+                    {/*<Autocomplete
                         options = {sponsorArray}
-                        defaultValue={{ id: default_SponsorID, label: default_SponsorLabel }}
+                        defaultValue={{ sponsorValue }}
                         getOptionLabel={option => option.label}
                         renderInput={(params) => (
                         <TextField {...params} label="Sponsor" variant="standard" />
                         )}
                         onChange={(e, value) => {
                             if(value !== null){
+                                console.log("Sponsorr Value = ", value)
                                 setSponsorID(value.id)
                             } else {
                                 setSponsorID(null)
                             }
                         }}
-                    />
+                    />*/}
                     </FormControl>
                     </Box>
                 </DialogContent>

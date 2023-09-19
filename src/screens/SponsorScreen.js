@@ -146,6 +146,7 @@ export default function SponsorScreen () {
       setCurrSponsor(0);
     }else{
       setCurrSponsor(row);
+      console.log("ROW:", row)
       setEditOpen(true);
       setCustomWidth('70%')
     }

@@ -36,16 +36,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function NavMenu () {
     const [open, setOpen] = React.useState(true);
-
-    const [childSelect, setChildSelect] = useState(false);
-    const [sponsorSelect, setSponsorSelect] = useState(false);
-    const [rblSelect, setRBLSelect] = useState(false);
-    
-    function handleChildSelect() {
-        setSponsorSelect(false);
-        setRBLSelect(false);
-        setChildSelect(true);
-    }
+    const [childrenSelected, setChildrenSelected] = useState(true);
+    const [sponsorSelected, setSponsorSelected] = useState(false);
     
 
     return (
@@ -68,18 +60,39 @@ export default function NavMenu () {
                     <Box sx={{display: 'block'}}>
                         <List component="nav">
                             <Link to="/">
-                                <ListItemButton>
+                                <ListItemButton
+                                    selected = {childrenSelected}
+                                    onClick = {() => {
+                                        setChildrenSelected(true);
+                                        if(sponsorSelected){
+                                            setSponsorSelected(false);
+                                        }
+                                    }}
+                                    sx={{
+                                        "&.Mui-selected": {
+                                            backgroundColor: "rgb(183,216,195)"
+                                          },
+                                    }}
+                                >
                                     <ListItemText primary="Children" />
                                 </ListItemButton>
                             </Link>
                             <Link to="/sponsor-table">
-                                <ListItemButton>
+                                <ListItemButton
+                                    selected = {sponsorSelected}
+                                    onClick = {() => {
+                                        setSponsorSelected(true);
+                                        if(childrenSelected){
+                                            setChildrenSelected(false);
+                                        }
+                                    }}
+                                    sx={{
+                                        "&.Mui-selected": {
+                                            backgroundColor: "rgb(183,216,195)"
+                                          },
+                                    }}
+                                >
                                     <ListItemText primary="Sponsor" />
-                                </ListItemButton>
-                            </Link>
-                            <Link to="/RBL-table">
-                                <ListItemButton>
-                                    <ListItemText primary="RBL" />
                                 </ListItemButton>
                             </Link>
                         </List>

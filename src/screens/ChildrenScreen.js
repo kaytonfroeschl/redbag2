@@ -133,6 +133,7 @@ export default function ChildrenScreen () {
   //---------------- Edit Child (aka SideDrawer) ----------------
 
   const openSideDrawer = () => {
+    console.log("Child Screen passing into ChildSideDrawer: ", currentKid)
     if (drawerOpen) {
       return (
         <ChildSideDrawer 
@@ -390,14 +391,13 @@ export default function ChildrenScreen () {
 ================================================================================================*/
   return (
     <React.Fragment>
-      <Button sx={{m:1,ml:3}} onClick={handleNewChildOpen} variant="contained">New Child</Button>
-      <Button sx={{m:1,mr:3}} onClick={handleImportOpen}   variant="text">Import</Button>
-      <Button sx={{m:1,mr:3}} onClick={handleExportOpen}   variant="text">Export</Button>
-
       <Box sx={{display: 'flex',width: customWidth}}/>
       
       <Main sx={{width: customWidth }} open={drawerOpen}>
         <Paper elevation={1}>
+        <Button sx={{m:1,ml:3}} onClick={handleNewChildOpen} variant="contained">New Child</Button>
+        <Button sx={{m:1,mr:3}} onClick={handleImportOpen}   variant="text">Import</Button>
+        <Button sx={{m:1,mr:3}} onClick={handleExportOpen}   variant="text">Export</Button>
           {showChildList()}
         </Paper>
       </Main>
