@@ -11,6 +11,7 @@ import CreateSponsorForm from '../components/Sponsor/CreateSponsorForm';
 import SponsorSideDrawer from '../components/Sponsor/SponsorSideDrawer';
 import SponsorImport from '../components/Sponsor/SponsorImport';
 import DeleteSponsor from '../components/Sponsor/DeleteSponsor';
+import SponsorExport from '../components/Sponsor/SponsorExport';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -100,6 +101,7 @@ export default function SponsorScreen () {
   const [importOpen, setImportOpen] = useState(false);
   const [currSponsor, setCurrSponsor] = useState({});
   const [customWidth, setCustomWidth] = React.useState('100%');
+  const [exportOpen, setExportOpen] = useState(false);
 
 /* 
 ================================================================================================
@@ -445,6 +447,75 @@ export default function SponsorScreen () {
       return false;
     };
 
+    //---------------------------------------------------- 
+    //       Export Sponsor Spreadsheet
+    //----------------------------------------------------
+    const handleExportOpen = () => {
+      setExportOpen(true);
+    }
+  
+    const handleExportClose = () => {
+      setExportOpen(false);
+    }
+  
+    const FormatSponsorListForExport = () => {
+      return (
+        sponsor_data.listSponsors.items.map((sponsor) => {
+          return (
+            {
+              Name: getSponsorInfo(sponsor),
+              Phone: sponsor.Phone,
+              Email: sponsor.Email,
+              Address: sponsor.Address,
+              YearsActive: sponsor.YearsActive,
+              "DB Identifier": sponsor.id
+            }
+          )
+        })
+      )
+    }
+  
+    const getSponsorInfo = (sponsor) => {
+      let Name = "";
+  
+      if ( ! sponsor) { return ""};
+  
+      console.log(sponsor);
+      
+      if(sponsor.FirstName) {
+          Name = sponsor.FirstName
+      };
+  
+      if(sponsor.LastName) { 
+          if(Name.length > 0 ) { Name += " "}
+          Name += sponsor.LastName
+      };
+  
+      if(sponsor.Institution) {
+          if(Name.length > 0) {
+              Name = Name + " (" + sponsor.Institution + ")"
+          }else{
+              Name = sponsor.Institution
+          }
+      };
+  
+      return Name;
+    };
+    
+    const openExport = () => {
+      if (exportOpen) {
+        return (
+          <SponsorExport 
+            open={exportOpen} 
+            handleClose={handleExportClose}
+            sponsorList={FormatSponsorListForExport()}
+          />
+        )
+      }else{
+        return (<></>);
+      }
+    }
+
 /* 
 ================================================================================================
                                       User Interface
@@ -457,6 +528,7 @@ export default function SponsorScreen () {
           <Box sx={{display:'flex', justifyContent:'space-between'}}>
             <Button sx={{m:1, ml:3}} variant="contained" onClick={handleNSOpen} >New Sponsor</Button>
             <Button sx={{M:1, mr:3}} variant="text" onClick={handleImportOpen}>Import</Button>
+            <Button sx={{m:1,mr:3}} variant="text"onClick={handleExportOpen}>Export</Button>
             <Button sx={{M:1, mr:3}} variant="text" onClick={handleHashClick}>Generate Sponsor Phone Numbers</Button>
           </Box>
 
@@ -469,6 +541,7 @@ export default function SponsorScreen () {
       {openSideDrawer()}
       {openDeleteSponsor()}
       {openImportDialog()}
+      {openExport()}
 
     </React.Fragment>
   )
