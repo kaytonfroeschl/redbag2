@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { listSponsors } from '../graphql/queries';
-import { createSponsor, deleteSponsor } from '../graphql/mutations';
+import { createSponsor, updateSponsor, deleteSponsor } from '../graphql/mutations';
 import { styled } from '@mui/material/styles';
 import { Paper, Button, Box } from '@mui/material';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
@@ -11,6 +11,7 @@ import CreateSponsorForm from '../components/Sponsor/CreateSponsorForm';
 import SponsorSideDrawer from '../components/Sponsor/SponsorSideDrawer';
 import SponsorImport from '../components/Sponsor/SponsorImport';
 import DeleteSponsor from '../components/Sponsor/DeleteSponsor';
+import SponsorExport from '../components/Sponsor/SponsorExport';
 
 /* ==============================================================================================
                                         Drawer Styling 
@@ -45,7 +46,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
   }));
 
-/* ==============================================================================================
+/* 
+================================================================================================
                                         Search Bar 
 ================================================================================================*/
 function QuickSearchToolbar() {
@@ -74,6 +76,20 @@ function QuickSearchToolbar() {
   );
 }
 
+function createRows(array) {
+  //console.log("in create rows: ", array)
+  const sponArr = array.map((sponsor) => {
+    return {
+      id: sponsor.id,
+      name: sponsor.FirstName + " " + sponsor.LastName,
+      companyName: sponsor.Institution,
+      email: sponsor.Email,
+      phone: sponsor.Phone
+    }
+  })
+  return sponArr;
+}
+
 export default function SponsorScreen () {
   const [NSOpen, setNSOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -81,6 +97,7 @@ export default function SponsorScreen () {
   const [importOpen, setImportOpen] = useState(false);
   const [currSponsor, setCurrSponsor] = useState({});
   const [customWidth, setCustomWidth] = React.useState('100%');
+  const [exportOpen, setExportOpen] = useState(false);
 
 
 
@@ -102,7 +119,14 @@ export default function SponsorScreen () {
       }else{
         return (
           <DataGrid
+            initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
+            
+            pageSizeOptions={[10, 20, 30]}
+            
             rows = {sponsor_data.listSponsors.items}
+
+            slots={{ toolbar: QuickSearchToolbar }}
+            
             columns={ [
               { field: 'FirstName',   headerName: 'Name', flex: 1},
               //{ field: 'LastName',    headerName: 'Last Name', flex: 1},
@@ -130,17 +154,18 @@ export default function SponsorScreen () {
                   );
                 }
               }
-            ]}
-            slots={{ toolbar: QuickSearchToolbar }}
-          />
+            ]}  //end columns
+          />  //end DataGrid
         )
       }
     }
-
-/* 
-==============================================================================================
-                                      Side Drawer (Sponsor Edit)
-================================================================================================*/
+  /* 
+  ==============================================================================================
+                      Sponsor Update
+  ================================================================================================*/
+  const [updateSponsorMutation, { loading: loadingSponsorUpdate, error: errorSponsorUpdate, data: updatedSponsor }] = useMutation(gql(updateSponsor));
+  if(errorSponsorUpdate) {console.log("Error Loading Sponsor Update: " + errorSponsorUpdate)};
+  
   const handleEditOpen = (row) => {
     if (row===null) {
       setCurrSponsor(0);
@@ -318,6 +343,177 @@ export default function SponsorScreen () {
     };        
     return "";
   };
+  /* 
+  ================================================================================================
+                  Handle Sponsor Hash
+  ================================================================================================*/
+    const handleHashClick = () => {
+      console.log("handleHashClick begin");
+      sponsor_data.listSponsors.items.map( (sponsor) => {        
+        if(sponsor.Phone === "") {          
+          let hash = sponsorHash(sponsor);
+          if(hash !== '') { 
+            let response = updateSponsorPhoneWithHash(sponsor, hash);
+            if(response.lenght > 0) console.log("   Error in mutation: " + response);
+          }
+        }
+      });
+      console.log("handleHashClick end");
+    };
+
+    const updateSponsorPhoneWithHash = (sponsorData, hash) => {        
+      try{
+        const response = updateSponsorMutation({
+            variables: 
+            {input: {
+              id: sponsorData.id,
+              Phone: hash
+            }}, 
+            refetchQueries: [{ query: gql(listSponsors) }]
+        });
+      } catch(error) {
+        return "Update Sponsor failed with error: " + error;
+      };
+      return "";
+    };
+
+    const getRandomInt = (min, max) => {
+      return Math.floor(Math.random() * (max - min) + min);
+    };
+    
+    const sponsorFullName = (sponsor) => {
+      let Name = "";
+    
+      if(sponsor.FirstName) {
+          Name = sponsor.FirstName
+      };
+    
+      if(sponsor.LastName) { 
+          if(Name.length > 0 ) { Name += " "}
+          Name += sponsor.LastName
+      };
+    
+      if(sponsor.Institution) {
+          if(Name.length > 0) {
+              Name = Name + " " + sponsor.Institution
+          }else{
+              Name = sponsor.Institution
+          }
+      }
+
+      return Name;
+    };
+    
+    const sponsorHash = (sponsor) => {
+      var hash = '';
+      var name = '';
+
+      if(sponsor.Phone > "") return '';
+    
+      name = sponsorFullName(sponsor);
+      
+      let loopCount = 0;
+      var success = false;
+      do {
+        hash = getRandomInt(9999,9999999);
+        
+        if( ! sponsorPhoneExists(hash)) {success = true};
+
+        loopCount += 1;
+        if(loopCount > 10) {
+          console.log("sponsorHash the loop count was exceeded");
+          break;
+        }
+      } while (success===false);
+
+      console.log("   " + hash + " generated for " + name + ", sponsorID: " + sponsor.id);
+      
+      return hash;
+    };
+
+    const sponsorPhoneExists = (hash) => {  
+      let found = '';
+      sponsor_data.listSponsors.items.map((sponsor) => {
+        if (sponsor.Phone === hash) {
+          found = sponsor.id;
+        };
+      });
+      
+      if (found.length > 0 ) {
+        console.log("sponsor found: ", found);
+        return true;
+      }
+      return false;
+    };
+
+    //---------------------------------------------------- 
+    //       Export Sponsor Spreadsheet
+    //----------------------------------------------------
+    const handleExportOpen = () => {
+      setExportOpen(true);
+    }
+  
+    const handleExportClose = () => {
+      setExportOpen(false);
+    }
+  
+    const FormatSponsorListForExport = () => {
+      return (
+        sponsor_data.listSponsors.items.map((sponsor) => {
+          return (
+            {
+              Name: getSponsorInfo(sponsor),
+              Phone: sponsor.Phone,
+              Email: sponsor.Email,
+              Address: sponsor.Address,
+              YearsActive: sponsor.YearsActive,
+              "DB Identifier": sponsor.id
+            }
+          )
+        })
+      )
+    }
+  
+    const getSponsorInfo = (sponsor) => {
+      let Name = "";
+  
+      if ( ! sponsor) { return ""};
+  
+      console.log(sponsor);
+      
+      if(sponsor.FirstName) {
+          Name = sponsor.FirstName
+      };
+  
+      if(sponsor.LastName) { 
+          if(Name.length > 0 ) { Name += " "}
+          Name += sponsor.LastName
+      };
+  
+      if(sponsor.Institution) {
+          if(Name.length > 0) {
+              Name = Name + " (" + sponsor.Institution + ")"
+          }else{
+              Name = sponsor.Institution
+          }
+      };
+  
+      return Name;
+    };
+    
+    const openExport = () => {
+      if (exportOpen) {
+        return (
+          <SponsorExport 
+            open={exportOpen} 
+            handleClose={handleExportClose}
+            sponsorList={FormatSponsorListForExport()}
+          />
+        )
+      }else{
+        return (<></>);
+      }
+    }
 
 /* 
 ================================================================================================
@@ -325,17 +521,14 @@ export default function SponsorScreen () {
 ================================================================================================*/
   return (
     <React.Fragment>
-      <Box 
-        sx={{ 
-          display: 'flex',
-          width: customWidth
-        }}
-      />
+      <Box sx={{display: 'flex', width: customWidth}} />
       <Main sx={{width: customWidth }} open={editOpen}>
         <Paper elevation={1}>
           <Box sx={{display:'flex', justifyContent:'space-between'}}>
             <Button sx={{m:1, ml:3}} variant="contained" onClick={handleNSOpen} >New Sponsor</Button>
             <Button sx={{M:1, mr:3}} variant="text" onClick={handleImportOpen}>Import</Button>
+            <Button sx={{m:1,mr:3}} variant="text"onClick={handleExportOpen}>Export</Button>
+            <Button sx={{M:1, mr:3}} variant="text" onClick={handleHashClick}>Generate Sponsor Phone Numbers</Button>
           </Box>
 
           {uiListSponsors()}
@@ -347,6 +540,7 @@ export default function SponsorScreen () {
       {openSideDrawer()}
       {openDeleteSponsor()}
       {openImportDialog()}
+      {openExport()}
 
     </React.Fragment>
   )
