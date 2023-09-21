@@ -129,7 +129,7 @@ export default function SponsorScreen () {
             
             columns={ [
               { field: 'FirstName',   headerName: 'Name', flex: 1},
-              //{ field: 'LastName',    headerName: 'Last Name', flex: 1},
+              { field: 'LastName',    headerName: 'Last Name', flex: 1},
               { field: 'Institution', headerName: 'Institution Name', flex: 1},
               { field: 'Email',       headerName: 'Email Address', flex: 1},
               { field: 'Phone',       headerName: 'Phone Number', flex: 1},
