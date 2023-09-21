@@ -46,7 +46,6 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 
 export default function ChildSideDrawer({ child, open, handleClose }) {
-    
 /* ==============================================================================================
                                         Variables
    ==============================================================================================*/
@@ -98,15 +97,13 @@ if (loading) {
     }
 
     const onEditOpen = () => {
-        let passedChild;
-        data ? passedChild = data : passedChild = ""
         if(editOpen) {
             return (
                 
                 <EditChildForm 
                     open={editOpen}
                     handleClose={handleEditClose}
-                    child={passedChild}
+                    child={data ? data.getChild : null}
                 />
             )
         }

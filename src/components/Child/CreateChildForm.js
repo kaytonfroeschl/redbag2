@@ -15,7 +15,8 @@ import {
     Divider, 
     MenuItem,
     Autocomplete,
-    Alert
+    Alert,
+    Paper
 } from '@mui/material';
 
 export function CreateChildForm ({ open, handleClose }){
@@ -38,11 +39,14 @@ export function CreateChildForm ({ open, handleClose }){
     const [form_bike, setFormBike] = useState('N');
     const [selectRBL, setSelectRBL] = useState();
     const [selectSponsor, setSelectSponsor] = useState();
+    const [errorMessage, setErrorMessage] = useState('');
     
 
     const sponsorArray = [];
     let childrenArray = [];
     let RBLArray = [];
+    let errorArray = [];
+    let errors = false;
 
 /* ==============================================================================================
                                         Handle Functions 
@@ -120,22 +124,55 @@ export function CreateChildForm ({ open, handleClose }){
         handleClose();
     }
 
-    function childIDCheck(){
-        let arr = childrenArray.map((child) => {
-            if(form_id === child.id){
-                return true
+    const childIDCheck = () => {
+        let key = false;
+        let array = childrenArray.map((child) => {
+            return child.ChildID
+        });
+        for( let i = 0; i < array.length; i++ ){
+            if(array[i] === form_id){
+                key = true;
             }
-        })
-        return false
+        }
+        return key;
     }
 
-    function handleSpecialCreate(){
-        if(childIDCheck){
-            //throw an error
+    function handleErrors() {
+        errorArray = [];
+        if (form_name === ''){
+            errorArray.push("Missing Child Name");
+            setErrorMessage("Missing Child Name")
+            errors = true;
+        } 
+        if (form_age === '' || form_age < 0 ){
+            errorArray.push("Invalid Age.")
+            setErrorMessage("Invalid Age")
+            errors = true;
         }
-         else {
-            handleCreate();
+        if (childIDCheck()){
+            errorArray.push("Invalid Child ID")
+            setErrorMessage("Invalid Child ID")
+            errors = true;
         }
+    }
+
+    function handleSpecialCreate(e){
+        handleErrors();
+        if (errors){
+            console.log("there are errors, ", errorArray)
+        } else {
+            handleCreate(e);
+        }
+    }
+
+    const showErrors = () => {
+        console.log("in show errors")
+        if (errors) {
+            console.log("here nad true")
+            errorArray.map((e) => {
+                <Alert severity='error'>{e}</Alert>
+            })
+        } else return <></>
     }
 
 /*============================================= Apollo Call =================================================
@@ -169,7 +206,7 @@ export function CreateChildForm ({ open, handleClose }){
     const { data: children_data, loading: children_loading, error: children_Error } = useQuery(gql(listChildren)); 
     if(children_data || !children_loading ) {
     const childrenList = children_data.listChildren.items.map((child) => {
-        return childrenArray.push({ 'id': child.id, 'label': child.FirstName })
+        return childrenArray.push({ 'id': child.id, 'label': child.Firstname, "ChildID": child.ChildID })
     })
     }
 
@@ -216,6 +253,9 @@ export function CreateChildForm ({ open, handleClose }){
         <React.Fragment>
             <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Create New Child</DialogTitle>
+            {errorMessage && (
+                <Paper elevation='1'><Alert severity='error'> {errorMessage} </Alert></Paper>
+            )}
                 <DialogContent>
                     <Box
                         width={500}

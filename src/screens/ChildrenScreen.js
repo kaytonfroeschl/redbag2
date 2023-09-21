@@ -133,7 +133,6 @@ export default function ChildrenScreen () {
   //---------------- Edit Child (aka SideDrawer) ----------------
 
   const openSideDrawer = () => {
-    console.log("Child Screen passing into ChildSideDrawer: ", currentKid)
     if (drawerOpen) {
       return (
         <ChildSideDrawer 
@@ -148,6 +147,7 @@ export default function ChildrenScreen () {
   }
 
   const handleDrawerOpen = (data) => {
+    console.log("Children Screen handleDrawerOpen Data: ", data)
     setCurrentKid(data);
     setDrawerOpen(true);
     setCustomWidth('70%');

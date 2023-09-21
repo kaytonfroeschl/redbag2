@@ -15,7 +15,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 
 export function EditChildForm ({ open, handleClose, child }){
-console.log("EDIT child: ", child)
+console.log("EDIT Child coming in: ", child)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -32,29 +32,28 @@ console.log("EDIT child: ", child)
     const [form_wishlist, setFormWishlist] = useState(child.Wishlist);
     const [form_info, setFormInfo] = useState(child.Info);
     const [form_bike, setFormBike] = useState(child.Bike);
-    const [rblID, setRBLID] = useState(null);
-    const [sponsorID, setSponsorID] = useState(null);
 
-    /*const [RBLValue, setRBLValue] = useState('')
-    const [RBLInputValue, setRBLInputValue] = useState('');
+    const [incomingRBL, setIncomingRBL] = useState(child.RBL !== null ? child.RBL.id : null)
+    const [RBLValue, setRBLValue] = useState('');
 
-    const [sponsorValue, setSponsorValue] = useState('');
-    const [sponsorInputValue, setSponsorInputValue] = useState('');
-
-    useEffect(() => {
-        if(child.RBL !== null){
-            setRBLValue(child.RBL.FirstName)
-        }
-    
-        if(child.Sponsor !== null){
-            setSponsorValue(child.Sponsor.FirstName);
-        }
-    }, [child])*/
-
-    
+    const [incomingSponsor, setIncomingSponsor] = useState(child.Sponsor !== null ? child.Sponsor.id : null);
+    const [sponsorValue, setSponsorValue] = useState('');    
     
     let sponsorArray = [];
     let RBLArray = [];
+
+    useEffect(() => {
+        const temp = RBLArray.map((rbl) => {
+            if(rbl.id === incomingRBL){
+                return setRBLValue(rbl);
+            }
+        })
+        const temp2 = sponsorArray.map((sponsor) => {
+            if(sponsor.id === incomingSponsor){
+                return setSponsorValue(sponsor);
+            }
+        })
+    }, [child])
 
 /* ==============================================================================================
                                         OnChange Handle Functions 
@@ -120,8 +119,6 @@ console.log("EDIT child: ", child)
         setFormWishlist('');
         setFormInfo('');
         setFormBike('');
-        setRBLID('');
-        setSponsorID('');
     }
 
     function handleSpecialClose() {
@@ -139,7 +136,7 @@ console.log("EDIT child: ", child)
     const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
     if(sData || !sLoading ) {
     const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName });
+        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName });
     })
     }
 
@@ -152,7 +149,8 @@ console.log("EDIT child: ", child)
         return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
     })
     }
-
+    console.log("RBLARRAY: ", RBLArray)
+    console.log("Sponsor Array: ", sponsorArray)
 /* ==============================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
@@ -165,8 +163,6 @@ console.log("EDIT child: ", child)
 
     async function handleEdit(e) {
         e.preventDefault();
-        console.log("RBLID: ", rblID);
-        console.log("SponsorID: ", sponsorID)
         try {
             const response = await editChildMutation({
                 variables: {
@@ -184,8 +180,8 @@ console.log("EDIT child: ", child)
                         Wishlist: form_wishlist,
                         Info: form_info,
                         Bike: form_bike,
-                        rblID: rblID,
-                        sponsorID: sponsorID 
+                        rblID: RBLValue.id,
+                        sponsorID: sponsorValue.id
                     }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
@@ -237,6 +233,16 @@ console.log("EDIT child: ", child)
                         )}
                         sx={{ mb: 2, mt: 2}}
                         />*/}
+                        {<Autocomplete
+                            options={RBLArray}
+                            getOptionLabel={option => option.label}
+                            value={RBLValue} //should be the id
+                            onChange={(_, newValue) => {
+                                console.log("New Value: ", newValue)
+                                setRBLValue(newValue);
+                            }}
+                            renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                        />}
                     <Typography
                         style={{
                             fontWeight: 500
@@ -463,6 +469,16 @@ console.log("EDIT child: ", child)
                             }
                         }}
                     />*/}
+                    {<Autocomplete
+                        options={sponsorArray}
+                        getOptionLabel={option => option.label}
+                        value={sponsorValue} //should be the id
+                        onChange={(_, newValue) => {
+                            console.log("New Value: ", newValue)
+                            setSponsorValue(newValue);
+                        }}
+                        renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                    />}
                     </FormControl>
                     </Box>
                 </DialogContent>
