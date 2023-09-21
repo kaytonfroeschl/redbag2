@@ -270,6 +270,7 @@ console.log("EDIT Child coming in: ", child)
                         onChange={handleFormName}
                     />
                     <TextField
+                        disabled
                         margin="normal"
                         id="outlined-basic"
                         label="Child ID"
