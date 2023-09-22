@@ -47,9 +47,9 @@ const ValidateHeaders = (headers) => {
     if (!headers.includes("Sibling IDs")) {errors.push("Missing 'Sibling IDs'")};
     if (!headers.includes("Wish List")) {errors.push("Missing 'Wish List'")};
     if (!headers.includes("Additional Info")) {errors.push("Missing 'Additional Info'")};
-    if (!headers.includes("Sponsor")) {errors.push("Missing 'Sponsor'")};
-    if (!headers.includes("Sponsor's Mobile #")) {errors.push("Missing 'Sponsor's Mobile #'")};
-    if (!headers.includes("RBL Comments")) {errors.push("Missing 'RBL Comments'")};
+    //if (!headers.includes("Sponsor")) {errors.push("Missing 'Sponsor'")};
+    //if (!headers.includes("Sponsor's Mobile #")) {errors.push("Missing 'Sponsor's Mobile #'")};
+    //if (!headers.includes("RBL Comments")) {errors.push("Missing 'RBL Comments'")};
 
     return errors;
 };
