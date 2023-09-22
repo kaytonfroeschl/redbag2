@@ -362,7 +362,10 @@ export default function SponsorScreen () {
               Name: getSponsorInfo(sponsor),
               Phone: sponsor.Phone,
               Email: sponsor.Email,
-              Address: sponsor.Address,
+              Street: sponsor.AddressStreet,
+              City: sponsor.AddressCity,
+              State: sponsor.AddressState,
+              Zip: sponsor.AddressZip,
               YearsActive: sponsor.YearsActive,
               "DB Identifier": sponsor.id
             }

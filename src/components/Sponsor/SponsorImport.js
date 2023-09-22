@@ -37,7 +37,10 @@ const ValidateHeaders = (headers) => {
 	if (!headers.includes("first name")) {errors.push("Missing 'first name'")};
     if (!headers.includes("last name")) {errors.push("Missing 'last name'")};
     if (!headers.includes("company name")) {errors.push("Missing 'company name'")};
-    if (!headers.includes("address")) {errors.push("Missing 'address'")};
+    if (!headers.includes("street")) {errors.push("Missing 'street'")};
+    if (!headers.includes("city")) {errors.push("Missing 'city'")};
+    if (!headers.includes("state")) {errors.push("Missing 'state'")};
+    if (!headers.includes("zip")) {errors.push("Missing 'zip'")};
     if (!headers.includes("years")) {errors.push("Missing 'years'")};
     return errors;
 };
@@ -49,9 +52,14 @@ const ConvertDataRow = (row) => {
     value = hasProperty(row, "first name");     sponsor = {...sponsor, FirstName: value};
     value = hasProperty(row, "last name");      sponsor = {...sponsor, LastName: value};
     value = hasProperty(row, "company name");   sponsor = {...sponsor, Institution: value};
-    value = hasProperty(row, "address");        sponsor = {...sponsor, Address: value};
+    value = hasProperty(row, "street");         sponsor = {...sponsor, AddressStreet: value};
+    value = hasProperty(row, "city");           sponsor = {...sponsor, AddressCity: value};
+    value = hasProperty(row, "state");          sponsor = {...sponsor, AddressState: value};
+    value = hasProperty(row, "zip");            sponsor = {...sponsor, AddressZip: value};
     value = hasProperty(row, "years");          sponsor = {...sponsor, YearsActive: value}; 
     
+    sponsor = {...sponsor, Address: ""};
+
     let Name = "";
     if(sponsor.FirstName.length > 0) {
         Name = sponsor.FirstName
