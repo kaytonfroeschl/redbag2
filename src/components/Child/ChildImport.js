@@ -47,9 +47,9 @@ const ValidateHeaders = (headers) => {
     if (!headers.includes("Sibling IDs")) {errors.push("Missing 'Sibling IDs'")};
     if (!headers.includes("Wish List")) {errors.push("Missing 'Wish List'")};
     if (!headers.includes("Additional Info")) {errors.push("Missing 'Additional Info'")};
-    if (!headers.includes("Sponsor")) {errors.push("Missing 'Sponsor'")};
-    if (!headers.includes("Sponsor's Mobile #")) {errors.push("Missing 'Sponsor's Mobile #'")};
-    if (!headers.includes("RBL Comments")) {errors.push("Missing 'RBL Comments'")};
+    //if (!headers.includes("Sponsor")) {errors.push("Missing 'Sponsor'")};
+    //if (!headers.includes("Sponsor's Mobile #")) {errors.push("Missing 'Sponsor's Mobile #'")};
+    //if (!headers.includes("RBL Comments")) {errors.push("Missing 'RBL Comments'")};
 
     return errors;
 };
@@ -70,9 +70,9 @@ const ConvertDataRow = (row) => {
     value = hasProperty(row, "Sibling IDs");        child = {...child, Siblings: value};
     value = hasProperty(row, "Wish List");          child = {...child, Wishlist:value};
     value = hasProperty(row, "Additional Info");    child = {...child, Info: value};
-    value = hasProperty(row, "Sponsor");            child = {...child, SponsorName: value};    
-    value = hasProperty(row, "Sponsor's Mobile #"); child = {...child, SponsorPhone: extractDigits(''+value)};
-    value = hasProperty(row, "RBL Comments");       child = {...child, Comments: value};
+    //value = hasProperty(row, "Sponsor");            child = {...child, SponsorName: value};    
+    //value = hasProperty(row, "Sponsor's Mobile #"); child = {...child, SponsorPhone: extractDigits(''+value)};
+    //value = hasProperty(row, "RBL Comments");       child = {...child, Comments: value};
     
     return child;
 };
@@ -122,15 +122,15 @@ const extractDigits = (textValue) => {
 //---------------------------------------------------- 
 //      Find Functions 
 //----------------------------------------------------
-const findSponsorID_ByPhone = (searchPhone, sponsorList) => {
-    let found = '';
-    sponsorList.map((sponsor) => {
-        if (extractDigits(sponsor.Phone)===searchPhone) {
-            found = sponsor.id;
-        };
-    });    
-    return found;    
-};
+// const findSponsorID_ByPhone = (searchPhone, sponsorList) => {
+//     let found = '';
+//     sponsorList.map((sponsor) => {
+//         if (extractDigits(sponsor.Phone)===searchPhone) {
+//             found = sponsor.id;
+//         };
+//     });    
+//     return found;    
+// };
 
 const findRBL_ByName = (searchName, rblList) => {
     let found = '';
@@ -330,23 +330,23 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
                 };
             };
 
-            if (child.SponsorPhone.length===0) {
-                sponsorID = '';
-            }else{
-                sponsorID = findSponsorID_ByPhone(child.SponsorPhone, sponsorList);
-                if (sponsorID.length===0) {
-                    console.log("No sponsor with that phone number");
-                    fatalError = true;
-                    processFails.push(
-                        "ChildID: " + child.ChildID + 
-                        " at row " + rowNum + 
-                        " Sponsor not found using sponsor's phone number: " + child.SponsorPhone
-                    );
-                }else{
-                    console.log("Sponsor Found");
-                    child = {...child, sponsorID};
-                };                
-            };
+            // if (child.SponsorPhone.length===0) {
+            //     sponsorID = '';
+            // }else{
+            //     sponsorID = findSponsorID_ByPhone(child.SponsorPhone, sponsorList);
+            //     if (sponsorID.length===0) {
+            //         console.log("No sponsor with that phone number");
+            //         fatalError = true;
+            //         processFails.push(
+            //             "ChildID: " + child.ChildID + 
+            //             " at row " + rowNum + 
+            //             " Sponsor not found using sponsor's phone number: " + child.SponsorPhone
+            //         );
+            //     }else{
+            //         console.log("Sponsor Found");
+            //         child = {...child, sponsorID};
+            //     };                
+            // };
 
             if (child.RBL.length===0) {
                 rblID = '';
