@@ -5,6 +5,10 @@ type Sponsor @model @auth(rules: [{allow: public}]) {
   Phone: String
   Email: String
   Address: String
+  AddressStreet: String
+  AddressCity: String
+  AddressState: String
+  AddressZip: String
   YearsActive: String
   Institution: String
   Children: [Child] @hasMany(indexName: "bySponsor", fields: ["id"])
