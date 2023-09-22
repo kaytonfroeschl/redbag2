@@ -10,6 +10,10 @@ export const onCreateSponsor = /* GraphQL */ `
       Phone
       Email
       Address
+      AddressStreet
+      AddressCity
+      AddressState
+      AddressZip
       YearsActive
       Institution
       Children {
@@ -62,6 +66,7 @@ export const onCreateSponsor = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -70,18 +75,26 @@ export const onCreateSponsor = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           Sponsor {
             id
@@ -90,6 +103,10 @@ export const onCreateSponsor = /* GraphQL */ `
             Phone
             Email
             Address
+            AddressStreet
+            AddressCity
+            AddressState
+            AddressZip
             YearsActive
             Institution
             Children {
@@ -118,6 +135,7 @@ export const onCreateSponsor = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -126,26 +144,37 @@ export const onCreateSponsor = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           createdAt
           updatedAt
+          __typename
         }
         nextToken
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -158,6 +187,10 @@ export const onUpdateSponsor = /* GraphQL */ `
       Phone
       Email
       Address
+      AddressStreet
+      AddressCity
+      AddressState
+      AddressZip
       YearsActive
       Institution
       Children {
@@ -210,6 +243,7 @@ export const onUpdateSponsor = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -218,18 +252,26 @@ export const onUpdateSponsor = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           Sponsor {
             id
@@ -238,6 +280,10 @@ export const onUpdateSponsor = /* GraphQL */ `
             Phone
             Email
             Address
+            AddressStreet
+            AddressCity
+            AddressState
+            AddressZip
             YearsActive
             Institution
             Children {
@@ -266,6 +312,7 @@ export const onUpdateSponsor = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -274,26 +321,37 @@ export const onUpdateSponsor = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           createdAt
           updatedAt
+          __typename
         }
         nextToken
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -306,6 +364,10 @@ export const onDeleteSponsor = /* GraphQL */ `
       Phone
       Email
       Address
+      AddressStreet
+      AddressCity
+      AddressState
+      AddressZip
       YearsActive
       Institution
       Children {
@@ -358,6 +420,7 @@ export const onDeleteSponsor = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -366,18 +429,26 @@ export const onDeleteSponsor = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           Sponsor {
             id
@@ -386,6 +457,10 @@ export const onDeleteSponsor = /* GraphQL */ `
             Phone
             Email
             Address
+            AddressStreet
+            AddressCity
+            AddressState
+            AddressZip
             YearsActive
             Institution
             Children {
@@ -414,6 +489,7 @@ export const onDeleteSponsor = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -422,26 +498,37 @@ export const onDeleteSponsor = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           createdAt
           updatedAt
+          __typename
         }
         nextToken
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -504,6 +591,7 @@ export const onCreateRBL = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -512,18 +600,26 @@ export const onCreateRBL = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           Sponsor {
             id
@@ -532,6 +628,10 @@ export const onCreateRBL = /* GraphQL */ `
             Phone
             Email
             Address
+            AddressStreet
+            AddressCity
+            AddressState
+            AddressZip
             YearsActive
             Institution
             Children {
@@ -560,6 +660,7 @@ export const onCreateRBL = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -568,26 +669,37 @@ export const onCreateRBL = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           createdAt
           updatedAt
+          __typename
         }
         nextToken
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -650,6 +762,7 @@ export const onUpdateRBL = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -658,18 +771,26 @@ export const onUpdateRBL = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           Sponsor {
             id
@@ -678,6 +799,10 @@ export const onUpdateRBL = /* GraphQL */ `
             Phone
             Email
             Address
+            AddressStreet
+            AddressCity
+            AddressState
+            AddressZip
             YearsActive
             Institution
             Children {
@@ -706,6 +831,7 @@ export const onUpdateRBL = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -714,26 +840,37 @@ export const onUpdateRBL = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           createdAt
           updatedAt
+          __typename
         }
         nextToken
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -796,6 +933,7 @@ export const onDeleteRBL = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -804,18 +942,26 @@ export const onDeleteRBL = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           Sponsor {
             id
@@ -824,6 +970,10 @@ export const onDeleteRBL = /* GraphQL */ `
             Phone
             Email
             Address
+            AddressStreet
+            AddressCity
+            AddressState
+            AddressZip
             YearsActive
             Institution
             Children {
@@ -852,6 +1002,7 @@ export const onDeleteRBL = /* GraphQL */ `
                   Color
                   createdAt
                   updatedAt
+                  __typename
                 }
                 Sponsor {
                   id
@@ -860,26 +1011,37 @@ export const onDeleteRBL = /* GraphQL */ `
                   Phone
                   Email
                   Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
                   YearsActive
                   Institution
                   createdAt
                   updatedAt
+                  __typename
                 }
                 createdAt
                 updatedAt
+                __typename
               }
               nextToken
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           createdAt
           updatedAt
+          __typename
         }
         nextToken
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -951,11 +1113,14 @@ export const onCreateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             Sponsor {
               id
@@ -964,6 +1129,10 @@ export const onCreateChild = /* GraphQL */ `
               Phone
               Email
               Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
               YearsActive
               Institution
               Children {
@@ -985,19 +1154,25 @@ export const onCreateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
         createdAt
         updatedAt
+        __typename
       }
       Sponsor {
         id
@@ -1006,6 +1181,10 @@ export const onCreateChild = /* GraphQL */ `
         Phone
         Email
         Address
+        AddressStreet
+        AddressCity
+        AddressState
+        AddressZip
         YearsActive
         Institution
         Children {
@@ -1051,11 +1230,14 @@ export const onCreateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             Sponsor {
               id
@@ -1064,6 +1246,10 @@ export const onCreateChild = /* GraphQL */ `
               Phone
               Email
               Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
               YearsActive
               Institution
               Children {
@@ -1085,22 +1271,29 @@ export const onCreateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
         createdAt
         updatedAt
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -1172,11 +1365,14 @@ export const onUpdateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             Sponsor {
               id
@@ -1185,6 +1381,10 @@ export const onUpdateChild = /* GraphQL */ `
               Phone
               Email
               Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
               YearsActive
               Institution
               Children {
@@ -1206,19 +1406,25 @@ export const onUpdateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
         createdAt
         updatedAt
+        __typename
       }
       Sponsor {
         id
@@ -1227,6 +1433,10 @@ export const onUpdateChild = /* GraphQL */ `
         Phone
         Email
         Address
+        AddressStreet
+        AddressCity
+        AddressState
+        AddressZip
         YearsActive
         Institution
         Children {
@@ -1272,11 +1482,14 @@ export const onUpdateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             Sponsor {
               id
@@ -1285,6 +1498,10 @@ export const onUpdateChild = /* GraphQL */ `
               Phone
               Email
               Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
               YearsActive
               Institution
               Children {
@@ -1306,22 +1523,29 @@ export const onUpdateChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
         createdAt
         updatedAt
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
@@ -1393,11 +1617,14 @@ export const onDeleteChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             Sponsor {
               id
@@ -1406,6 +1633,10 @@ export const onDeleteChild = /* GraphQL */ `
               Phone
               Email
               Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
               YearsActive
               Institution
               Children {
@@ -1427,19 +1658,25 @@ export const onDeleteChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
         createdAt
         updatedAt
+        __typename
       }
       Sponsor {
         id
@@ -1448,6 +1685,10 @@ export const onDeleteChild = /* GraphQL */ `
         Phone
         Email
         Address
+        AddressStreet
+        AddressCity
+        AddressState
+        AddressZip
         YearsActive
         Institution
         Children {
@@ -1493,11 +1734,14 @@ export const onDeleteChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             Sponsor {
               id
@@ -1506,6 +1750,10 @@ export const onDeleteChild = /* GraphQL */ `
               Phone
               Email
               Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
               YearsActive
               Institution
               Children {
@@ -1527,22 +1775,29 @@ export const onDeleteChild = /* GraphQL */ `
                   sponsorID
                   createdAt
                   updatedAt
+                  __typename
                 }
                 nextToken
+                __typename
               }
               createdAt
               updatedAt
+              __typename
             }
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
         createdAt
         updatedAt
+        __typename
       }
       createdAt
       updatedAt
+      __typename
     }
   }
 `;
