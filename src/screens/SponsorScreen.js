@@ -105,10 +105,15 @@ export default function SponsorScreen () {
 ================================================================================================
                                       Sponsor List
 ================================================================================================*/
-    const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
+    const { 
+      data: sponsor_data, 
+      loading: sponsor_loading, 
+      error: sponsor_error 
+    } = useQuery(gql(listSponsors), {variables: {limit: 2000 }});
+    
     // if(sponsor_loading) {console.log("Sponsor List is loading")};  
     // if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
-    if(sponsor_data) {console.log("Sponsor List has been loaded: ", sponsor_data.listSponsors.items)};
+    if(sponsor_data) {console.log("Sponsors in List: " + sponsor_data.listSponsors.items.length)};
 
     const uiListSponsors = () => {
       if(sponsor_loading) {return <div>Loading sponsors</div>}
