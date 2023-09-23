@@ -21,7 +21,8 @@ export default function CreateSponsorForm({ open, handleClose }) {
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
-    const [form_name, setFormName] = useState('');
+    const [form_firstname, setFormFirstName] = useState('');
+    const [form_lastname, setFormLastName] = useState('');
     const [form_inst, setFormInst] = useState('');
     const [form_email, setFormEmail] = useState('');
     const [form_phone, setFormPhone] = useState('');
@@ -31,8 +32,13 @@ export default function CreateSponsorForm({ open, handleClose }) {
 /* ==============================================================================================
                                         Handle Functions 
 ================================================================================================*/
-    function handleFormName(event){
-        setFormName(event.target.value);
+
+    function handleFormFirstName(event){
+        setFormFirstName(event.target.value);
+    }
+
+    function handleFormLastName(event){
+        setFormLastName(event.target.value);
     }
 
     function handleFormInst(event){
@@ -56,7 +62,8 @@ export default function CreateSponsorForm({ open, handleClose }) {
     }
 
     function resetValues() {
-        setFormName('');
+        setFormFirstName('');
+        setFormLastName('');
         setFormInst('');
         setFormEmail('');
         setFormPhone('');
@@ -82,7 +89,7 @@ export default function CreateSponsorForm({ open, handleClose }) {
         e.preventDefault();
         try{
             const response = await addSponsorMutation({
-                variables: { input: { FirstName: form_name, LastName: '', Email: form_email, Phone: form_phone, Institution: form_inst, Address: form_address, YearsActive: form_ya } },
+                variables: { input: { FirstName: form_firstname, LastName: form_lastname, Email: form_email, Phone: form_phone, Institution: form_inst, Address: form_address, YearsActive: form_ya } },
                 refetchQueries: [{ query: gql(listSponsors) }], // dont need to change
             })
             console.log("Mutation response: ", response);
@@ -110,33 +117,40 @@ export default function CreateSponsorForm({ open, handleClose }) {
                 >
                 <Box> 
                     <TextField
-                    margin="normal"
-                    id="outlined-basic"
-                    label="Name"
-                    value={form_name}
-                    onChange={handleFormName}
+                        margin="normal"
+                        id="outlined-basic"
+                        label="First Name"
+                        value={form_firstname}
+                        onChange={handleFormFirstName}
                     />
                     <TextField
-                    margin="normal"
-                    id="outlined-basic"
-                    label="Optional: Company Name"
-                    value={form_inst}
-                    onChange={handleFormInst}
+                        margin="normal"
+                        id="outlined-basic"
+                        label="Last Name"
+                        value={form_lastname}
+                        onChange={handleFormLastName}
                     />
                     <TextField
-                    margin="normal"
-                    id="outlined-basic"
-                    label="Email"
-                    type={"email"}
-                    value={form_email}
-                    onChange={handleFormEmail}
+                        margin="normal"
+                        id="outlined-basic"
+                        label="Optional: Company Name"
+                        value={form_inst}
+                        onChange={handleFormInst}
                     />
                     <TextField
-                    margin="normal"
-                    id="outlined-basic"
-                    label="Phone"
-                    value={form_phone}
-                    onChange={handleFormPhone}
+                        margin="normal"
+                        id="outlined-basic"
+                        label="Email"
+                        type={"email"}
+                        value={form_email}
+                        onChange={handleFormEmail}
+                    />
+                    <TextField
+                        margin="normal"
+                        id="outlined-basic"
+                        label="Phone"
+                        value={form_phone}
+                        onChange={handleFormPhone}
                     />    
                 </Box>
                 </Box>

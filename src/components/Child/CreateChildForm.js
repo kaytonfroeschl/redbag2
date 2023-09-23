@@ -195,7 +195,7 @@ export function CreateChildForm ({ open, handleClose }){
   const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
   if(sData || !sLoading ) {
     const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName })
+        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName })
     })
   }
 
