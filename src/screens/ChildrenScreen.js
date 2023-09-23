@@ -188,7 +188,14 @@ export default function ChildrenScreen () {
     //console.log("Children ", child_data.listChildren.items);
     return (
       <DataGrid
+        initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
+      
+        pageSizeOptions={[10, 20, 30]}
+
+        slots={{ toolbar: QuickSearchToolbar }}
+
         rows= {child_data.listChildren.items}
+
         columns={[
           { field: 'RBL',         headerName: 'RBL', flex: .8,
             valueGetter: (params) => {
@@ -222,9 +229,6 @@ export default function ChildrenScreen () {
                   </Button>)}
           }
         ]}
-          // initialState={{pagination: {paginationModel: { page: 0, pageSize: 10 },},}}
-          // pageSizeOptions={[12]}
-          slots={{ toolbar: QuickSearchToolbar }}
       />
     )
   }
