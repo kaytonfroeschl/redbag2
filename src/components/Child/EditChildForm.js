@@ -33,102 +33,48 @@ console.log("EDIT Child coming in: ", child)
     const [form_info, setFormInfo] = useState(child.Info);
     const [form_bike, setFormBike] = useState(child.Bike);
 
-    const [incomingRBL, setIncomingRBL] = useState(child.RBL !== null ? child.RBL.id : null)
+    const [nameError, setNameError] = useState('');
+    const [childIDError, setChildIDError] = useState('');
+
+    // const [incomingRBL, setIncomingRBL] = useState(child.RBL !== null ? child.RBL.id : null)
     const [RBLValue, setRBLValue] = useState('');
 
-    const [incomingSponsor, setIncomingSponsor] = useState(child.Sponsor !== null ? child.Sponsor.id : null);
-    const [sponsorValue, setSponsorValue] = useState('');    
+    // const [incomingSponsor, setIncomingSponsor] = useState(child.Sponsor !== null ? child.Sponsor.id : null);
+    const [sponsorValue, setSponsorValue] = useState('');
     
     let sponsorArray = [];
     let RBLArray = [];
 
-    useEffect(() => {
-        const temp = RBLArray.map((rbl) => {
-            if(rbl.id === incomingRBL){
-                return setRBLValue(rbl);
-            }
-        })
-        const temp2 = sponsorArray.map((sponsor) => {
-            if(sponsor.id === incomingSponsor){
-                return setSponsorValue(sponsor);
-            }
-        })
-    }, [child])
+    // useEffect(() => {
+    //     const temp = RBLArray.map((rbl) => {
+    //         if(rbl.id === incomingRBL){
+    //             return setRBLValue(rbl);
+    //         }
+    //     })
+    //     const temp2 = sponsorArray.map((sponsor) => {
+    //         if(sponsor.id === incomingSponsor){
+    //             return setSponsorValue(sponsor);
+    //         }
+    //     })
+    // }, [child])
 
 /* ==============================================================================================
                                         OnChange Handle Functions 
 ================================================================================================*/
-    function handleFormName(event) {
-        setFormName(event.target.value);
-    }
+    function handleFormName(event)      {setFormName(event.target.value)};
+    function handleFormChildID(event)   {setFormChildID(event.target.value)};
+    function handleFormGender(event)    {setFormGender(event.target.value)};
+    function handleFormRace(event)      {setFormRace(event.target.value)};
+    function handleFormAge(event)       {setFormAge(event.target.value)};
+    function handleFormSiblings(event)  {setFormSiblings(event.target.value)};
+    function handleFormShirt(event)     {setFormShirt(event.target.value)};
+    function handleFormPant(event)      {setFormPant(event.target.value)};
+    function handleFormShoe(event)      {setFormShoe(event.target.value)};
+    function handleFormWishlist(event)  {setFormWishlist(event.target.value)};
+    function handleFormInfo(event)      {setFormInfo(event.target.value)};
+    function handleFormBike(event)      {setFormBike(event.target.value)};
 
-    function handleFormChildID(event) {
-        setFormChildID(event.target.value);
-    }
-
-    function handleFormGender(event) {
-        setFormGender(event.target.value);
-    }
-
-    function handleFormRace(event){
-        setFormRace(event.target.value);
-    }
-
-    function handleFormAge(event){
-        setFormAge(event.target.value);
-    }
-
-    function handleFormSiblings(event){
-        setFormSiblings(event.target.value);
-    }
-
-    function handleFormShirt(event){
-        setFormShirt(event.target.value);
-    }
-
-    function handleFormPant(event){
-        setFormPant(event.target.value);
-    }
-
-    function handleFormShoe(event){
-        setFormShoe(event.target.value);
-    }
-
-    function handleFormWishlist(event){
-        setFormWishlist(event.target.value);
-    }
-
-    function handleFormInfo(event){
-        setFormInfo(event.target.value);
-    }
-
-    function handleFormBike(event){
-        setFormBike(event.target.value);
-    }
-
-    function resetValues() {
-        setFormName('');
-        setFormChildID('');
-        setFormGender('');
-        setFormRace('');
-        setFormAge('');
-        setFormSiblings('');
-        setFormShirt('');
-        setFormPant('');
-        setFormShoe('');
-        setFormWishlist('');
-        setFormInfo('');
-        setFormBike('');
-    }
-
-    function handleSpecialClose() {
-        resetValues();
-        handleClose();
-    }
-
-    function handleSpecialEdit(e) {
-        handleEdit(e);
-    }
+    function handleSpecialEdit(e) {handleEdit(e)};
 /*===============================================================================================
                                      Grabbing a list of Sponsors
                                      From Backend
@@ -140,29 +86,65 @@ console.log("EDIT Child coming in: ", child)
     })
     }
 
-/*============================================= Apollo Call =================================================
+/*
+============================================= Apollo Call =================================================
                                               Listing RBLS
 ===========================================================================================================*/
     const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
     if(RBL_data || !RBL_loading ) {
-    const RBLList = RBL_data.listRBLS.items.map((RBL) => {
-        return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
-    })
-    }
-    console.log("RBLARRAY: ", RBLArray)
-    console.log("Sponsor Array: ", sponsorArray)
-/* ==============================================================================================
+        const RBLList = RBL_data.listRBLS.items.map((RBL) => {
+            return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
+        })
+    };
+/* 
+================================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
     let input;
     const [editChildMutation] = useMutation(gql(updateChild));
-    const { loading, error, data } = useQuery((gql(listChildren)));
-    if(loading) {
-        return <div>Loading...</div>
-    }
+    // const { loading, error, data } = useQuery((gql(listChildren)));
+    // if(loading) {
+    //     return <div>Loading...</div>
+    // }
+
+    const showNameError = () => {
+        if (nameError.length > 0) {
+            return (<>{nameError}</>)
+        }else{
+            return (<></>);
+        }
+    };
+    const showChildIDError = () => {
+        if (childIDError.length > 0) {
+            return (<>{childIDError}</>)
+        }else{
+            return (<></>);
+        }
+    };
 
     async function handleEdit(e) {
         e.preventDefault();
+
+        let error = false;
+
+        //validation: must have a Firstname and ChildID
+        if (form_name.length > 0) {
+            setNameError("");
+        }else{
+            setNameError("You must specify a child's first name");
+            error = true;
+        };
+        if (form_childid.length > 0) {
+            setNameError("");
+        }else{
+            setNameError("A ChildID may not be empty");
+            error = true;
+        };
+
+        //validation: must have an age?  Not required for import!
+
+        if (error) {return};
+
         try {
             const response = await editChildMutation({
                 variables: {
@@ -195,294 +177,198 @@ console.log("EDIT Child coming in: ", child)
     return(
         <React.Fragment>
             <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Edit Child</DialogTitle>
+                <DialogTitle>Edit Child</DialogTitle>
                 <DialogContent>
-                    <Box
-                        width={500}
-                    >
-                    <FormControl
-                        required={true}
-                        variant="outlined"
-                        fullWidth
-                    > 
-                    {/*===================== RBL Assigned  =========================================*/}
-                    <Typography
-                        style={{
-                            fontWeight: 500
-                        }}
-                        sx={{
-                            mt: 2
-                        }}>Red Bag Lady</Typography>
-                    <Divider
-                        sx={{borderBottomWidth: 1.5}}
-                        style={{background: 'black'}}
-                    />
-                    {/*<Autocomplete
-                        onChange={(_, newValue) => {
-                            setRBLValue(newValue)
-                        }}
-                        inputValue = {RBLInputValue}
-                        onInputChange={(_, newInputValue) => {
-                            setRBLInputValue(newInputValue)
-                        }}
-                        defaultValue={{ RBLValue }}
-                        options = {RBLArray}
-                        getOptionLabel={option => option.label}
-                        renderInput={(params) => (
-                            <TextField {...params} label="" variant="standard" />
-                        )}
-                        sx={{ mb: 2, mt: 2}}
-                        />*/}
-                        {<Autocomplete
-                            options={RBLArray}
-                            getOptionLabel={option => option.label}
-                            value={RBLValue} //should be the id
-                            onChange={(_, newValue) => {
-                                console.log("New Value: ", newValue)
-                                setRBLValue(newValue);
-                            }}
-                            renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
-                        />}
-                    <Typography
-                        style={{
-                            fontWeight: 500
-                        }}
-                        sx={{
-                            mt: 2
-                        }}>Basic Information</Typography>
-                    <Divider
-                        sx={{borderBottomWidth: 1.5}}
-                        style={{background: 'black'}}
-                    />
-                    {/*================== First, ID =========================================*/}
-                    <Box
-                    sx={{
-                        display:'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between'
-                    }}> 
-                    <TextField
-                        margin="normal"
-                        id="outlined-basic"
-                        label="First Name"
-                        style = {{width: 235}}
-                        value={form_name}
-                        onChange={handleFormName}
-                    />
-                    <TextField
-                        disabled
-                        margin="normal"
-                        id="outlined-basic"
-                        label="Child ID"
-                        style = {{width: 235}}
-                        value={form_childid}
-                        onChange={handleFormChildID}
-                    />
-                    </Box>
-                    {/*================== Age, Gender & Race =========================================*/}
-                    <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        mt: 2
-                    }}>
-                        <TextField
-                            id="outlined-basic"
-                            label="Age"
+                    <Box width={500}>
+                        <FormControl
+                            required={true}
                             variant="outlined"
-                            type="number"
-                            value={form_age}
-                            onChange={handleFormAge}
-                            style = {{width: 150}}
-                        />
-                        <TextField
-                            value={form_gender}
-                            onChange={handleFormGender}
-                            select // tell TextField to render select
-                            label="Gender"
-                            style = {{width: 150}}
+                            fullWidth
                         >
-                            <MenuItem value={'F'}>Female</MenuItem>
-                            <MenuItem value={'M'}>Male</MenuItem>
-                            <MenuItem value={'Other'}>Other</MenuItem>
-                        </TextField>
-                        <TextField
-                            value={form_race}
-                            onChange={handleFormRace}
-                            select // tell TextField to render select
-                            label="Race"
-                            style = {{width: 150}}
-                        >
-                            <MenuItem value={'White'}>White</MenuItem>
-                            <MenuItem value={'Black'}>Black</MenuItem>
-                            <MenuItem value={'Hispanic'}>Hispanic</MenuItem>
-                            <MenuItem value={'Other'}>Other</MenuItem>
-                        </TextField>
-                    </Box>
-                   
-                    {/*================== Shirt, Pant & Shoe Size =========================================*/}
-                    <Typography
-                        style={{
-                            fontWeight: 500
-                        }}
-                        sx={{
-                            mt: 2
-                        }}>Sizing Information</Typography>
-                    <Divider
-                        sx={{borderBottomWidth: 1.5}}
-                        style={{background: 'black'}}
-                    />
-                    <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: 'space-between'
-                    }}>
-                        <TextField
-                            margin="normal"
-                            id="outlined-basic"
-                            label="Shirt Size"
-                            style = {{width: 150}}
-                            value={form_shirt}
-                            onChange={handleFormShirt}
-                        />
-                        <TextField
-                            margin="normal"
-                            id="outlined-basic"
-                            label="Pant Size"
-                            style = {{width: 150}}
-                            value={form_pant}
-                            onChange={handleFormPant}
-                        />
-                        <TextField
-                                margin="normal"
-                                id="outlined-basic"
-                                label="Shoe Size"
-                                style = {{width: 150}}
-                                value={form_shoe}
-                                onChange={handleFormShoe}
-                         />
-                        
-                    </Box>
+                            <h2>Red Bag Lady</h2>
+                            {<Autocomplete
+                                options={RBLArray}
+                                getOptionLabel={option => option.label}
+                                value={RBLValue} //should be the id
+                                onChange={(_, newValue) => {
+                                    console.log("New Value: ", newValue)
+                                    setRBLValue(newValue);
+                                }}
+                                renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                            />}
 
-                    {/*===================== WishList =========================================*/}
-                    <Typography
-                        style={{
-                            fontWeight: 500
-                        }}
-                        sx={{
-                            mt: 2
-                        }}>Wish List</Typography>
-                    <Divider
-                        sx={{mb: 2, borderBottomWidth: 1.5}}
-                        style={{background: 'black'}}
-                    />
-                    <Box>
-                    <TextField
-                        id="outlined-multiline-static"
-                        label="Wish List"
-                        multiline
-                        fullWidth
-                        rows={4}
-                        value={form_wishlist}
-                        onChange={handleFormWishlist}
-                        />
-                    </Box>
+                            <h2>Required Information</h2>
+                    
+                            <Box sx={{display:'flex', flexDirection: 'row', justifyContent: 'space-between'}}> 
+                                <TextField
+                                    margin="normal"
+                                    id="outlined-basic"
+                                    label="First Name"
+                                    style = {{width: 235}}
+                                    value={form_name}
+                                    onChange={handleFormName}
+                                />
+                                {showNameError()}
+                                <TextField
+                                    disabled
+                                    margin="normal"
+                                    id="outlined-basic"
+                                    label="Child ID"
+                                    style = {{width: 235}}
+                                    value={form_childid}
+                                    onChange={handleFormChildID}
+                                />
+                                {showChildIDError()}
+                            </Box>
+                    
+                            <Box 
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    mt: 2
+                                }}
+                            >
+                                <TextField
+                                    id="outlined-basic"
+                                    label="Age"
+                                    variant="outlined"
+                                    type="number"
+                                    value={form_age}
+                                    onChange={handleFormAge}
+                                    style = {{width: 150}}
+                                />
 
-                    {/*===================== Other Information  =========================================*/}
-                    <Typography
-                        style={{
-                            fontWeight: 500
-                        }}
-                        sx={{
-                            mt: 2
-                        }}>Other Information</Typography>
-                    <Divider
-                        sx={{mb:2, borderBottomWidth: 1.5}}
-                        style={{background: 'black'}}
-                    />
-                    <Box
-                        sx={{
-                            mb: 2
-                        }}>
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Additional Information"
-                            multiline
-                            fullWidth
-                            rows={4}
-                            value={form_info}
-                            onChange={handleFormInfo}
-                            />
-                    </Box>
-                    <Box>
-                        <TextField
-                            value={form_bike}
-                            onChange={handleFormBike}
-                            select // tell TextField to render select
-                            label="Are they receiving a bike?"
-                            fullWidth
-                        >
-                            <MenuItem value={'Y'}>Yes</MenuItem>
-                            <MenuItem value={'N'}>No</MenuItem>
-                         </TextField>
-                    </Box>
-                    <Box
-                        sx={{
-                            mt: 2
-                        }}>
-                        <TextField
-                            id="outlined-multiline-static"
-                            label="Siblings ID"
-                            multiline
-                            fullWidth
-                            rows={2}
-                            value={form_siblings}
-                            onChange={handleFormSiblings}
-                            />
-                    </Box>
-                    {/*===================== Sponsor Assigned  =========================================*/}
-                    <Typography
-                        style={{
-                            fontWeight: 500
-                        }}
-                        sx={{
-                            mt: 2
-                        }}>Assign a Sponsor</Typography>
-                    <Divider
-                        sx={{mb:2, borderBottomWidth: 1.5}}
-                        style={{background: 'black'}}
-                    />
-                    {/*<Autocomplete
-                        options = {sponsorArray}
-                        defaultValue={{ sponsorValue }}
-                        getOptionLabel={option => option.label}
-                        renderInput={(params) => (
-                        <TextField {...params} label="Sponsor" variant="standard" />
-                        )}
-                        onChange={(e, value) => {
-                            if(value !== null){
-                                console.log("Sponsorr Value = ", value)
-                                setSponsorID(value.id)
-                            } else {
-                                setSponsorID(null)
-                            }
-                        }}
-                    />*/}
-                    {<Autocomplete
-                        options={sponsorArray}
-                        getOptionLabel={option => option.label}
-                        value={sponsorValue} //should be the id
-                        onChange={(_, newValue) => {
-                            console.log("New Value: ", newValue)
-                            setSponsorValue(newValue);
-                        }}
-                        renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
-                    />}
-                    </FormControl>
+                                <TextField
+                                    value={form_gender}
+                                    onChange={handleFormGender}
+                                    select // tell TextField to render select
+                                    label="Gender"
+                                    style = {{width: 150}}
+                                >
+                                    <MenuItem value={'F'}>Female</MenuItem>
+                                    <MenuItem value={'M'}>Male</MenuItem>
+                                    <MenuItem value={'Other'}>Other</MenuItem>
+                                </TextField>
+
+                                <TextField
+                                    value={form_race}
+                                    onChange={handleFormRace}
+                                    select // tell TextField to render select
+                                    label="Race"
+                                    style = {{width: 150}}
+                                >
+                                    <MenuItem value={'White'}>White</MenuItem>
+                                    <MenuItem value={'Black'}>Black</MenuItem>
+                                    <MenuItem value={'Hispanic'}>Hispanic</MenuItem>
+                                    <MenuItem value={'Other'}>Other</MenuItem>
+                                </TextField>
+                            </Box>
+                    
+                            <h2>Sizing Information</h2>
+                            
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between'
+                                }}
+                            >
+                            
+                                <TextField
+                                    margin="normal"
+                                    id="outlined-basic"
+                                    label="Shirt Size"
+                                    style = {{width: 150}}
+                                    value={form_shirt}
+                                    onChange={handleFormShirt}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    id="outlined-basic"
+                                    label="Pant Size"
+                                    style = {{width: 150}}
+                                    value={form_pant}
+                                    onChange={handleFormPant}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    id="outlined-basic"
+                                    label="Shoe Size"
+                                    style = {{width: 150}}
+                                    value={form_shoe}
+                                    onChange={handleFormShoe}
+                                />                    
+                            </Box>
+
+                            <h2>Wish List</h2>
+                    
+                            <Box>
+                                <TextField
+                                    id="outlined-multiline-static"
+                                    label="Wish List"
+                                    multiline
+                                    fullWidth
+                                    rows={4}
+                                    value={form_wishlist}
+                                    onChange={handleFormWishlist}
+                                />
+                            </Box>
+
+                            <h2>Other Information</h2>
+                            <Box sx={{mb: 2}}>
+                                <TextField
+                                    id="outlined-multiline-static"
+                                    label="Additional Information"
+                                    multiline
+                                    fullWidth
+                                    rows={4}
+                                    value={form_info}
+                                    onChange={handleFormInfo}
+                                />
+                            </Box>
+                    
+                            <Box>
+                                <TextField
+                                    value={form_bike}
+                                    onChange={handleFormBike}
+                                    select // tell TextField to render select
+                                    label="Are they receiving a bike?"
+                                    fullWidth
+                                >
+                                    <MenuItem value={'Y'}>Yes</MenuItem>
+                                    <MenuItem value={'N'}>No</MenuItem>
+                                </TextField>
+                            </Box>
+                    
+                            <Box sx={{mt: 2}}>
+                                <TextField
+                                    id="outlined-multiline-static"
+                                    label="Siblings ID"
+                                    multiline
+                                    fullWidth
+                                    rows={2}
+                                    value={form_siblings}
+                                    onChange={handleFormSiblings}
+                                />
+                            </Box>
+
+                            <h2>Sponsor</h2>
+                    
+                                {<Autocomplete
+                                    options={sponsorArray}
+                                    getOptionLabel={option => option.label}
+                                    value={sponsorValue} //should be the id
+                                    onChange={(_, newValue) => {
+                                        console.log("New Value: ", newValue)
+                                        setSponsorValue(newValue);
+                                    }}
+                                    renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                                />}
+                        </FormControl>
                     </Box>
                 </DialogContent>
+
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
                     <Button onClick={handleSpecialEdit}>Update</Button>
