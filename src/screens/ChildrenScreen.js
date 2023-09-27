@@ -97,7 +97,12 @@ export default function ChildrenScreen () {
   //---------------------------------------------------- 
   //      Sponsor Stuff
   //----------------------------------------------------
-  const { data: sponsor_data, loading: sponsor_loading, error: sponsor_error } = useQuery(gql(listSponsors));
+  const { 
+    data: sponsor_data, 
+    loading: sponsor_loading, 
+    error: sponsor_error 
+  } = useQuery(gql(listSponsors), {variables: {limit: 2000 }});
+
   if(sponsor_loading) {console.log("Sponsor List is loading")};  
   if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
 
@@ -179,7 +184,7 @@ export default function ChildrenScreen () {
     loading: child_loading, 
     error: child_error, 
     refetch: child_Refetch 
-  } = useQuery(gql(listChildren)); 
+  } = useQuery(gql(listChildren), {variables: {limit: 3000 }}); 
   
   const showChildList = () => {
     if(child_loading) {return <div>Child List is loading</div>};  
