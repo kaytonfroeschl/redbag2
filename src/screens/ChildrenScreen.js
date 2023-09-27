@@ -120,7 +120,8 @@ export default function ChildrenScreen () {
         return;
     }
     setNCOpen(false);
-  }
+    child_Refetch();
+  };
   
   const openCreateChild = () => {
     if (NCOpen) {
@@ -161,7 +162,8 @@ export default function ChildrenScreen () {
   const handleDrawerClose = () => {
     setDrawerOpen(false);
     drawerCallback();
-  }
+    child_Refetch();
+  };
 
   const drawerCallback = () => {
     if(customWidth === '100%'){
