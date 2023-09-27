@@ -110,6 +110,27 @@ const DrawerHeader = styled('div')(({ theme }) => ({
         }
     };
 
+    const printAddress = () => {
+        let returnAddy;
+        if(data){
+            if(data.getSponsor.AddressStreet !== null){
+                returnAddy = data.getSponsor.AddressStreet;
+            }
+            if(data.getSponsor.AddressCity !== null){
+                returnAddy = returnAddy + " " + data.getSponsor.AddressCity;
+            }
+            if (data.getSponsor.AddressState !== null){
+                returnAddy = returnAddy + " " + data.getSponsor.AddressState;
+            }
+            if (data.getSponsor.AddressZip !== null){
+                returnAddy = returnAddy + " " + data.getSponsor.AddressZip;
+            }
+            return returnAddy;
+        } else {
+            return null;
+        }
+    }
+
 /* 
 ===============================================================================================
                                 User Interface
@@ -218,7 +239,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
                         }}>
                         <Typography sx={{pb: 1}}>Address&nbsp;&nbsp;</Typography>
-                        <Typography sx={{fontWeight: 'bold', pb: 1}}>{data ? data.getSponsor.Address : "N/A"}</Typography>
+                        <Typography sx={{fontWeight: 'bold', pb: 1}}>
+                            {data 
+                                ? printAddress()
+                            : "N/A"}
+                        
+                        </Typography>
                     </Box>
                     <Box
                         sx={{

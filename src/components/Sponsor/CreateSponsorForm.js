@@ -27,6 +27,10 @@ export default function CreateSponsorForm({ open, handleClose }) {
     const [form_email, setFormEmail] = useState('');
     const [form_phone, setFormPhone] = useState('');
     const [form_address, setFormAddress] = useState('');
+    const [form_street, setFormStreet] = useState('');
+    const [form_city, setFormCity] = useState('');
+    const [form_state, setFormState] = useState('');
+    const [form_zip, setFormZip] = useState('');
     const [form_ya, setFormYA] = useState('');
 
 /* ==============================================================================================
@@ -57,6 +61,22 @@ export default function CreateSponsorForm({ open, handleClose }) {
         setFormAddress(event.target.value);
     }
 
+    function handleFormStreet(event){
+        setFormStreet(event.target.value);
+    }
+
+    function handleFormCity(event){
+        setFormCity(event.target.value);
+    }
+
+    function handleFormState(event){
+        setFormState(event.target.value);
+    }
+
+    function handleFormZip(event){
+        setFormZip(event.target.value);
+    }
+
     function handleFormYA(event){
         setFormYA(event.target.value);
     }
@@ -67,13 +87,36 @@ export default function CreateSponsorForm({ open, handleClose }) {
         setFormInst('');
         setFormEmail('');
         setFormPhone('');
-        setFormAddress('')
+        setFormAddress('');
+        setFormStreet('');
+        setFormCity('');
+        setFormState('');
+        setFormZip('');
         setFormYA('');
     }
 
     function handleSpecialClose() {
+        console.log("Before clear: ", form_address)
         resetValues();
         handleClose();
+    }
+
+    function createAddress () {
+        let temp = form_street + " " + form_city + ", " + form_state + " " + form_zip;
+        console.log("create address: ", temp);
+        console.log("Form address in create: ", form_address)
+        setFormAddress(temp);
+        return temp
+        
+    }
+
+    function handleSpecialCreate(e) {
+        let temp2 = createAddress();
+        console.log("temp 2: ", temp2)
+        setFormAddress(temp2)
+        //setFormAddress(form_street + " " + form_city + ", " + form_state + " " + form_zip)
+        console.log("Form addy: ", form_address)
+        handleCreate(e);
     }
 
 /* ==============================================================================================
@@ -89,7 +132,7 @@ export default function CreateSponsorForm({ open, handleClose }) {
         e.preventDefault();
         try{
             const response = await addSponsorMutation({
-                variables: { input: { FirstName: form_firstname, LastName: form_lastname, Email: form_email, Phone: form_phone, Institution: form_inst, Address: form_address, YearsActive: form_ya } },
+                variables: { input: { FirstName: form_firstname, LastName: form_lastname, Email: form_email, Phone: form_phone, Institution: form_inst, Address: form_address, AddressStreet: form_street, AddressCity: form_city, AddressState: form_state, AddressZip: form_zip, YearsActive: form_ya } },
                 refetchQueries: [{ query: gql(listSponsors) }], // dont need to change
             })
             console.log("Mutation response: ", response);
@@ -115,6 +158,17 @@ export default function CreateSponsorForm({ open, handleClose }) {
                     '& .MuiTextField-root': { m: 2, width: '25ch' },
                     }}
                 >
+                <Typography
+                    style={{
+                        fontWeight: 500
+                    }}
+                    sx={{
+                        ml: 2
+                }}>Basic Information</Typography>
+                <Divider
+                    sx={{ ml: 2, mr: 2, borderBottomWidth: 1.5}}
+                    style={{background: 'black'}}
+                />
                 <Box> 
                     <TextField
                         margin="normal"
@@ -132,14 +186,12 @@ export default function CreateSponsorForm({ open, handleClose }) {
                     />
                     <TextField
                         margin="normal"
-                        id="outlined-basic"
                         label="Optional: Company Name"
                         value={form_inst}
                         onChange={handleFormInst}
                     />
                     <TextField
                         margin="normal"
-                        id="outlined-basic"
                         label="Email"
                         type={"email"}
                         value={form_email}
@@ -147,26 +199,69 @@ export default function CreateSponsorForm({ open, handleClose }) {
                     />
                     <TextField
                         margin="normal"
-                        id="outlined-basic"
                         label="Phone"
                         value={form_phone}
                         onChange={handleFormPhone}
                     />    
                 </Box>
                 </Box>
+                <Typography
+                        style={{
+                            fontWeight: 500
+                        }}
+                        sx={{
+                            mt: 2,
+                            ml: 2
+                        }}>Address</Typography>
+                <Divider
+                    sx={{mb: 2, ml: 2, mr: 2, borderBottomWidth: 1.5}}
+                    style={{background: 'black'}}
+                />
                 <Box
                     sx={{
-                        m: 2
-                    }}>
+                        '& .MuiTextField-root': { m: 2, width: '25ch' },
+                        }}>
                 <TextField
-                    label="Address"
-                    multiline
+                    label="Street Address"
                     fullWidth
-                    rows={2}
-                    value={form_address}
-                    onChange={handleFormAddress}
+                    value={form_street}
+                    onChange={handleFormStreet}
+                />
+                <TextField
+                    label="City"
+                    value={form_city}
+                    onChange={handleFormCity}
+                />
+                <TextField
+                    label="State"
+                    value={form_state}
+                    onChange={handleFormState}
+                />
+                <TextField
+                    label="Zipcode"
+                    value={form_zip}
+                    onChange={handleFormZip}
+                />
+                </Box>
+                <Typography
+                        style={{
+                            fontWeight: 500
+                        }}
+                        sx={{
+                            mt: 2,
+                            ml: 2
+                        }}>Other Information</Typography>
+                <Divider
+                    sx={{ ml: 2, mr: 2, borderBottomWidth: 1.5}}
+                    style={{background: 'black'}}
                 />
                <Typography>&nbsp;</Typography>
+               <Box
+                sx={{
+                    ml: 2,
+                    mr: 2
+                }}
+                >
                 <TextField
                     id="outlined-multiline-static"
                     label="Years Active"
@@ -176,12 +271,13 @@ export default function CreateSponsorForm({ open, handleClose }) {
                     value={form_ya}
                     onChange={handleFormYA}
                 />
-                </Box>
+               </Box>
+               
                 </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>
-                    <Button onClick={handleCreate}>Create</Button>
+                    <Button onClick={handleSpecialCreate}>Create</Button>
                 </DialogActions>
         </Dialog>
         </React.Fragment>
