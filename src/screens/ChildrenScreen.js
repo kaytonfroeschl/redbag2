@@ -129,6 +129,7 @@ export default function ChildrenScreen () {
         <CreateChildForm 
           open={NCOpen} 
           handleClose={handleNewChildClose}
+          childList={child_data.listChildren.items}
         />
       )
     }else{

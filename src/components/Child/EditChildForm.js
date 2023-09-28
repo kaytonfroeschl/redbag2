@@ -15,7 +15,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 
 export function EditChildForm ({ open, handleClose, child }){
-console.log("EDIT Child coming in: ", child)
+console.log("EditChildForm. Begin. Child is", child);
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
@@ -108,28 +108,12 @@ console.log("EDIT Child coming in: ", child)
     //     return <div>Loading...</div>
     // }
 
-    const showNameError = () => {
-        if (nameError.length > 0) {
-            return (<>{nameError}</>)
-        }else{
-            return (<></>);
-        }
-    };
-    const showChildIDError = () => {
-        if (childIDError.length > 0) {
-            return (<>{childIDError}</>)
-        }else{
-            return (<></>);
-        }
-    };
-
     async function handleEdit(e) {
         e.preventDefault();
 
         let error = false;
 
         //validation: must have a Firstname and ChildID
-        console.log("form_name " + form_name + ", length=" + form_name.length);
         if (form_name.length > 0) {
             setNameError("");
         }else{
@@ -137,13 +121,12 @@ console.log("EDIT Child coming in: ", child)
             error = true;
         };
         if (form_childid.length > 0) {
-            setNameError("");
+            setChildIDError("");
         }else{
-            setNameError("A ChildID may not be empty");
+            setChildIDError("A ChildID may not be empty");
             error = true;
         };
-
-        //validation: must have an age?  Not required for import!
+        
 
         if (error) {return};
 
@@ -209,8 +192,9 @@ console.log("EDIT Child coming in: ", child)
                                     style = {{width: 235}}
                                     value={form_name}
                                     onChange={handleFormName}
+                                    error={nameError > ''}
+                                    helperText={nameError}
                                 />
-                                {showNameError()}
                                 <TextField
                                     disabled
                                     margin="normal"
@@ -219,8 +203,9 @@ console.log("EDIT Child coming in: ", child)
                                     style = {{width: 235}}
                                     value={form_childid}
                                     onChange={handleFormChildID}
+                                    error={childIDError > ''}
+                                    helperText={childIDError}
                                 />
-                                {showChildIDError()}
                             </Box>
                     
                             <Box 

@@ -19,7 +19,7 @@ import {
     Paper
 } from '@mui/material';
 
-export function CreateChildForm ({ open, handleClose }){
+export function CreateChildForm ({ open, handleClose, childList }){
     
 /* ==============================================================================================
                                         Set Variables
@@ -29,7 +29,7 @@ export function CreateChildForm ({ open, handleClose }){
     const [form_id, setFormID] = useState('');
     const [form_gender, setFormGender] = useState('');
     const [form_race, setFormRace] = useState('');
-    const [form_age, setFormAge] = useState('');
+    const [form_age, setFormAge] = useState(0);
     const [form_siblings, setFormSiblings] = useState('');
     const [form_shirt, setFormShirt] = useState('');
     const [form_pant, setFormPant] = useState('');
@@ -40,66 +40,29 @@ export function CreateChildForm ({ open, handleClose }){
     const [selectRBL, setSelectRBL] = useState();
     const [selectSponsor, setSelectSponsor] = useState();
     const [errorMessage, setErrorMessage] = useState('');
-    
+
+    const [nameError, setNameError] = useState('');
+    const [childIDError, setChildIDError] = useState('');
 
     const sponsorArray = [];
-    let childrenArray = [];
     let RBLArray = [];
-    let errorArray = [];
-    let errors = false;
+    let fieldError = false;
 
 /* ==============================================================================================
                                         Handle Functions 
 ================================================================================================*/
-    function handleFormName(event) {
-        setFormName(event.target.value);
-    }
-
-    function handleFormID(event) {
-        setFormID(event.target.value);
-    }
-
-    function handleFormGender(event) {
-        setFormGender(event.target.value);
-    }
-
-    function handleFormRace(event){
-        setFormRace(event.target.value);
-    }
-
-    function handleFormAge(event){
-        setFormAge(event.target.value);
-    }
-
-    function handleFormSiblings(event){
-        setFormSiblings(event.target.value);
-    }
-
-    function handleFormShirt(event){
-        setFormShirt(event.target.value);
-    }
-
-    function handleFormPant(event){
-        setFormPant(event.target.value);
-    }
-
-    function handleFormShoe(event){
-        setFormShoe(event.target.value);
-    }
-
-    function handleFormWishlist(event){
-        setFormWishlist(event.target.value);
-    }
-
-    function handleFormInfo(event){
-        setFormInfo(event.target.value);
-    }
-
-    function handleFormBike(event){
-        setFormBike(event.target.value);
-    }
-
-
+    function handleFormName(event)      {setFormName(event.target.value)};
+    function handleFormID(event)        {setFormID(event.target.value)};
+    function handleFormGender(event)    {setFormGender(event.target.value)};
+    function handleFormRace(event)      {setFormRace(event.target.value)};
+    function handleFormAge(event)       {setFormAge(event.target.value)};
+    function handleFormSiblings(event)  {setFormSiblings(event.target.value)};
+    function handleFormShirt(event)     {setFormShirt(event.target.value)};
+    function handleFormPant(event)      {setFormPant(event.target.value)};
+    function handleFormShoe(event)      {setFormShoe(event.target.value)};
+    function handleFormWishlist(event)  {setFormWishlist(event.target.value)};
+    function handleFormInfo(event)      {setFormInfo(event.target.value)};
+    function handleFormBike(event)      {setFormBike(event.target.value)};
 
     function resetValues() {
         setID('');
@@ -107,7 +70,7 @@ export function CreateChildForm ({ open, handleClose }){
         setFormID('');
         setFormGender('');
         setFormRace('');
-        setFormAge('');
+        setFormAge(0);
         setFormSiblings('');
         setFormShirt('');
         setFormPant('');
@@ -124,56 +87,11 @@ export function CreateChildForm ({ open, handleClose }){
         handleClose();
     }
 
-    const childIDCheck = () => {
-        let key = false;
-        let array = childrenArray.map((child) => {
-            return child.ChildID
-        });
-        for( let i = 0; i < array.length; i++ ){
-            if(array[i] === form_id){
-                key = true;
-            }
-        }
-        return key;
-    }
-
-    function handleErrors() {
-        errorArray = [];
-        if (form_name === ''){
-            errorArray.push("Missing Child Name");
-            setErrorMessage("Missing Child Name")
-            errors = true;
-        } 
-        if (form_age === '' || form_age < 0 ){
-            errorArray.push("Invalid Age.")
-            setErrorMessage("Invalid Age")
-            errors = true;
-        }
-        if (childIDCheck()){
-            errorArray.push("Invalid Child ID")
-            setErrorMessage("Invalid Child ID")
-            errors = true;
-        }
-    }
-
-    function handleSpecialCreate(e){
-        handleErrors();
-        if (errors){
-            console.log("there are errors, ", errorArray)
-        } else {
-            handleCreate(e);
-        }
-    }
-
-    const showErrors = () => {
-        console.log("in show errors")
-        if (errors) {
-            console.log("here nad true")
-            errorArray.map((e) => {
-                <Alert severity='error'>{e}</Alert>
-            })
-        } else return <></>
-    }
+    const childIDIsUnique = (childID) => {
+        let found = childList.filter(child => child.ChildID === childID);
+        console.log("found: " + (found.length > 0));
+        return (found.length===0);
+    };
 
 /*============================================= Apollo Call =================================================
                                               Listing RBLS
@@ -200,20 +118,8 @@ export function CreateChildForm ({ open, handleClose }){
   }
 
 /* ==============================================================================================
-                                     Grabbing a list of Sponsors
-                                     From Backend
-================================================================================================*/
-    const { data: children_data, loading: children_loading, error: children_Error } = useQuery(gql(listChildren)); 
-    if(children_data || !children_loading ) {
-    const childrenList = children_data.listChildren.items.map((child) => {
-        return childrenArray.push({ 'id': child.id, 'label': child.Firstname, "ChildID": child.ChildID })
-    })
-    }
-
-/* ==============================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
-    let input;
     const [addChildMutation, { data, loading, error }] = useMutation(gql(createChild));
     if(loading) {
         return <div>Loading...</div>
@@ -221,6 +127,29 @@ export function CreateChildForm ({ open, handleClose }){
     
     async function handleCreate(e) {
         e.preventDefault();
+
+        fieldError = false;
+
+        //validation: must have a Firstname and ChildID
+        if (form_name.length > 0) {
+            setNameError("");
+        }else{
+            setNameError("You must specify a child's first name");
+            fieldError = true;
+        };
+        if (form_id.length > 0) {
+            setChildIDError("");
+            if (childIDIsUnique(form_id)===false) {
+                setChildIDError("A Child with that ChildID already exists");
+                fieldError = true;
+            }
+        }else{
+            setChildIDError("A ChildID may not be empty");
+            fieldError = true;
+        };
+
+        if (fieldError) return;
+
         try {
             const response = await addChildMutation({
                 variables: {
@@ -317,6 +246,8 @@ export function CreateChildForm ({ open, handleClose }){
                         style = {{width: 235}}
                         value={form_name}
                         onChange={handleFormName}
+                        error={nameError > ''}
+                        helperText={nameError}
                     />
                     <TextField
                         margin="normal"
@@ -325,6 +256,8 @@ export function CreateChildForm ({ open, handleClose }){
                         style = {{width: 235}}
                         value={form_id}
                         onChange={handleFormID}
+                        error={childIDError > ''}
+                        helperText={childIDError}
                     />
                     </Box>
                     {/*================== Age, Gender & Race =========================================*/}
@@ -523,7 +456,7 @@ export function CreateChildForm ({ open, handleClose }){
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>
-                    <Button onClick={handleSpecialCreate}>Create</Button>
+                    <Button onClick={handleCreate}>Create</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>
