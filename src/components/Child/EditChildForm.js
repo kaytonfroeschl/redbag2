@@ -95,6 +95,7 @@ console.log("EDIT Child coming in: ", child)
         const RBLList = RBL_data.listRBLS.items.map((RBL) => {
             return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
         })
+        RBLArray.push({id: "", label: "None Selected"});
     };
 /* 
 ================================================================================================
@@ -128,6 +129,7 @@ console.log("EDIT Child coming in: ", child)
         let error = false;
 
         //validation: must have a Firstname and ChildID
+        console.log("form_name " + form_name + ", length=" + form_name.length);
         if (form_name.length > 0) {
             setNameError("");
         }else{
