@@ -383,8 +383,6 @@ export default function SponsorScreen () {
       let Name = "";
   
       if ( ! sponsor) { return ""};
-  
-      console.log(sponsor);
       
       if(sponsor.FirstName) {
           Name = sponsor.FirstName

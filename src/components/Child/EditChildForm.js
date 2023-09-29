@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateChild } from '../../graphql/mutations';
-import { listChildren, getChild, listSponsors, listRBLS } from '../../graphql/queries';
+import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
 import Dialog from '@mui/material/Dialog';
 import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
 
 
-export function EditChildForm ({ open, handleClose, child }){
-console.log("EditChildForm. Begin. Child is", child);
-/* ==============================================================================================
-                                        Set Variables
+/* 
+================================================================================================
+                                        Component Starts Here
 ================================================================================================*/
+export function EditChildForm ({ open, handleClose, child, sponsorList }){
+    console.log("EditChildForm. Begin. child.Sponsor.id is", child.Sponsor.id);
+
     const [form_id, setFormID] = useState(child.id);
     const [form_name, setFormName] = useState(child.Firstname);
     const [form_childid, setFormChildID] = useState(child.ChildID);
@@ -36,31 +36,14 @@ console.log("EditChildForm. Begin. Child is", child);
     const [nameError, setNameError] = useState('');
     const [childIDError, setChildIDError] = useState('');
 
-    // const [incomingRBL, setIncomingRBL] = useState(child.RBL !== null ? child.RBL.id : null)
     const [RBLValue, setRBLValue] = useState('');
 
-    // const [incomingSponsor, setIncomingSponsor] = useState(child.Sponsor !== null ? child.Sponsor.id : null);
-    const [sponsorValue, setSponsorValue] = useState('');
+    const [sponsorSelected, setSponsorSelected] = useState('');
     
-    let sponsorArray = [];
+    // let sponsorArray = [];
     let RBLArray = [];
 
-    // useEffect(() => {
-    //     const temp = RBLArray.map((rbl) => {
-    //         if(rbl.id === incomingRBL){
-    //             return setRBLValue(rbl);
-    //         }
-    //     })
-    //     const temp2 = sponsorArray.map((sponsor) => {
-    //         if(sponsor.id === incomingSponsor){
-    //             return setSponsorValue(sponsor);
-    //         }
-    //     })
-    // }, [child])
-
-/* ==============================================================================================
-                                        OnChange Handle Functions 
-================================================================================================*/
+    //OnChange Handle Functions
     function handleFormName(event)      {setFormName(event.target.value)};
     function handleFormChildID(event)   {setFormChildID(event.target.value)};
     function handleFormGender(event)    {setFormGender(event.target.value)};
@@ -75,16 +58,59 @@ console.log("EditChildForm. Begin. Child is", child);
     function handleFormBike(event)      {setFormBike(event.target.value)};
 
     function handleSpecialEdit(e) {handleEdit(e)};
-/*===============================================================================================
-                                     Grabbing a list of Sponsors
-                                     From Backend
-================================================================================================*/
-    const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
-    if(sData || !sLoading ) {
-    const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName });
-    })
-    }
+
+    //-------------------------------- Sponsor Stuff --------------------------------    
+        
+    const sponsorOptions = () => {
+        let options = sponsorList.map((sponsor) => {
+            let sponsorOption = 
+                {
+                id: sponsor.id,
+                label: getSponsorInfo(sponsor)
+                };
+            
+            if (sponsor.id === child.Sponsor.id) {
+                console.log("sponsorOptions. current sponsor is: " + getSponsorInfo(child.sponsor));
+                setSponsorSelected(sponsorOption);
+            };
+            
+            return sponsorOption;
+        });
+        options.push({id: "", label: "Not Specified"});
+        console.log("sponsorOptions ", options);
+        return options;
+    };
+  
+    const getSponsorInfo = (sponsor) => {
+        let Name = "";
+    
+        if ( ! sponsor) { return ""};
+        
+        if(sponsor.FirstName) {
+            Name = sponsor.FirstName
+        };
+    
+        if(sponsor.LastName) { 
+            if(Name.length > 0 ) { Name += " "}
+            Name += sponsor.LastName
+        };
+    
+        if(sponsor.Institution) {
+            if(Name.length > 0) {
+                Name = Name + " (" + sponsor.Institution + ")"
+            }else{
+                Name = sponsor.Institution
+            }
+        };
+    
+        return Name;
+      };
+    // const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
+    // if(sData || !sLoading ) {
+    //     const sponsorList = sData.listSponsors.items.map((sponsor) => {
+    //         return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName });
+    //     })
+    // }
 
 /*
 ============================================= Apollo Call =================================================
@@ -120,12 +146,6 @@ console.log("EditChildForm. Begin. Child is", child);
             setNameError("You must specify a child's first name");
             error = true;
         };
-        if (form_childid.length > 0) {
-            setChildIDError("");
-        }else{
-            setChildIDError("A ChildID may not be empty");
-            error = true;
-        };
         
 
         if (error) {return};
@@ -148,7 +168,7 @@ console.log("EditChildForm. Begin. Child is", child);
                         Info: form_info,
                         Bike: form_bike,
                         rblID: RBLValue.id,
-                        sponsorID: sponsorValue.id
+                        sponsorID: sponsorSelected.id
                     }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
@@ -170,17 +190,17 @@ console.log("EditChildForm. Begin. Child is", child);
                             variant="outlined"
                             fullWidth
                         >
-                            <h2>Red Bag Lady</h2>
+                            {/* <h2>Red Bag Lady</h2>
                             {<Autocomplete
                                 options={RBLArray}
-                                getOptionLabel={option => option.label}
+                                // getOptionLabel={option => option.label}
                                 value={RBLValue} //should be the id
                                 onChange={(_, newValue) => {
                                     console.log("New Value: ", newValue)
                                     setRBLValue(newValue);
                                 }}
                                 renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
-                            />}
+                            />} */}
 
                             <h2>Required Information</h2>
                     
@@ -342,16 +362,17 @@ console.log("EditChildForm. Begin. Child is", child);
 
                             <h2>Sponsor</h2>
                     
-                                {<Autocomplete
-                                    options={sponsorArray}
-                                    getOptionLabel={option => option.label}
-                                    value={sponsorValue} //should be the id
-                                    onChange={(_, newValue) => {
-                                        console.log("New Value: ", newValue)
-                                        setSponsorValue(newValue);
-                                    }}
-                                    renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
-                                />}
+                            <Autocomplete
+                                options={sponsorOptions()}
+                                value={sponsorSelected}
+                                getOptionLabel={(option) => option.label}
+                                onChange={(e, newValue) => {
+                                    console.log("Sponsor Selected Value. id=" + newValue.id + ", label=" + newValue.label)
+                                    setSponsorSelected(newValue);
+                                }}
+                                renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                            />
+
                         </FormControl>
                     </Box>
                 </DialogContent>

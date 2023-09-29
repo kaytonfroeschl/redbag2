@@ -11,6 +11,7 @@ import ChildImport from '../components/Child/ChildImport';
 import ChildExport from '../components/Child/ChildExport';
 import { createChild } from '../graphql/mutations';
 import { ClientDevice } from 'aws-amplify';
+import { ConsoleLogger } from '@aws-amplify/core';
 
 
 /* ==============================================================================================
@@ -109,79 +110,8 @@ export default function ChildrenScreen () {
   //---------------------------------------------------- 
   //      Child Stuff
   //----------------------------------------------------
-  
-  //---------------- Create New Child ----------------
-  //<CreateChildForm open={NCOpen} handleClose={handleNCClose} />
-  const handleNewChildOpen = () => {
-    setNCOpen(true);
-  }
-  const handleNewChildClose = (event, reason) => {
-    if (reason && reason === "backdropClick"){
-        return;
-    }
-    setNCOpen(false);
-    child_Refetch();
-  };
-  
-  const openCreateChild = () => {
-    if (NCOpen) {
-      return (
-        <CreateChildForm 
-          open={NCOpen} 
-          handleClose={handleNewChildClose}
-          childList={child_data.listChildren.items}
-        />
-      )
-    }else{
-      return (<></>);
-    }
-  }
-
-  //---------------- Edit Child (aka SideDrawer) ----------------
-
-  const openSideDrawer = () => {
-    if (drawerOpen) {
-      return (
-        <ChildSideDrawer 
-          child={currentKid} 
-          open={drawerOpen} 
-          handleClose={handleDrawerClose}
-        />
-      )
-    }else{
-      return (<></>);
-    }
-  }
-
-  const handleDrawerOpen = (data) => {
-    console.log("Children Screen handleDrawerOpen Data: ", data)
-    setCurrentKid(data);
-    setDrawerOpen(true);
-    setCustomWidth('70%');
-  }
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-    drawerCallback();
-    child_Refetch();
-  };
-
-  const drawerCallback = () => {
-    if(customWidth === '100%'){
-        return setCustomWidth('70%')
-    } else {
-        return setCustomWidth('100%')
-    }
-  }
-  
-  /*useEffect(() => {
-      if(drawerOpen){
-          drawerCallback()
-      }
-    }, [drawerOpen])*/
 
   //---------------- List Children ----------------
-  
   const { 
     data: child_data, 
     loading: child_loading, 
@@ -240,6 +170,81 @@ export default function ChildrenScreen () {
       />
     )
   }
+  
+  //---------------- Create New Child ----------------
+  //<CreateChildForm open={NCOpen} handleClose={handleNCClose} />
+  const handleNewChildOpen = () => {
+    setNCOpen(true);
+  }
+  const handleNewChildClose = (event, reason) => {
+    if (reason && reason === "backdropClick"){
+        return;
+    }
+    setNCOpen(false);
+    child_Refetch();
+  };
+  
+  const openCreateChild = () => {
+    if (NCOpen) {
+      if (sponsor_loading || child_loading) {
+        return(<div>Sorry, Sponsors or Children are still loading</div>);
+      }else{        
+        return (
+          <CreateChildForm 
+            open={NCOpen} 
+            handleClose={handleNewChildClose}
+            childList={child_data.listChildren.items}
+            sponsorList={sponsor_data.listSponsors.items}
+          />
+        );
+      }
+    }else{
+      return (<></>);
+    }
+  }
+
+  //---------------- Edit Child (aka SideDrawer) ----------------
+
+  const openSideDrawer = () => {
+    if (drawerOpen) {
+      return (
+        <ChildSideDrawer 
+          child={currentKid} 
+          open={drawerOpen} 
+          handleClose={handleDrawerClose}
+          sponsorList={sponsor_data.listSponsors.items}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+
+  const handleDrawerOpen = (data) => {
+    setCurrentKid(data);
+    setDrawerOpen(true);
+    setCustomWidth('70%');
+  }
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    drawerCallback();
+    child_Refetch();
+  };
+
+  const drawerCallback = () => {
+    if(customWidth === '100%'){
+        return setCustomWidth('70%')
+    } else {
+        return setCustomWidth('100%')
+    }
+  }
+  
+  /*useEffect(() => {
+      if(drawerOpen){
+          drawerCallback()
+      }
+    }, [drawerOpen])*/
 
   //---------------------------------------------------- 
   //       Import Child Spreadsheet

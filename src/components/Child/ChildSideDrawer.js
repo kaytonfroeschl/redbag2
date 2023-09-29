@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { getChild, listChildren } from '../../graphql/queries';
 import { deleteChild } from '../../graphql/mutations';
@@ -15,26 +15,6 @@ import DeleteChild from './DeleteChild';
 
 /* =============================== Drawer Styling ================================================*/
 const drawerWidth = 360;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginRight: -drawerWidth,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginRight: 0,
-    }),
-  }),
-);
-
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
@@ -44,31 +24,31 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
   }));
 
-
-export default function ChildSideDrawer({ child, open, handleClose }) {
-/* ==============================================================================================
-                                        Variables
-   ==============================================================================================*/
+/* 
+=================================================================================================
+                                        Component Starts Here
+=================================================================================================*/
+export default function ChildSideDrawer({ child, open, handleClose, sponsorList }) {
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
-    
-/* ==============================================================================================
-                                    Grabbing data from the backend
-==============================================================================================*/
-const { loading, error, data } = useQuery(gql(getChild), {
-    variables : { id: child.id },
-});
-//---------------- Delete Child ----------------
-const [deleteChildMutation, {
-    data: childDelData, 
-    loading: childDelLoading, 
-    error: childDelError
-}] = useMutation(gql(deleteChild));
+    // Why do we call a query to get a child's data when 
+    //   child data is passed into this component with the "child" prop?
+    //   We're using the id of the "child" passed in to get the child data again...
+    //   This is not needed and any reference to "data" should be removed and replaced with "child".
+    // eslint-disable-next-line
+    const { loading, error, data } = useQuery(gql(getChild), {
+        variables : { id: child.id },
+    });
+    if (loading) {console.log("Loading getChild")}
 
-if (loading) {
-    return <div>Loading...</div>
-}
+    //---------------- Delete Child ----------------
+    const [deleteChildMutation, {
+        loading: childDelLoading, 
+        error: childDelError
+    }] = useMutation(gql(deleteChild));
+    if(childDelLoading) {console.log("Loading Delete Child Mutation")};
+    if(childDelError) {console.log( "Delete Child Mutation error: " + childDelError)};
 
 
 /* ==============================================================================================
@@ -79,7 +59,7 @@ if (loading) {
       }
     
     const handleEditClose = (event, reason) => {
-        if (reason && reason == 'backdropClick'){
+        if (reason && reason === 'backdropClick'){
             return;
         }
         setEditOpen(false);
@@ -90,7 +70,7 @@ if (loading) {
     }
 
     const handleDeleteClose = (event, reason) => {
-        if (reason && reason == 'backdropClick'){
+        if (reason && reason === 'backdropClick'){
             return;
         }
         setDeleteOpen(false);
@@ -103,33 +83,30 @@ if (loading) {
                 <EditChildForm 
                     open={editOpen}
                     handleClose={handleEditClose}
-                    child={data ? data.getChild : null}
+                    child={child}
+                    sponsorList={sponsorList}
                 />
             )
         }
     }
-/* 
-  ================================================================================================
-                                        Child Delete
-  ================================================================================================*/  
-    if(childDelLoading) {console.log("Loading Delete Child Mutation")};
-    if(childDelError) {console.log( "Delete Child Mutation error: " + childDelError)};
     
     const childDelete = () => {
-    try{
-        const response = deleteChildMutation({
-        variables: {input: {id: child.id}},
-        refetchQueries: [{ query: gql(listChildren) }],
-        });
-        setDeleteOpen(false);
-        handleClose();
-        //console.log("Delete Sponsor Mutation response: ", response);
-    }catch(error) {
-        console.log("Delete Child Mutation error ", error);
-        return "Delete Child failed with error: " + error;
-    };
+        try{
+            // eslint-disable-next-line
+            const response = deleteChildMutation({
+            variables: {input: {id: child.id}},
+            refetchQueries: [{ query: gql(listChildren) }],
+            });
+            setDeleteOpen(false);
+            handleClose();
+            //console.log("Delete Sponsor Mutation response: ", response);
+        }catch(error) {
+            console.log("Delete Child Mutation error ", error);
+            return "Delete Child failed with error: " + error;
+        };
         return "";
     }
+
     const onDeleteOpen = () => {
         if(deleteOpen) {
             return (
