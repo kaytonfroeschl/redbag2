@@ -94,12 +94,12 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                 <DataGrid
                     rows = {sponsor.Children.items}
                     columns={ [
-                        { field: 'ChildID',   headerName: 'First Name', flex: 1},
-                        { field: 'Firstname',    headerName: 'Last Name', flex: 1},
+                        { field: 'ChildID',   headerName: 'Child ID', flex: 1},
+                        { field: 'Firstname',    headerName: 'Name', flex: 1},
                         { field: 'RBL', headerName: 'RBL', flex: 1.3,
                             valueGetter: (params) => {
                             if(params.row.RBL) {
-                                return(params.row.RBL.LastName);
+                                return(params.row.RBL.FirstName + " " + params.row.RBL.LastName);
                             }
                             return "";
                             }
@@ -111,7 +111,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     };
 
     const printAddress = () => {
-        let returnAddy;
+        let returnAddy = "";
         if(data){
             if(data.getSponsor.AddressStreet !== null){
                 returnAddy = data.getSponsor.AddressStreet;

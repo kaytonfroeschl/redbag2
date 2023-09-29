@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -36,9 +36,23 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function NavMenu () {
     const [open, setOpen] = React.useState(true);
-    const [childrenSelected, setChildrenSelected] = useState(true);
+    const [childrenSelected, setChildrenSelected] = useState(false);
     const [sponsorSelected, setSponsorSelected] = useState(false);
-    
+    const [currentPath, setCurrentPath] = useState("");
+
+
+    useEffect(() =>{
+        if(window.location.pathname === '/'){
+            // children screen
+            setSponsorSelected(false);
+            setChildrenSelected(true);
+        } else {
+            // sponsor screen
+            setChildrenSelected(false);
+            setSponsorSelected(true);
+        }
+    }, [window.location.pathname])
+
 
     return (
         <ThemeProvider theme={defaultTheme}>

@@ -13,7 +13,6 @@ import {
 
 export default function DeleteSponsor({open, sponsor, deleteSponsor, handleClose}){
     console.log("DeleteSponsor Componenet Begin")
-    console.log("sponsor", sponsor);
     
     const sponsorInfo = () => {
         return (
@@ -75,6 +74,8 @@ export default function DeleteSponsor({open, sponsor, deleteSponsor, handleClose
                     
                 </DialogActions>
             </Dialog>
+            {console.log("End of Delete Componenet")}
         </React.Fragment>
+        
     )
 };

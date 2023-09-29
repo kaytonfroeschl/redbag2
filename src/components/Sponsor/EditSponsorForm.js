@@ -142,42 +142,37 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                         margin="normal"
                         id="outlined-basic"
                         label="First Name"
-                        value={form_firstname}
+                        value={form_firstname !== null ? form_firstname : ""}
                         onChange={handleFormFirstName}
-                        defaultValue={sponsor.FirstName}
                     />
                     <TextField
                         margin="normal"
                         id="outlined-basic"
                         label="Last Name"
-                        value={form_lastname}
+                        value={form_lastname !== null ? form_lastname : ""}
                         onChange={handleFormLastName}
-                        defaultValue={sponsor.LastName}
                     />
                     <TextField
                         margin="normal"
                         id="outlined-basic"
                         label="Optional: Company Name"
-                        value={form_inst}
+                        value={form_inst !== null ? form_inst : ""}
                         onChange={handleFormInst}
-                        defaultValue={sponsor.Institution}
                     />
                     <TextField
                         margin="normal"
                         id="outlined-basic"
                         label="Email"
                         type={"email"}
-                        value={form_email}
+                        value={form_email !== null ? form_email : ""}
                         onChange={handleFormEmail}
-                        defaultValue={sponsor.Email}
                     />
                     <TextField
                         margin="normal"
                         id="outlined-basic"
                         label="Phone"
-                        value={form_phone}
+                        value={form_phone !== null ? form_email : ""}
                         onChange={handleFormPhone}
-                        defaultValue={sponsor.Phone}
                     />    
                 </Box>
                 </Box>
@@ -200,22 +195,22 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                     }}>
                     <TextField
                         label="Street Address"
-                        value={form_street}
+                        value={form_street !== null ? form_street : ""}
                         onChange={handleFormStreet}
                     />
                     <TextField
                         label="City"
-                        value={form_city}
+                        value={form_city !== null ? form_city : ""}
                         onChange={handleFormCity}
                     />
                     <TextField
                         label="State"
-                        value={form_state}
+                        value={form_state !== null ? form_state : ""}
                         onChange={handleFormState}
                     />
                     <TextField
                         label="Zipcode"
-                        value={form_zip}
+                        value={form_zip !== null ? form_zip : ""}
                         onChange={handleFormZip}
                     />
                 </Box>
@@ -228,9 +223,8 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                         multiline
                         fullWidth
                         rows={4}
-                        value={form_ya}
+                        value={form_ya !== null ? form_ya : ""}
                         onChange={handleFormYA}
-                        defaultValue={sponsor.YearsActive}
                     />
                 </Box>
                 </Box>
