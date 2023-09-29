@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateChild } from '../../graphql/mutations';
-import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
+import { listChildren, listRBLS } from '../../graphql/queries';
 import Dialog from '@mui/material/Dialog';
 import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -16,8 +16,8 @@ import Autocomplete from '@mui/material/Autocomplete';
 ================================================================================================
                                         Component Starts Here
 ================================================================================================*/
-export function EditChildForm ({ open, handleClose, child, sponsorList }){
-    console.log("EditChildForm. Begin. child.Sponsor.id is", child.Sponsor.id);
+export function EditChildForm ({ open, handleClose, child, sponsorList, rblList }){
+    console.log("EditChildForm. Begin. rblList prop is ", rblList);
 
     const [form_id, setFormID] = useState(child.id);
     const [form_name, setFormName] = useState(child.Firstname);
@@ -34,10 +34,11 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
     const [form_bike, setFormBike] = useState(child.Bike);
 
     const [nameError, setNameError] = useState('');
-    const [childIDError, setChildIDError] = useState('');
 
-    const [RBLValue, setRBLValue] = useState('');
+    const [RBLOptions, setRBLOptions] = useState([]);
+    const [RBLSelected, setRBLSelected] = useState('');
 
+    const [sponsorOptions, setSponsorOptions] = useState([]);
     const [sponsorSelected, setSponsorSelected] = useState('');
     
     // let sponsorArray = [];
@@ -59,9 +60,11 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
 
     function handleSpecialEdit(e) {handleEdit(e)};
 
-    //-------------------------------- Sponsor Stuff --------------------------------    
-        
-    const sponsorOptions = () => {
+    //-------------------------------- Sponsor Stuff --------------------------------
+    useEffect(() => {
+        const noSponsor = {id: "", label: "Not Specified"};
+        setSponsorSelected(noSponsor);
+
         let options = sponsorList.map((sponsor) => {
             let sponsorOption = 
                 {
@@ -69,17 +72,18 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
                 label: getSponsorInfo(sponsor)
                 };
             
-            if (sponsor.id === child.Sponsor.id) {
-                console.log("sponsorOptions. current sponsor is: " + getSponsorInfo(child.sponsor));
-                setSponsorSelected(sponsorOption);
+            if (child.Sponsor) {
+                if (sponsor.id === child.Sponsor.id) {
+                    setSponsorSelected(sponsorOption);
+                };
             };
             
             return sponsorOption;
         });
-        options.push({id: "", label: "Not Specified"});
-        console.log("sponsorOptions ", options);
-        return options;
-    };
+        options.push(noSponsor);
+        setSponsorOptions(options);
+    },
+    []);
   
     const getSponsorInfo = (sponsor) => {
         let Name = "";
@@ -105,24 +109,33 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
     
         return Name;
       };
-    // const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
-    // if(sData || !sLoading ) {
-    //     const sponsorList = sData.listSponsors.items.map((sponsor) => {
-    //         return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName });
-    //     })
-    // }
 
-/*
-============================================= Apollo Call =================================================
-                                              Listing RBLS
-===========================================================================================================*/
-    const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
-    if(RBL_data || !RBL_loading ) {
-        const RBLList = RBL_data.listRBLS.items.map((RBL) => {
-            return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
-        })
-        RBLArray.push({id: "", label: "None Selected"});
-    };
+      //-------------------------------- RBL Stuff --------------------------------
+      useEffect(() => {
+          const noRBL = {id: "", label: "Not Specified"};
+          setRBLSelected(noRBL);
+  
+          let options = rblList.map((rbl) => {
+              let rblOption = 
+                  {
+                  id: rbl.id,
+                  label: rbl.FirstName + " " + rbl.LastName
+                  };
+              
+              if (child.RBL) {
+                  if (rbl.id === child.RBL.id) {
+                      console.log("rblOptions. current RBL is: " + rblOption.label);
+                      setRBLSelected(rblOption);
+                  };
+              };
+              
+              return rblOption;
+          });
+          options.push(noRBL);
+          setRBLOptions(options);
+          console.log("RBL Options ", options);
+      },
+      []);
 /* 
 ================================================================================================
                                         Apollo Call to Add New Child
@@ -167,12 +180,11 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
                         Wishlist: form_wishlist,
                         Info: form_info,
                         Bike: form_bike,
-                        rblID: RBLValue.id,
+                        rblID: RBLSelected.id,
                         sponsorID: sponsorSelected.id
                     }},
-                refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
+                //refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
-            console.log("Mutation response: ", response);
             handleClose();
         } catch (error) {
             console.error("Mutation error: ", error);
@@ -190,17 +202,17 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
                             variant="outlined"
                             fullWidth
                         >
-                            {/* <h2>Red Bag Lady</h2>
-                            {<Autocomplete
-                                options={RBLArray}
-                                // getOptionLabel={option => option.label}
-                                value={RBLValue} //should be the id
-                                onChange={(_, newValue) => {
-                                    console.log("New Value: ", newValue)
-                                    setRBLValue(newValue);
+
+                            <h2>Red Bag Lady</h2>
+                    
+                            <Autocomplete
+                                options={RBLOptions}
+                                value={RBLSelected}
+                                onChange={(e, newValue) => {
+                                    setRBLSelected(newValue);
                                 }}
                                 renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
-                            />} */}
+                            />
 
                             <h2>Required Information</h2>
                     
@@ -223,8 +235,6 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
                                     style = {{width: 235}}
                                     value={form_childid}
                                     onChange={handleFormChildID}
-                                    error={childIDError > ''}
-                                    helperText={childIDError}
                                 />
                             </Box>
                     
@@ -363,11 +373,9 @@ export function EditChildForm ({ open, handleClose, child, sponsorList }){
                             <h2>Sponsor</h2>
                     
                             <Autocomplete
-                                options={sponsorOptions()}
+                                options={sponsorOptions}
                                 value={sponsorSelected}
-                                getOptionLabel={(option) => option.label}
                                 onChange={(e, newValue) => {
-                                    console.log("Sponsor Selected Value. id=" + newValue.id + ", label=" + newValue.label)
                                     setSponsorSelected(newValue);
                                 }}
                                 renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}

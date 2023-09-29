@@ -213,6 +213,7 @@ export default function ChildrenScreen () {
           open={drawerOpen} 
           handleClose={handleDrawerClose}
           sponsorList={sponsor_data.listSponsors.items}
+          rblList={rbl_data.listRBLS.items}
         />
       )
     }else{

@@ -28,7 +28,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 =================================================================================================
                                         Component Starts Here
 =================================================================================================*/
-export default function ChildSideDrawer({ child, open, handleClose, sponsorList }) {
+export default function ChildSideDrawer({ child, open, handleClose, sponsorList, rblList }) {
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -85,6 +85,7 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList 
                     handleClose={handleEditClose}
                     child={child}
                     sponsorList={sponsorList}
+                    rblList={rblList}
                 />
             )
         }
