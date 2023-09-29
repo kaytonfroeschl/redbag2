@@ -42,14 +42,6 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
     });
     if (loading) {console.log("Loading getChild")}
 
-    //---------------- Delete Child ----------------
-    const [deleteChildMutation, {
-        loading: childDelLoading, 
-        error: childDelError
-    }] = useMutation(gql(deleteChild));
-    if(childDelLoading) {console.log("Loading Delete Child Mutation")};
-    if(childDelError) {console.log( "Delete Child Mutation error: " + childDelError)};
-
 
 /* ==============================================================================================
                                     Handle Functions
@@ -90,17 +82,24 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
             )
         }
     }
+
+    //---------------- Delete Child ----------------
+    const [deleteChildMutation, {
+        loading: childDelLoading, 
+        error: childDelError
+    }] = useMutation(gql(deleteChild));
+    if(childDelLoading) {console.log("Loading Delete Child Mutation")};
+    if(childDelError) {console.log( "Delete Child Mutation error: " + childDelError)};
     
-    const childDelete = () => {
+    const childDelete = async () => {
         try{
             // eslint-disable-next-line
-            const response = deleteChildMutation({
+            const response = await deleteChildMutation({
             variables: {input: {id: child.id}},
             refetchQueries: [{ query: gql(listChildren) }],
             });
             setDeleteOpen(false);
             handleClose();
-            //console.log("Delete Sponsor Mutation response: ", response);
         }catch(error) {
             console.log("Delete Child Mutation error ", error);
             return "Delete Child failed with error: " + error;

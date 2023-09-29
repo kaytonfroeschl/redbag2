@@ -286,10 +286,10 @@ export default function ChildrenScreen () {
   if(errorAdd) {console.log( "Create Child Mutation error: " + errorAdd)};
 
   //const handleAddChild = async (childData) => { 
-  const handleAddChild = (childImportData) => {
+  const handleAddChild = async (childImportData) => {
     console.log("handleAddChild, about to call addChildMutation. ChildID: " + childImportData.ChildID);
     try{
-        const response = addChildMutation({
+        const response = await addChildMutation({
         variables: { 
           input: { 
             Firstname: childImportData.Firstname, 

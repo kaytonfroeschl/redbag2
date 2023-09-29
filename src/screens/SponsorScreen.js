@@ -108,20 +108,27 @@ export default function SponsorScreen () {
     const { 
       data: sponsor_data, 
       loading: sponsor_loading, 
-      error: sponsor_error 
+      error: sponsor_error,
+      refetch: sponsor_Refetch
     } = useQuery(gql(listSponsors), {variables: {limit: 2000 }});
+
     
-    // if(sponsor_loading) {console.log("Sponsor List is loading")};  
-    // if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
-    if(sponsor_data) {console.log("Sponsors in List: " + sponsor_data.listSponsors.items.length)};
+
+    
+    //if(sponsor_loading) {console.log("Sponsor List is loading")};  
+    //if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
+    //if(sponsor_data) {console.log("Sponsors in List: " + sponsor_data.listSponsors.items.length)};
+    console.log("Sponsor Screen Begin")
 
     const uiListSponsors = () => {
+      console.log("1. uiListSponsors Rerendering")
       if(sponsor_loading) {return <div>Loading sponsors</div>}
       if(sponsor_loading) {return <div>Error Loading sponsors: {sponsor_error}</div>}
       
       if(sponsor_data.listSponsors.items.length === 0) {
         return(<div>No Sponosors</div>);
       }else{
+        console.log("2. uiListSponsors Rerendering, sponsor data has " + sponsor_data.listSponsors.items.length + " rows")
         return (
           <DataGrid
             initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
@@ -170,7 +177,7 @@ export default function SponsorScreen () {
   ================================================================================================*/
   const [updateSponsorMutation, { loading: loadingSponsorUpdate, error: errorSponsorUpdate, data: updatedSponsor }] = useMutation(gql(updateSponsor));
   if(errorSponsorUpdate) {console.log("Error Loading Sponsor Update: " + errorSponsorUpdate)};
-  
+
   const handleEditOpen = (row) => {
     if (row===null) {
       setCurrSponsor(0);
@@ -235,8 +242,9 @@ export default function SponsorScreen () {
   ================================================================================================*/
     const openDeleteSponsor = () => {
     if (deleteOpen) {
+      console.log("Render DeleteSponsor")
       return (
-        <DeleteSponsor 
+          <DeleteSponsor 
           open={deleteOpen}
           sponsor={currSponsor}
           deleteSponsor={sponsorDelete}
@@ -249,7 +257,7 @@ export default function SponsorScreen () {
   }
 
   const handleDeleteOpen = (row) => {
-    //console.log("handleDeleteOpen ", row);
+    console.log("Delete button was clicked on: ", row)
     setCurrSponsor(row);
     setDeleteOpen(true);
   }
@@ -268,28 +276,30 @@ export default function SponsorScreen () {
     loading: sponsorDelLoading, 
     error: sponsorDelError
   }] = useMutation(gql(deleteSponsor));
-  
-  if(sponsorDelLoading) {console.log("Loading Delete Sponsor Mutation")};
-  if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
 
-  const sponsorDelete = () => {
+  //if(sponsorDelLoading) {console.log("Loading Delete Sponsor Mutation")};
+  //if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
+
+
+  const sponsorDelete = async () => {
+    console.log("In sponsorDelete")
     try{
-      const response = deleteSponsorMutation({
+      const response = await deleteSponsorMutation({
         variables: {input: {id: currSponsor.id}},
-        refetchQueries: [{ query: gql(listSponsors) }],
       });
-      setCurrSponsor(null);
       setDeleteOpen(false);
-      //console.log("Delete Sponsor Mutation response: ", response);
+      console.log("Sponsor Delete Mutation was a sucess.")
+      sponsor_Refetch();
       console.log("Delete Sponsor Mutation complete, num sponsors in sponsor list is: " + sponsor_data.listSponsors.items.length);
+      
     }catch(error) {
       console.log("Delete Sponsor Mutation error ", error);
       return "Delete Sponsor failed with error: " + error;
     };
-    return "";
+    //return "";
   }
-/* 
-================================================================================================
+
+/*================================================================================================
                                       Import Sponsor Spreadsheet
 ================================================================================================*/
   const handleImportOpen = () => {
@@ -329,7 +339,7 @@ export default function SponsorScreen () {
   const handleSponsorAdd = (sponsorData) => {
     console.log("handleSponosorAdd, about to call addSponsorMutation.", sponsorData);
     try{
-        const response = addSponsorMutation({
+      const response = addSponsorMutation({
         variables: { 
           input: { 
             FirstName: sponsorData.FirstName,
@@ -443,6 +453,7 @@ export default function SponsorScreen () {
       {openDeleteSponsor()}
       {openImportDialog()}
       {openExport()}
+
 
     </React.Fragment>
   )
