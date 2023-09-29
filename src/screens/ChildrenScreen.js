@@ -195,6 +195,7 @@ export default function ChildrenScreen () {
             handleClose={handleNewChildClose}
             childList={child_data.listChildren.items}
             sponsorList={sponsor_data.listSponsors.items}
+            rblList={rbl_data.listRBLS.items}
           />
         );
       }

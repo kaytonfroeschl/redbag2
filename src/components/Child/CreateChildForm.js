@@ -19,7 +19,7 @@ import {
     Paper
 } from '@mui/material';
 
-export function CreateChildForm ({ open, handleClose, childList }){
+export function CreateChildForm ({ open, handleClose, childList, sponsorList, rblList }){
     
 /* ==============================================================================================
                                         Set Variables
@@ -37,16 +37,21 @@ export function CreateChildForm ({ open, handleClose, childList }){
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
     const [form_bike, setFormBike] = useState('N');
-    const [selectRBL, setSelectRBL] = useState();
-    const [selectSponsor, setSelectSponsor] = useState();
     const [errorMessage, setErrorMessage] = useState('');
 
     const [nameError, setNameError] = useState('');
     const [childIDError, setChildIDError] = useState('');
 
+    const [RBLOptions, setRBLOptions] = useState([]);
+    const [RBLSelected, setRBLSelected] = useState('');
+
+    const [sponsorOptions, setSponsorOptions] = useState([]);
+    const [sponsorSelected, setSponsorSelected] = useState('');
+
     const sponsorArray = [];
     let RBLArray = [];
     let fieldError = false;
+    const listItemNotSpecified = {id: "", label: "Not Specified"};
 
 /* ==============================================================================================
                                         Handle Functions 
@@ -78,8 +83,8 @@ export function CreateChildForm ({ open, handleClose, childList }){
         setFormWishlist('');
         setFormInfo('');
         setFormBike('');
-        setSelectRBL('');
-        setSelectSponsor('');
+        setRBLSelected(listItemNotSpecified);
+        setSponsorSelected(listItemNotSpecified);
     }
 
     function handleSpecialClose() {
@@ -89,19 +94,77 @@ export function CreateChildForm ({ open, handleClose, childList }){
 
     const childIDIsUnique = (childID) => {
         let found = childList.filter(child => child.ChildID === childID);
-        console.log("found: " + (found.length > 0));
         return (found.length===0);
     };
+
+    //-------------------------------- Sponsor Stuff --------------------------------
+    useEffect(() => {
+        let options = sponsorList.map((sponsor) => {
+            let sponsorOption = 
+                {
+                id: sponsor.id,
+                label: getSponsorInfo(sponsor)
+                };
+            
+            return sponsorOption;
+        });
+        options.push(listItemNotSpecified);
+        setSponsorOptions(options);
+        setSponsorSelected(listItemNotSpecified);
+    },
+    []);
+  
+    const getSponsorInfo = (sponsor) => {
+        let Name = "";
+    
+        if ( ! sponsor) { return ""};
+        
+        if(sponsor.FirstName) {
+            Name = sponsor.FirstName
+        };
+    
+        if(sponsor.LastName) { 
+            if(Name.length > 0 ) { Name += " "}
+            Name += sponsor.LastName
+        };
+    
+        if(sponsor.Institution) {
+            if(Name.length > 0) {
+                Name = Name + " (" + sponsor.Institution + ")"
+            }else{
+                Name = sponsor.Institution
+            }
+        };
+    
+        return Name;
+      };
+
+      //-------------------------------- RBL Stuff --------------------------------
+      useEffect(() => {
+          let options = rblList.map((rbl) => {
+              let rblOption = 
+                  {
+                  id: rbl.id,
+                  label: rbl.FirstName + " " + rbl.LastName
+                  };
+              
+              return rblOption;
+          });
+          options.push(listItemNotSpecified);
+          setRBLOptions(options);
+          setRBLSelected(listItemNotSpecified);
+      },
+      []);
 
 /*============================================= Apollo Call =================================================
                                               Listing RBLS
 ===========================================================================================================*/
-    const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
-    if(RBL_data || !RBL_loading ) {
-    const RBLList = RBL_data.listRBLS.items.map((RBL) => {
-        return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
-    })
-    }
+    // const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
+    // if(RBL_data || !RBL_loading ) {
+    // const RBLList = RBL_data.listRBLS.items.map((RBL) => {
+    //     return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
+    // })
+    // }
     //RBLAutoArray = createAutoRBL(RBLArray);
     //console.log("List of RBLS: ", RBLArray)
     //console.log("RBL Auto Array: ", RBLAutoArray)
@@ -110,12 +173,12 @@ export function CreateChildForm ({ open, handleClose, childList }){
                                      Grabbing a list of Sponsors
                                      From Backend
 ================================================================================================*/
-  const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
-  if(sData || !sLoading ) {
-    const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName })
-    })
-  }
+//   const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
+//   if(sData || !sLoading ) {
+//     const sponsorList = sData.listSponsors.items.map((sponsor) => {
+//         return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName })
+//     })
+//   }
 
 /* ==============================================================================================
                                         Apollo Call to Add New Child
@@ -166,8 +229,8 @@ export function CreateChildForm ({ open, handleClose, childList }){
                         Wishlist: form_wishlist,
                         Info: form_info,
                         Bike: form_bike,
-                        rblID: selectRBL,
-                        sponsorID: selectSponsor
+                        rblID: RBLSelected.id,
+                        sponsorID: sponsorSelected.id
                     }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
@@ -206,21 +269,21 @@ export function CreateChildForm ({ open, handleClose, childList }){
                         sx={{borderBottomWidth: 1.5}}
                         style={{background: 'black'}}
                     />
+
                     <Autocomplete
-                        options = {RBLArray}
-                        getOptionLabel={option => option.label}
-                        renderInput={(params) => (
-                        <TextField {...params} label="" variant="standard" />
-                        )}
-                        onChange={(e, value) => {
-                            if (value != null){
-                                setSelectRBL(value.id)
+                        options={RBLOptions}
+                        value={RBLSelected}
+                        onChange={(e, newValue) => { 
+                            if (newValue === null){
+                                setRBLSelected(listItemNotSpecified);
                             } else {
-                                setSelectRBL(null);
-                            }
+                                setRBLSelected(newValue);
+                            };
                         }}
+                        renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
                         sx={{ mb: 2, mt: 2}}
                     />
+                    
                     <Typography
                         style={{
                             fontWeight: 500
@@ -435,21 +498,21 @@ export function CreateChildForm ({ open, handleClose, childList }){
                         sx={{mb:2, borderBottomWidth: 1.5}}
                         style={{background: 'black'}}
                     />
+
                     <Autocomplete
-                        //value={selectSponsor}
-                        options = {sponsorArray}
-                        getOptionLabel={option => option.label}
-                        renderInput={(params) => (
-                        <TextField {...params} label="Sponsor" variant="standard" />
-                        )}
-                        onChange={(e, value) => {
-                            if(value != null){
-                                setSelectSponsor(value.id);
+                        options={sponsorOptions}
+                        value={sponsorSelected}
+                        onChange={(e, newValue) => {
+                            console.log("Sponsor selected value ", newValue); 
+                            if (newValue === null){
+                                console.log("newValue is null ", listItemNotSpecified);
+                                setSponsorSelected(listItemNotSpecified);
                             } else {
-                                setSelectSponsor(null);
-                            }
-                            
+                                setSponsorSelected(newValue);
+                            };
                         }}
+                        renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                        sx={{ mb: 2, mt: 2}}
                     />
                     </FormControl>
                     </Box>

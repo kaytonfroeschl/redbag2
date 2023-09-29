@@ -43,6 +43,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
     
     // let sponsorArray = [];
     let RBLArray = [];
+    const listItemNotSpecified = {id: "", label: "Not Specified"};
 
     //OnChange Handle Functions
     function handleFormName(event)      {setFormName(event.target.value)};
@@ -62,9 +63,6 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
 
     //-------------------------------- Sponsor Stuff --------------------------------
     useEffect(() => {
-        const noSponsor = {id: "", label: "Not Specified"};
-        setSponsorSelected(noSponsor);
-
         let options = sponsorList.map((sponsor) => {
             let sponsorOption = 
                 {
@@ -80,8 +78,9 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
             
             return sponsorOption;
         });
-        options.push(noSponsor);
+        options.push(listItemNotSpecified);
         setSponsorOptions(options);
+        setSponsorSelected(listItemNotSpecified);
     },
     []);
   
@@ -111,10 +110,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
       };
 
       //-------------------------------- RBL Stuff --------------------------------
-      useEffect(() => {
-          const noRBL = {id: "", label: "Not Specified"};
-          setRBLSelected(noRBL);
-  
+      useEffect(() => {  
           let options = rblList.map((rbl) => {
               let rblOption = 
                   {
@@ -131,8 +127,9 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
               
               return rblOption;
           });
-          options.push(noRBL);
+          options.push(listItemNotSpecified);
           setRBLOptions(options);
+          setRBLSelected(listItemNotSpecified);
           console.log("RBL Options ", options);
       },
       []);
@@ -204,14 +201,19 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                         >
 
                             <h2>Red Bag Lady</h2>
-                    
+
                             <Autocomplete
                                 options={RBLOptions}
                                 value={RBLSelected}
-                                onChange={(e, newValue) => {
-                                    setRBLSelected(newValue);
+                                onChange={(e, newValue) => { 
+                                    if (newValue === null){
+                                        setRBLSelected(listItemNotSpecified);
+                                    } else {
+                                        setRBLSelected(newValue);
+                                    };
                                 }}
                                 renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                                sx={{ mb: 2, mt: 2}}
                             />
 
                             <h2>Required Information</h2>
@@ -371,14 +373,21 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                             </Box>
 
                             <h2>Sponsor</h2>
-                    
+
                             <Autocomplete
                                 options={sponsorOptions}
                                 value={sponsorSelected}
                                 onChange={(e, newValue) => {
-                                    setSponsorSelected(newValue);
+                                    console.log("Sponsor selected value ", newValue); 
+                                    if (newValue === null){
+                                        console.log("newValue is null ", listItemNotSpecified);
+                                        setSponsorSelected(listItemNotSpecified);
+                                    } else {
+                                        setSponsorSelected(newValue);
+                                    };
                                 }}
                                 renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                                sx={{ mb: 2, mt: 2}}
                             />
 
                         </FormControl>
