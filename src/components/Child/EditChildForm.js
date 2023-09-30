@@ -72,7 +72,8 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
     }
 
     //-------------------------------- Sponsor Stuff --------------------------------
-    useEffect(() => {
+    useEffect(() => {        
+        setSponsorSelected(listItemNotSpecified);
         let options = sponsorList.map((sponsor) => {
             let sponsorOption = 
                 {
@@ -89,9 +90,9 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
             
             return sponsorOption;
         });
+        
         options.push(listItemNotSpecified);
         setSponsorOptions(options);
-        setSponsorSelected(listItemNotSpecified);
     },
     []);
   
@@ -121,29 +122,32 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
       };
 
       //-------------------------------- RBL Stuff --------------------------------
-      useEffect(() => {  
-          let options = rblList.map((rbl) => {
-              let rblOption = 
-                  {
-                  id: rbl.id,
-                  label: rbl.FirstName + " " + rbl.LastName
-                  };
-              
-              if (child.RBL) {
-                  if (rbl.id === child.RBL.id) {
-                      //console.log("rblOptions. current RBL is: " + rblOption.label);
-                      setRBLSelected(rblOption);
-                      setRBL_ID(rbl.id);
-                  };
-              };
-              
-              return rblOption;
-          });
-          options.push(listItemNotSpecified);
-          setRBLOptions(options);
-          setRBLSelected(listItemNotSpecified);
+      useEffect(() => {
+        setRBLSelected(listItemNotSpecified);
+        let options = rblList.map((rbl) => {
+            let rblOption = 
+                {
+                id: rbl.id,
+                label: rbl.FirstName + " " + rbl.LastName
+                };
+            
+            if (child.RBL) {
+                if (rbl.id === child.RBL.id) {
+                    console.log("EditChildForm.  RBL Assigned. RBL Option Selected is: " + rblOption.id + " " + rblOption.label);
+                    setRBLSelected(rblOption);
+                    setRBL_ID(rbl.id);
+                };
+            };
+            
+            return rblOption;
+        });
+
+        options.push(listItemNotSpecified);
+        setRBLOptions(options);
       },
       []);
+
+      console.log("EditChildForm.  RBL Selected: " + RBLSelected.id + " " + RBLSelected.label);
 /* 
 ================================================================================================
                                         Apollo Call to Update a Child
@@ -228,6 +232,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                                 onChange={(e, newValue) => { 
                                     if (newValue === null){
                                         setRBLSelected(listItemNotSpecified);
+                                        setRBL_ID(null);
                                     } else {
                                         setRBLSelected(newValue);
                                         setRBL_ID(newValue.id);
@@ -382,6 +387,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                                     if (newValue === null){
                                         console.log("newValue is null ", listItemNotSpecified);
                                         setSponsorSelected(listItemNotSpecified);
+                                        setSponsor_ID(null);
                                     } else {
                                         setSponsorSelected(newValue);
                                         setSponsor_ID(newValue.id);

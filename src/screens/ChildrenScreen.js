@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { listChildren, listSponsors, listRBLS } from '../graphql/queries';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { Paper, Button, Box } from '@mui/material';
-import { darken, lighten, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateChildForm from '../components/Child/CreateChildForm';
@@ -10,8 +10,6 @@ import ChildSideDrawer from '../components/Child/ChildSideDrawer';
 import ChildImport from '../components/Child/ChildImport';
 import ChildExport from '../components/Child/ChildExport';
 import { createChild } from '../graphql/mutations';
-import { ClientDevice } from 'aws-amplify';
-import { ConsoleLogger } from '@aws-amplify/core';
 
 
 /* ==============================================================================================
@@ -282,7 +280,7 @@ export default function ChildrenScreen () {
 
   //---------------- Add Imported Child ----------------
 
-  const [addChildMutation, {data: addData, loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
+  const [addChildMutation, {loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
   if(loadingAdd) {console.log("Loading Add Child Mutation")};
   if(errorAdd) {console.log( "Create Child Mutation error: " + errorAdd)};
 
@@ -290,7 +288,7 @@ export default function ChildrenScreen () {
   const handleAddChild = async (childImportData) => {
     console.log("handleAddChild, about to call addChildMutation. ChildID: " + childImportData.ChildID);
     try{
-        const response = await addChildMutation({
+        await addChildMutation({
         variables: { 
           input: { 
             Firstname: childImportData.Firstname, 
