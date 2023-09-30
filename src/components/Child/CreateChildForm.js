@@ -18,6 +18,8 @@ import {
     Alert,
     Paper
 } from '@mui/material';
+import Gender from '../Gender';
+import Race from '../Race';
 
 export function CreateChildForm ({ open, handleClose, childList, sponsorList, rblList }){
     
@@ -37,6 +39,10 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
     const [form_bike, setFormBike] = useState('N');
+    const [rblID, setRBL_ID] = useState(null);
+    const [sponsorID, setSponsor_ID] = useState(null);
+
+
     const [errorMessage, setErrorMessage] = useState('');
 
     const [nameError, setNameError] = useState('');
@@ -83,6 +89,8 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
         setFormWishlist('');
         setFormInfo('');
         setFormBike('');
+        setRBL_ID(null);
+        setSponsor_ID(null);
         setRBLSelected(listItemNotSpecified);
         setSponsorSelected(listItemNotSpecified);
     }
@@ -229,8 +237,8 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                         Wishlist: form_wishlist,
                         Info: form_info,
                         Bike: form_bike,
-                        rblID: RBLSelected.id,
-                        sponsorID: sponsorSelected.id
+                        rblID: rblID,
+                        sponsorID: sponsorID
                     }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
@@ -278,6 +286,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                                 setRBLSelected(listItemNotSpecified);
                             } else {
                                 setRBLSelected(newValue);
+                                setRBL_ID(newValue.id);
                             };
                         }}
                         renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
@@ -340,29 +349,9 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                             onChange={handleFormAge}
                             style = {{width: 150}}
                         />
-                        <TextField
-                            value={form_gender}
-                            onChange={handleFormGender}
-                            select // tell TextField to render select
-                            label="Gender"
-                            style = {{width: 150}}
-                        >
-                            <MenuItem value={'F'}>Female</MenuItem>
-                            <MenuItem value={'M'}>Male</MenuItem>
-                            <MenuItem value={'Other'}>Other</MenuItem>
-                        </TextField>
-                        <TextField
-                            value={form_race}
-                            onChange={handleFormRace}
-                            select // tell TextField to render select
-                            label="Race"
-                            style = {{width: 150}}
-                        >
-                            <MenuItem value={'White'}>White</MenuItem>
-                            <MenuItem value={'Black'}>Black</MenuItem>
-                            <MenuItem value={'Hispanic'}>Hispanic</MenuItem>
-                            <MenuItem value={'Other'}>Other</MenuItem>
-                        </TextField>
+
+                        <Gender value={form_gender} handleOnChange={handleFormGender} />
+                        <Race value={form_race} handleOnChange={handleFormRace} />
                     </Box>
                    
                     {/*================== Shirt, Pant & Shoe Size =========================================*/}
@@ -509,6 +498,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                                 setSponsorSelected(listItemNotSpecified);
                             } else {
                                 setSponsorSelected(newValue);
+                                setSponsor_ID(newValue.id);
                             };
                         }}
                         renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}

@@ -3,13 +3,15 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateChild } from '../../graphql/mutations';
 import { listChildren, listRBLS } from '../../graphql/queries';
 import Dialog from '@mui/material/Dialog';
-import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { DialogActions, DialogContent, DialogTitle, Alert } from '@mui/material';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
+import Gender from '../Gender';
+import Race from '../Race';
 
 
 /* 
@@ -17,7 +19,7 @@ import Autocomplete from '@mui/material/Autocomplete';
                                         Component Starts Here
 ================================================================================================*/
 export function EditChildForm ({ open, handleClose, child, sponsorList, rblList }){
-    console.log("EditChildForm. Begin. rblList prop is ", rblList);
+    console.log("EditChildForm. Begin.");
 
     const [form_id, setFormID] = useState(child.id);
     const [form_name, setFormName] = useState(child.Firstname);
@@ -32,6 +34,8 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
     const [form_wishlist, setFormWishlist] = useState(child.Wishlist);
     const [form_info, setFormInfo] = useState(child.Info);
     const [form_bike, setFormBike] = useState(child.Bike);
+    const [rblID, setRBL_ID] = useState(null);
+    const [sponsorID, setSponsor_ID] = useState(null);
 
     const [nameError, setNameError] = useState('');
 
@@ -40,26 +44,32 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
 
     const [sponsorOptions, setSponsorOptions] = useState([]);
     const [sponsorSelected, setSponsorSelected] = useState('');
+
+    const [generalError, setGeneralError] = useState('');
     
     // let sponsorArray = [];
     let RBLArray = [];
     const listItemNotSpecified = {id: "", label: "Not Specified"};
 
     //OnChange Handle Functions
-    function handleFormName(event)      {setFormName(event.target.value)};
-    function handleFormChildID(event)   {setFormChildID(event.target.value)};
-    function handleFormGender(event)    {setFormGender(event.target.value)};
-    function handleFormRace(event)      {setFormRace(event.target.value)};
-    function handleFormAge(event)       {setFormAge(event.target.value)};
-    function handleFormSiblings(event)  {setFormSiblings(event.target.value)};
-    function handleFormShirt(event)     {setFormShirt(event.target.value)};
-    function handleFormPant(event)      {setFormPant(event.target.value)};
-    function handleFormShoe(event)      {setFormShoe(event.target.value)};
-    function handleFormWishlist(event)  {setFormWishlist(event.target.value)};
-    function handleFormInfo(event)      {setFormInfo(event.target.value)};
-    function handleFormBike(event)      {setFormBike(event.target.value)};
+    function handleFormName(event)      {setFormName(whatIfNull(event.target.value,""))};
+    function handleFormChildID(event)   {setFormChildID(whatIfNull(event.target.value,""))};
+    function handleFormGender(event)    {setFormGender(whatIfNull(event.target.value,""))};
+    function handleFormRace(event)      {setFormRace(whatIfNull(event.target.value,"Other"))};
+    function handleFormAge(event)       {setFormAge(whatIfNull(event.target.value, 0))};
+    function handleFormSiblings(event)  {setFormSiblings(whatIfNull(event.target.value, ""))};
+    function handleFormShirt(event)     {setFormShirt(whatIfNull(event.target.value, ""))};
+    function handleFormPant(event)      {setFormPant(whatIfNull(event.target.value,""))};
+    function handleFormShoe(event)      {setFormShoe(whatIfNull(event.target.value,""))};
+    function handleFormWishlist(event)  {setFormWishlist(whatIfNull(event.target.value, ""))};
+    function handleFormInfo(event)      {setFormInfo(whatIfNull(event.target.value,""))};
+    function handleFormBike(event)      {setFormBike(whatIfNull(event.target.value, false))};
 
     function handleSpecialEdit(e) {handleEdit(e)};
+
+    const whatIfNull = (text, value) => {
+        return (text === null ? value : text);
+    }
 
     //-------------------------------- Sponsor Stuff --------------------------------
     useEffect(() => {
@@ -73,6 +83,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
             if (child.Sponsor) {
                 if (sponsor.id === child.Sponsor.id) {
                     setSponsorSelected(sponsorOption);
+                    setSponsor_ID(sponsor.id);
                 };
             };
             
@@ -120,8 +131,9 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
               
               if (child.RBL) {
                   if (rbl.id === child.RBL.id) {
-                      console.log("rblOptions. current RBL is: " + rblOption.label);
+                      //console.log("rblOptions. current RBL is: " + rblOption.label);
                       setRBLSelected(rblOption);
+                      setRBL_ID(rbl.id);
                   };
               };
               
@@ -130,12 +142,11 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
           options.push(listItemNotSpecified);
           setRBLOptions(options);
           setRBLSelected(listItemNotSpecified);
-          console.log("RBL Options ", options);
       },
       []);
 /* 
 ================================================================================================
-                                        Apollo Call to Add New Child
+                                        Apollo Call to Update a Child
 ================================================================================================*/
     let input;
     const [editChildMutation] = useMutation(gql(updateChild));
@@ -155,37 +166,45 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
         }else{
             setNameError("You must specify a child's first name");
             error = true;
+            setGeneralError("Please correct field errors");
         };
         
 
         if (error) {return};
 
+        let childUpdates = {            
+            id: form_id,
+            Firstname: form_name,
+            ChildID: form_childid,
+            Gender: form_gender,
+            Race: form_race,
+            Age: form_age,
+            Siblings: form_siblings,
+            ShirtSize: form_shirt,
+            PantSize: form_pant,
+            ShoeSize: form_shoe,
+            Wishlist: form_wishlist,
+            Info: form_info,
+            Bike: form_bike,
+            rblID: rblID,
+            sponsorID: sponsorID,
+        };
+
         try {
-            const response = await editChildMutation({
-                variables: {
-                    input: {
-                        id: form_id,
-                        Firstname: form_name,
-                        ChildID: form_childid,
-                        Gender: form_gender,
-                        Race: form_race,
-                        Age: form_age,
-                        Siblings: form_siblings,
-                        ShirtSize: form_shirt,
-                        PantSize: form_pant,
-                        ShoeSize: form_shoe,
-                        Wishlist: form_wishlist,
-                        Info: form_info,
-                        Bike: form_bike,
-                        rblID: RBLSelected.id,
-                        sponsorID: sponsorSelected.id
-                    }},
-                //refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
-            });
+            const response = await editChildMutation({variables: {input: childUpdates}});
             handleClose();
         } catch (error) {
-            console.error("Mutation error: ", error);
+            setGeneralError("Failed to update child: " + error);
+            console.error("Mutation error.  Child update object: ", childUpdates);
         }
+    };
+
+    const showErrorNotification = () => {
+        let result = <></>;
+        if (generalError) {
+            result = <Alert severity="error">{generalError}</Alert>
+        };
+        return result;
     }
 
     return(
@@ -193,6 +212,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Edit Child</DialogTitle>
                 <DialogContent>
+                    {showErrorNotification()}
                     <Box width={500}>
                         <FormControl
                             required={true}
@@ -210,6 +230,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                                         setRBLSelected(listItemNotSpecified);
                                     } else {
                                         setRBLSelected(newValue);
+                                        setRBL_ID(newValue.id);
                                     };
                                 }}
                                 renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
@@ -258,30 +279,9 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                                     style = {{width: 150}}
                                 />
 
-                                <TextField
-                                    value={form_gender}
-                                    onChange={handleFormGender}
-                                    select // tell TextField to render select
-                                    label="Gender"
-                                    style = {{width: 150}}
-                                >
-                                    <MenuItem value={'F'}>Female</MenuItem>
-                                    <MenuItem value={'M'}>Male</MenuItem>
-                                    <MenuItem value={'Other'}>Other</MenuItem>
-                                </TextField>
+                                <Gender value={form_gender} handleOnChange={handleFormGender} />
+                                <Race value={form_race} handleOnChange={handleFormRace} />
 
-                                <TextField
-                                    value={form_race}
-                                    onChange={handleFormRace}
-                                    select // tell TextField to render select
-                                    label="Race"
-                                    style = {{width: 150}}
-                                >
-                                    <MenuItem value={'White'}>White</MenuItem>
-                                    <MenuItem value={'Black'}>Black</MenuItem>
-                                    <MenuItem value={'Hispanic'}>Hispanic</MenuItem>
-                                    <MenuItem value={'Other'}>Other</MenuItem>
-                                </TextField>
                             </Box>
                     
                             <h2>Sizing Information</h2>
@@ -384,6 +384,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                                         setSponsorSelected(listItemNotSpecified);
                                     } else {
                                         setSponsorSelected(newValue);
+                                        setSponsor_ID(newValue.id);
                                     };
                                 }}
                                 renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
@@ -392,6 +393,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
 
                         </FormControl>
                     </Box>
+                    {showErrorNotification()}
                 </DialogContent>
 
                 <DialogActions>
