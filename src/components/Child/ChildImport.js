@@ -112,12 +112,12 @@ const hasProperty = (PropertyObject, PropertyName) => {
     };
 }
 
-const extractDigits = (textValue) => {
-    // Replace all non-digit characters with an empty string
-    if (textValue.length===0) {return ''}
-    const digits = textValue.replace(/\D/g, ''); 
-    return digits;
-};
+// const extractDigits = (textValue) => {
+//     // Replace all non-digit characters with an empty string
+//     if (textValue.length===0) {return ''}
+//     const digits = textValue.replace(/\D/g, ''); 
+//     return digits;
+// };
     
 //---------------------------------------------------- 
 //      Find Functions 
@@ -305,7 +305,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             //console.log("child (from row)", child);
 
             let childID = '';
-            let sponsorID = '';
             let rblID = '';
             let searchName = '';
             let fatalError = false;

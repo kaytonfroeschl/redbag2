@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import Gender from '../Gender';
 import Race from '../Race';
+import BikeInput from '../BikeInput';
 
 export function CreateChildForm ({ open, handleClose, childList, sponsorList, rblList }){
     
@@ -38,7 +39,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
     const [form_shoe, setFormShoe] = useState('');
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
-    const [form_bike, setFormBike] = useState('N');
+    const [form_bike, setFormBike] = useState('No');
     const [rblID, setRBL_ID] = useState(null);
     const [sponsorID, setSponsor_ID] = useState(null);
 
@@ -90,7 +91,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
         setFormShoe('');
         setFormWishlist('');
         setFormInfo('');
-        setFormBike('');
+        setFormBike('No');
         setRBL_ID(null);
         setSponsor_ID(null);
         setRBLSelected(listItemNotSpecified);
@@ -442,16 +443,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                             />
                     </Box>
                     <Box>
-                        <TextField
-                            value={form_bike}
-                            onChange={handleFormBike}
-                            select // tell TextField to render select
-                            label="Are they receiving a bike?"
-                            fullWidth
-                        >
-                            <MenuItem value={'Y'}>Yes</MenuItem>
-                            <MenuItem value={'N'}>No</MenuItem>
-                         </TextField>
+                        <BikeInput value={form_bike} handleOnChange={handleFormBike}/>
                     </Box>
                     <Box
                         sx={{

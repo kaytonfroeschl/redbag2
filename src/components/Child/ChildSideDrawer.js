@@ -231,21 +231,25 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
         );
     };
 
-    const showBike = (childAttributeName) => {
-        let value = "N/A";
+    const showBike = () => {
+        let value = '';
         if (data && data.getChild) {
-            value = data.getChild[childAttributeName];
+            value = data.getChild.Bike;
         }else{
             return null;
         };
 
-        return (
-            <Typography sx={{mt:0, ml:1}} style={{wordWrap: "break-word" }}>
-                <Typography style={{fontWeight:'bold', color: 'blue'}}>
-                    BIKE
+        if (value === 'Yes') {
+            return (
+                <Typography sx={{mt:0, ml:1}} style={{wordWrap: "break-word" }}>
+                    <Typography style={{fontWeight:'bold', color: 'blue'}}>
+                        BIKE
+                    </Typography>
                 </Typography>
-            </Typography>
-        );
+            );
+        }else{
+            return null;
+        };
     };
 
     const showDataWithLabel = (childAttributeName, labelText) => {

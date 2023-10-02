@@ -12,6 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
 import Gender from '../Gender';
 import Race from '../Race';
+import BikeInput from '../BikeInput';
 
 
 /* 
@@ -63,7 +64,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
     function handleFormShoe(event)      {setFormShoe(whatIfNull(event.target.value,""))};
     function handleFormWishlist(event)  {setFormWishlist(whatIfNull(event.target.value, ""))};
     function handleFormInfo(event)      {setFormInfo(whatIfNull(event.target.value,""))};
-    function handleFormBike(event)      {setFormBike(whatIfNull(event.target.value, false))};
+    function handleFormBike(event)      {setFormBike(whatIfNull(event.target.value, "No"))};
 
     function handleSpecialEdit(e) {handleEdit(e)};
 
@@ -353,16 +354,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                             </Box>
                     
                             <Box>
-                                <TextField
-                                    value={form_bike}
-                                    onChange={handleFormBike}
-                                    select // tell TextField to render select
-                                    label="Are they receiving a bike?"
-                                    fullWidth
-                                >
-                                    <MenuItem value={'Y'}>Yes</MenuItem>
-                                    <MenuItem value={'N'}>No</MenuItem>
-                                </TextField>
+                                <BikeInput value={form_bike} handleOnChange={handleFormBike}/>
                             </Box>
                     
                             <Box sx={{mt: 2}}>
