@@ -119,9 +119,14 @@ export default function ChildrenScreen () {
   
   const showChildList = () => {
     if(child_loading) {return <div>Child List is loading</div>};  
-    if(child_error) {return <div>Child List Load error: " + {rbl_error}</div>};    
+    if(child_error) {
+      const errMsg = "Child List Load error: " + child_error
+      return (
+        <div>{errMsg}</div>
+      );
+    };
     if(child_data.listChildren.items.length===0) {return <div>There are no children to list</div>};
-    //console.log("Children ", child_data.listChildren.items);
+    console.log("Children ", child_data.listChildren.items);
     return (
       <DataGrid
         initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
