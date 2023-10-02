@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 import { updateChild } from '../../graphql/mutations';
-import { listChildren, listRBLS } from '../../graphql/queries';
 import Dialog from '@mui/material/Dialog';
 import { DialogActions, DialogContent, DialogTitle, Alert } from '@mui/material';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
 import Gender from '../Gender';
 import Race from '../Race';
 import BikeInput from '../BikeInput';
-
 
 /* 
 ================================================================================================
@@ -22,7 +19,6 @@ import BikeInput from '../BikeInput';
 export function EditChildForm ({ open, handleClose, child, sponsorList, rblList }){
     console.log("EditChildForm. Begin.");
 
-    const [form_id, setFormID] = useState(child.id);
     const [form_name, setFormName] = useState(child.Firstname);
     const [form_childid, setFormChildID] = useState(child.ChildID);
     const [form_gender, setFormGender] = useState(child.Gender);
@@ -48,8 +44,6 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
 
     const [generalError, setGeneralError] = useState('');
     
-    // let sponsorArray = [];
-    let RBLArray = [];
     const listItemNotSpecified = {id: "", label: "Not Specified"};
 
     //OnChange Handle Functions
@@ -73,6 +67,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
     }
 
     //-------------------------------- Sponsor Stuff --------------------------------
+    // eslint-disable-next-line
     useEffect(() => {        
         setSponsorSelected(listItemNotSpecified);
         let options = sponsorList.map((sponsor) => {
@@ -123,6 +118,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
       };
 
       //-------------------------------- RBL Stuff --------------------------------
+      // eslint-disable-next-line
       useEffect(() => {
         setRBLSelected(listItemNotSpecified);
         let options = rblList.map((rbl) => {
@@ -153,12 +149,8 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
 ================================================================================================
                                         Apollo Call to Update a Child
 ================================================================================================*/
-    let input;
-    const [editChildMutation] = useMutation(gql(updateChild));
-    // const { loading, error, data } = useQuery((gql(listChildren)));
-    // if(loading) {
-    //     return <div>Loading...</div>
-    // }
+    const [editChildMutation, {error}] = useMutation(gql(updateChild));
+    if(error) {setGeneralError("Update Child Mutation threw an error: " + error)};
 
     async function handleEdit(e) {
         e.preventDefault();
@@ -178,7 +170,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
         if (error) {return};
 
         let childUpdates = {            
-            id: form_id,
+            id: child.id,
             Firstname: form_name,
             ChildID: form_childid,
             Gender: form_gender,
@@ -196,7 +188,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
         };
 
         try {
-            const response = await editChildMutation({variables: {input: childUpdates}});
+            await editChildMutation({variables: {input: childUpdates}});
             handleClose();
         } catch (error) {
             setGeneralError("Failed to update child: " + error);

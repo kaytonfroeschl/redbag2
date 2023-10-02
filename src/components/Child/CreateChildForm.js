@@ -1,7 +1,7 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import React, { useState, useEffect} from 'react';
+import { gql, useMutation } from '@apollo/client';
 import { createChild } from '../../graphql/mutations';
-import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
+import { listChildren,} from '../../graphql/queries';
 import {
     Dialog,
     DialogActions,
@@ -12,11 +12,9 @@ import {
     TextField,
     Typography,
     Button,
-    Divider, 
-    MenuItem,
+    Divider,
     Autocomplete,
     Alert,
-    Paper
 } from '@mui/material';
 import Gender from '../Gender';
 import Race from '../Race';
@@ -27,7 +25,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
-    const [id, setID] = useState('');
     const [form_name, setFormName] = useState('');
     const [form_id, setFormID] = useState('');
     const [form_gender, setFormGender] = useState('');
@@ -43,9 +40,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
     const [rblID, setRBL_ID] = useState(null);
     const [sponsorID, setSponsor_ID] = useState(null);
 
-
-    const [errorMessage, setErrorMessage] = useState('');
-
     const [nameError, setNameError] = useState('');
     const [childIDError, setChildIDError] = useState('');
 
@@ -57,8 +51,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
 
     const [generalError, setGeneralError] = useState('');
 
-    const sponsorArray = [];
-    let RBLArray = [];
     let fieldError = false;
     const listItemNotSpecified = {id: "", label: "Not Specified"};
 
@@ -79,7 +71,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
     function handleFormBike(event)      {setFormBike(event.target.value)};
 
     function resetValues() {
-        setID('');
         setFormName('');
         setFormID('');
         setFormGender('');
@@ -172,10 +163,9 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
 /* ==============================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
-    const [addChildMutation, { data, loading, error }] = useMutation(gql(createChild));
-    if(loading) {
-        return <div>Loading...</div>
-    }
+    const [addChildMutation, {loading, error }] = useMutation(gql(createChild));
+    if(loading) {return <div>Loading...</div>};
+    if(error) {setGeneralError("Create Child Mutation threw an error: " + error)};
     
     async function handleCreate(e) {
         e.preventDefault();
@@ -229,7 +219,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
             console.log("Mutation response: ", response);
             handleSpecialClose();
         } catch (error) {
-            console.error("Mutation error: ", error);
+            setGeneralError("Error Creating Child: " + error);
         }
     }
 
@@ -245,9 +235,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
         <React.Fragment>
             <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Create New Child</DialogTitle>
-            {errorMessage && (
-                <Paper elevation='1'><Alert severity='error'> {errorMessage} </Alert></Paper>
-            )}
                 <DialogContent>
                     {showErrorNotification()}
                     <Box
