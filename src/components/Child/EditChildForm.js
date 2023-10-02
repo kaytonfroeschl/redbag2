@@ -90,7 +90,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
             
             return sponsorOption;
         });
-        
+
         options.push(listItemNotSpecified);
         setSponsorOptions(options);
     },

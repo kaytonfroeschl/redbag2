@@ -145,10 +145,11 @@ const findRBL_ByName = (searchName, rblList) => {
 };
 
 const findChild_ByChildID = (searchChildID, childList) => {
-    let found = '';        
+    let found = '';
+    let searchID = searchChildID.toUpperCase();
     childList.map((child) => {
-        if (child.ChildID===searchChildID) {
-            found = child.id;
+        if (child.ChildID.toUpperCase() === searchID) {
+            found = searchID;
         };
     });
     return found;        

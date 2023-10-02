@@ -54,6 +54,8 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
     const [sponsorOptions, setSponsorOptions] = useState([]);
     const [sponsorSelected, setSponsorSelected] = useState('');
 
+    const [generalError, setGeneralError] = useState('');
+
     const sponsorArray = [];
     let RBLArray = [];
     let fieldError = false;
@@ -101,7 +103,9 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
     }
 
     const childIDIsUnique = (childID) => {
-        let found = childList.filter(child => child.ChildID === childID);
+        const searchID = childID.toUpperCase();
+        console.log("child id unique " + searchID);
+        const found = childList.filter(child => child.ChildID.toUpperCase() === searchID);
         return (found.length===0);
     };
 
@@ -164,30 +168,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
       },
       []);
 
-/*============================================= Apollo Call =================================================
-                                              Listing RBLS
-===========================================================================================================*/
-    // const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
-    // if(RBL_data || !RBL_loading ) {
-    // const RBLList = RBL_data.listRBLS.items.map((RBL) => {
-    //     return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
-    // })
-    // }
-    //RBLAutoArray = createAutoRBL(RBLArray);
-    //console.log("List of RBLS: ", RBLArray)
-    //console.log("RBL Auto Array: ", RBLAutoArray)
-
-/* ==============================================================================================
-                                     Grabbing a list of Sponsors
-                                     From Backend
-================================================================================================*/
-//   const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
-//   if(sData || !sLoading ) {
-//     const sponsorList = sData.listSponsors.items.map((sponsor) => {
-//         return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName })
-//     })
-//   }
-
 /* ==============================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
@@ -207,16 +187,19 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
         }else{
             setNameError("You must specify a child's first name");
             fieldError = true;
+            setGeneralError("Please correct field errors");
         };
         if (form_id.length > 0) {
             setChildIDError("");
             if (childIDIsUnique(form_id)===false) {
                 setChildIDError("A Child with that ChildID already exists");
                 fieldError = true;
+                setGeneralError("Please correct field errors");
             }
         }else{
             setChildIDError("A ChildID may not be empty");
             fieldError = true;
+            setGeneralError("Please correct field errors");
         };
 
         if (fieldError) return;
@@ -226,7 +209,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                 variables: {
                     input: {
                         Firstname: form_name,
-                        ChildID: form_id,
+                        ChildID: form_id.toUpperCase(),
                         Gender: form_gender,
                         Race: form_race,
                         Age: form_age,
@@ -249,6 +232,14 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
         }
     }
 
+    const showErrorNotification = () => {
+        let result = <></>;
+        if (generalError) {
+            result = <Alert severity="error">{generalError}</Alert>
+        };
+        return result;
+    }
+
     return(
         <React.Fragment>
             <Dialog open={open} onClose={handleClose}>
@@ -257,6 +248,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                 <Paper elevation='1'><Alert severity='error'> {errorMessage} </Alert></Paper>
             )}
                 <DialogContent>
+                    {showErrorNotification()}
                     <Box
                         width={500}
                     >
@@ -506,6 +498,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                     />
                     </FormControl>
                     </Box>
+                    {showErrorNotification()}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>

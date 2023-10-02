@@ -292,7 +292,7 @@ export default function ChildrenScreen () {
         variables: { 
           input: { 
             Firstname: childImportData.Firstname, 
-            ChildID: childImportData.ChildID, 
+            ChildID: childImportData.ChildID.toUpperCase(), 
             Gender: childImportData.Gender, 
             Race: childImportData.Race, 
             Age: childImportData.Age, 
