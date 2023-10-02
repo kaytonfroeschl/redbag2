@@ -75,7 +75,7 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
                 <EditChildForm 
                     open={editOpen}
                     handleClose={handleEditClose}
-                    child={child}
+                    child={data.getChild}
                     sponsorList={sponsorList}
                     rblList={rblList}
                 />
@@ -153,7 +153,7 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
             return (
                 <Typography 
                     style={{color: `${child.RBL.Color}`}} 
-                    sx={{ ml: 1, fontSize: 16}}>
+                    sx={{ml:1, fontSize: 16}}>
                         {child.RBL.FirstName + " " + child.RBL.LastName}
                 </Typography>
             )
@@ -168,16 +168,16 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
             return (
                 <>
                 <Box sx={{display:'flex', flexDirection: 'row'}}>
-                    <Box sx={{mt:1, ml:1, display: 'flex', flexDirection: 'column', flexGrow: 1}}>
-                        <Typography sx={{pb:1}}>Name</Typography>
-                        <Typography sx={{pb:1}}>Phone</Typography>
+                    <Box sx={{mt:0, ml:1, display: 'flex', flexDirection: 'column', flexGrow: 1}}>
+                        <Typography>Name</Typography>
+                        <Typography>Phone</Typography>
                     </Box>
 
-                    <Box sx={{mt:1, ml:1, display: 'flex', flexDirection: 'column', flexGrow: 1}}>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>
+                    <Box sx={{mt:0, ml:1, display: 'flex', flexDirection: 'column', flexGrow: 1}}>
+                        <Typography style={{fontWeight: 'bold'}}>
                             {getSponsorInfo(child.Sponsor)}
                         </Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>
+                        <Typography style={{fontWeight: 'bold'}}>
                             {child.Sponsor.Phone}
                         </Typography>
                     </Box>
@@ -192,7 +192,7 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
     const showHeaderAndDivider = (headerText) => {
         return (
         <>
-            <Typography style={{color:'#01579b'}} sx={{ml:1, pt:4, fontWeight:'bold', fontSize:18}}>
+            <Typography style={{color:'#01579b'}} sx={{ml:1, pt:3, fontWeight:'bold', fontSize:18}}>
                 {headerText}
             </Typography>
                     
@@ -224,7 +224,7 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
 
         return (
             <Box sx={{flexGrow:1}}>
-                <Typography sx={{mt:1, ml:1}}>
+                <Typography sx={{mt:0, ml:1}}>
                     {value}
                 </Typography>
             </Box> 
@@ -240,7 +240,7 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
         };
 
         return (
-            <Typography sx={{mt:1, ml:1, pb:1}} style={{wordWrap: "break-word" }}>
+            <Typography sx={{mt:0, ml:1}} style={{wordWrap: "break-word" }}>
                 <Typography style={{fontWeight:'bold', color: 'blue'}}>
                     BIKE
                 </Typography>
@@ -255,12 +255,14 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
         };
 
         return (
-            <Box sx={{mt:1, ml:1, display: 'flex', flexDirection: 'row'}}>
-                <Typography sx={{pb: 1}}>
+            <Box sx={{mt:0, ml:1, display: 'flex', flexDirection: 'row'}}>
+                {/* sx={{pb: 1}} */}
+                <Typography>
                     {labelText}&nbsp;&nbsp;
                 </Typography>
                 
-                <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>
+                {/*  sx={{pb: 1}} */}
+                <Typography style={{fontWeight: 'bold'}}>
                     {value}
                 </Typography>
             </Box>
@@ -354,41 +356,26 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
                     </Box>
                 </Box>
 
+                {showHeaderAndDivider("")}
+
                 <Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between'
-                    }}
-                >
-                    <Button 
-                        sx={{
-                            m:1,    
-                        }}
-                        variant="contained"
-                        onClick={handleEditOpen}
+                    <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                        <Button sx={{m:1}} variant="contained" onClick={handleEditOpen}>
+                            Edit Child
+                        </Button>
+                        <Button 
+                            sx={{m:1, backgroundColor: 'red', ":hover":{color: 'black', bgcolor: 'red'}}}
+                            variant="contained"
+                            onClick={handleDeleteOpen}
                         >
-                        Edit Child
-                    </Button>
-                    <Button 
-                        sx={{
-                            m:1, 
-                            backgroundColor: 'red',
-                            ":hover": {
-                                color: 'black',
-                                bgcolor: 'red',
-                            }
-                        }}
-                        variant="contained"
-                        onClick={handleDeleteOpen}
-                        >
-                        Delete
-                    </Button>
-                </Box>
+                            Delete
+                        </Button>
+                    </Box>
                 </Box> 
-                </Drawer>
-                {onEditOpen()}
-                {onDeleteOpen()}
+            </Drawer>
+
+            {onEditOpen()}
+            {onDeleteOpen()}
         </React.Fragment>
     )
 }
