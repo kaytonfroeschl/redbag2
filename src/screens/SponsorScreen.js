@@ -280,10 +280,10 @@ export default function SponsorScreen () {
   //if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
 
 
-  const sponsorDelete = () => {
+  const sponsorDelete = async () => {
     console.log("In sponsorDelete")
     try{
-      const response = deleteSponsorMutation({
+      const response = await deleteSponsorMutation({
         variables: {input: {id: currSponsor.id}},
       });
       setDeleteOpen(false);
