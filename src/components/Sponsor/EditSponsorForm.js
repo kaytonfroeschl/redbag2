@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 
 export default function EditSponsorForm({ open, handleClose, sponsor }){
-    console.log("EDIT Sponsor: ", sponsor)
+    //console.log("EDIT Sponsor: ", sponsor)
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/

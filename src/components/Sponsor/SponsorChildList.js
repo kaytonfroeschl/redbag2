@@ -2,37 +2,28 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import { List, ListItem, ListItemText } from '@mui/material';
 
-
 export default function SponsorChildList(props) {
-    
-    if (!props.children) {
+    if (!props || !props.children) {
         return <>No Children</>;
     };
+    if (props.children.length === 0) return (<>No children</>);
 
-    const listChildren = () => {
-        
-        const allSponsorChildren = () => {
-            return(
-                props.children.map((child) => {
-                    <>
-                    <ListItem disablePadding>                    
-                        <ListItemText primary={child.ChildID + " " + child.Firstname} />                    
-                    </ListItem>
-                    </>
-                })
+    const allSponsorChildren = () => {
+        const uiList = props.children.map((child) => {
+            return (
+                <ListItem disablePadding={true}>                    
+                    <ListItemText primary={child.ChildID + " " + child.Firstname} />                    
+                </ListItem>
             );
-        };
-
-        return (
-            <List>
-                {allSponsorChildren()}
-            </List>
-        );
+        });
+        return(uiList);
     };
 
     return (
-        <Box sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>            
-            {listChildren()}
+        <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>            
+            <List sx={{ml:2}}>
+                {allSponsorChildren()}
+            </List>
         </Box>
     );
 }

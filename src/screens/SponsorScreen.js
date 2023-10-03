@@ -37,15 +37,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   }),
 );
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-start',
-  }));
-
 /* 
 ================================================================================================
                                         Search Bar 
@@ -76,20 +67,6 @@ function QuickSearchToolbar() {
   );
 }
 
-function createRows(array) {
-  //console.log("in create rows: ", array)
-  const sponArr = array.map((sponsor) => {
-    return {
-      id: sponsor.id,
-      name: sponsor.FirstName + " " + sponsor.LastName,
-      companyName: sponsor.Institution,
-      email: sponsor.Email,
-      phone: sponsor.Phone
-    }
-  })
-  return sponArr;
-}
-
 export default function SponsorScreen () {
   const [NSOpen, setNSOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -98,9 +75,6 @@ export default function SponsorScreen () {
   const [currSponsor, setCurrSponsor] = useState({});
   const [customWidth, setCustomWidth] = React.useState('100%');
   const [exportOpen, setExportOpen] = useState(false);
-
-
-
 /* 
 ================================================================================================
                                       Sponsor List
@@ -112,21 +86,11 @@ export default function SponsorScreen () {
       refetch: sponsor_Refetch
     } = useQuery(gql(listSponsors), {variables: {limit: 2000 }});
 
-    
-
-    
-    //if(sponsor_loading) {console.log("Sponsor List is loading")};  
-    //if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
-    //if(sponsor_data) {console.log("Sponsors in List: " + sponsor_data.listSponsors.items.length)};
-    console.log("Sponsor Screen Begin")
-
-    const uiListSponsors = () => {
-      console.log("1. uiListSponsors Rerendering")
+    const uiListSponsors = () => {      
       if(sponsor_loading) {return <div>Loading sponsors</div>}
-      if(sponsor_loading) {return <div>Error Loading sponsors: {sponsor_error}</div>}
+      if(sponsor_error) {return <div>Error Loading sponsors: {sponsor_error}</div>}
       
       if(sponsor_data && sponsor_data.listSponsors && sponsor_data.listSponsors.items) {
-        console.log("2. uiListSponsors Rerendering, sponsor data has " + sponsor_data.listSponsors.items.length + " rows")
         return (
           <DataGrid
             initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
@@ -170,13 +134,7 @@ export default function SponsorScreen () {
       }else{
         return(<div>No Sponosors</div>);
       }
-    }
-  /* 
-  ==============================================================================================
-                      Sponsor Update
-  ================================================================================================*/
-  const [updateSponsorMutation, { loading: loadingSponsorUpdate, error: errorSponsorUpdate, data: updatedSponsor }] = useMutation(gql(updateSponsor));
-  if(errorSponsorUpdate) {console.log("Error Loading Sponsor Update: " + errorSponsorUpdate)};
+    };
 
   const handleEditOpen = (row) => {
     if (row===null) {
@@ -219,7 +177,6 @@ export default function SponsorScreen () {
 ================================================================================================*/
   const openCreateSponsor = () => {    
     if(NSOpen) {
-      console.log("About to open CreateSponsorForm");
       return <CreateSponsorForm open={NSOpen} handleClose={handleNSClose} />
     }else{
       return <></>
@@ -244,7 +201,7 @@ export default function SponsorScreen () {
     if (deleteOpen) {
       console.log("Render DeleteSponsor")
       return (
-          <DeleteSponsor 
+        <DeleteSponsor 
           open={deleteOpen}
           sponsor={currSponsor}
           deleteSponsor={sponsorDelete}
@@ -282,22 +239,17 @@ export default function SponsorScreen () {
 
 
   const sponsorDelete = async () => {
-    console.log("In sponsorDelete")
     try{
       const response = await deleteSponsorMutation({
         variables: {input: {id: currSponsor.id}},
       });
       setDeleteOpen(false);
-      console.log("Sponsor Delete Mutation was a sucess.")
       sponsor_Refetch();
-      console.log("Delete Sponsor Mutation complete, num sponsors in sponsor list is: " + sponsor_data.listSponsors.items.length);
-      
     }catch(error) {
-      console.log("Delete Sponsor Mutation error ", error);
       return "Delete Sponsor failed with error: " + error;
     };
-    //return "";
-  }
+    return ("");  //success
+  };
 
 /*================================================================================================
                                       Import Sponsor Spreadsheet
