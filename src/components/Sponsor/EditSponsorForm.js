@@ -163,15 +163,13 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
                         margin="normal"
                         id="outlined-basic"
                         label="Email"
-                        type={"email"}
                         value={form_email !== null ? form_email : ""}
                         onChange={handleFormEmail}
                     />
                     <TextField
                         margin="normal"
-                        id="outlined-basic"
                         label="Phone"
-                        value={form_phone !== null ? form_email : ""}
+                        value={form_phone !== null ? form_phone : ""}
                         onChange={handleFormPhone}
                     />    
                 </Box>
