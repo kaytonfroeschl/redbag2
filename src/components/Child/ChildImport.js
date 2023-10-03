@@ -112,12 +112,12 @@ const hasProperty = (PropertyObject, PropertyName) => {
     };
 }
 
-const extractDigits = (textValue) => {
-    // Replace all non-digit characters with an empty string
-    if (textValue.length===0) {return ''}
-    const digits = textValue.replace(/\D/g, ''); 
-    return digits;
-};
+// const extractDigits = (textValue) => {
+//     // Replace all non-digit characters with an empty string
+//     if (textValue.length===0) {return ''}
+//     const digits = textValue.replace(/\D/g, ''); 
+//     return digits;
+// };
     
 //---------------------------------------------------- 
 //      Find Functions 
@@ -145,10 +145,11 @@ const findRBL_ByName = (searchName, rblList) => {
 };
 
 const findChild_ByChildID = (searchChildID, childList) => {
-    let found = '';        
+    let found = '';
+    let searchID = searchChildID.toUpperCase();
     childList.map((child) => {
-        if (child.ChildID===searchChildID) {
-            found = child.id;
+        if (child.ChildID.toUpperCase() === searchID) {
+            found = searchID;
         };
     });
     return found;        
@@ -304,7 +305,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             //console.log("child (from row)", child);
 
             let childID = '';
-            let sponsorID = '';
             let rblID = '';
             let searchName = '';
             let fatalError = false;

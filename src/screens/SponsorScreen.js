@@ -115,19 +115,28 @@ export default function SponsorScreen () {
     
 
     
+<<<<<<< HEAD
     if(sponsor_loading) {console.log("Sponsor List is loading")};  
+=======
+    //if(sponsor_loading) {console.log("Sponsor List is loading")};  
+>>>>>>> 5260f7fae06eb6f34bd549de82709f05bb0567e2
     //if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
     //if(sponsor_data) {console.log("Sponsors in List: " + sponsor_data.listSponsors.items.length)};
     console.log("Sponsor Screen Begin")
 
     const uiListSponsors = () => {
+<<<<<<< HEAD
       console.log("uiListSponsors Rerendering")
+=======
+      console.log("1. uiListSponsors Rerendering")
+>>>>>>> 5260f7fae06eb6f34bd549de82709f05bb0567e2
       if(sponsor_loading) {return <div>Loading sponsors</div>}
       if(sponsor_loading) {return <div>Error Loading sponsors: {sponsor_error}</div>}
       
       if(sponsor_data.listSponsors.items.length === 0) {
         return(<div>No Sponosors</div>);
       }else{
+        console.log("2. uiListSponsors Rerendering, sponsor data has " + sponsor_data.listSponsors.items.length + " rows")
         return (
           <DataGrid
             initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
@@ -241,7 +250,11 @@ export default function SponsorScreen () {
   ================================================================================================*/
     const openDeleteSponsor = () => {
     if (deleteOpen) {
+<<<<<<< HEAD
       console.log("call delete component")
+=======
+      console.log("Render DeleteSponsor")
+>>>>>>> 5260f7fae06eb6f34bd549de82709f05bb0567e2
       return (
           <DeleteSponsor 
           open={deleteOpen}
@@ -392,8 +405,6 @@ export default function SponsorScreen () {
       let Name = "";
   
       if ( ! sponsor) { return ""};
-  
-      console.log(sponsor);
       
       if(sponsor.FirstName) {
           Name = sponsor.FirstName

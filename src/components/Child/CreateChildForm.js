@@ -1,7 +1,7 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import React, { useState, useEffect} from 'react';
+import { gql, useMutation } from '@apollo/client';
 import { createChild } from '../../graphql/mutations';
-import { listChildren, listSponsors, listRBLS } from '../../graphql/queries';
+import { listChildren,} from '../../graphql/queries';
 import {
     Dialog,
     DialogActions,
@@ -12,111 +12,81 @@ import {
     TextField,
     Typography,
     Button,
-    Divider, 
-    MenuItem,
+    Divider,
     Autocomplete,
     Alert,
-    Paper
 } from '@mui/material';
+import Gender from '../Gender';
+import Race from '../Race';
+import BikeInput from '../BikeInput';
 
-export function CreateChildForm ({ open, handleClose }){
+export function CreateChildForm ({ open, handleClose, childList, sponsorList, rblList }){
     
 /* ==============================================================================================
                                         Set Variables
 ================================================================================================*/
-    const [id, setID] = useState('');
     const [form_name, setFormName] = useState('');
     const [form_id, setFormID] = useState('');
     const [form_gender, setFormGender] = useState('');
     const [form_race, setFormRace] = useState('');
-    const [form_age, setFormAge] = useState('');
+    const [form_age, setFormAge] = useState(0);
     const [form_siblings, setFormSiblings] = useState('');
     const [form_shirt, setFormShirt] = useState('');
     const [form_pant, setFormPant] = useState('');
     const [form_shoe, setFormShoe] = useState('');
     const [form_wishlist, setFormWishlist] = useState('');
     const [form_info, setFormInfo] = useState('');
-    const [form_bike, setFormBike] = useState('N');
-    const [selectRBL, setSelectRBL] = useState();
-    const [selectSponsor, setSelectSponsor] = useState();
-    const [errorMessage, setErrorMessage] = useState('');
-    
+    const [form_bike, setFormBike] = useState('No');
+    const [rblID, setRBL_ID] = useState(null);
+    const [sponsorID, setSponsor_ID] = useState(null);
 
-    const sponsorArray = [];
-    let childrenArray = [];
-    let RBLArray = [];
-    let errorArray = [];
-    let errors = false;
+    const [nameError, setNameError] = useState('');
+    const [childIDError, setChildIDError] = useState('');
+
+    const [RBLOptions, setRBLOptions] = useState([]);
+    const [RBLSelected, setRBLSelected] = useState('');
+
+    const [sponsorOptions, setSponsorOptions] = useState([]);
+    const [sponsorSelected, setSponsorSelected] = useState('');
+
+    const [generalError, setGeneralError] = useState('');
+
+    let fieldError = false;
+    const listItemNotSpecified = {id: "", label: "Not Specified"};
 
 /* ==============================================================================================
                                         Handle Functions 
 ================================================================================================*/
-    function handleFormName(event) {
-        setFormName(event.target.value);
-    }
-
-    function handleFormID(event) {
-        setFormID(event.target.value);
-    }
-
-    function handleFormGender(event) {
-        setFormGender(event.target.value);
-    }
-
-    function handleFormRace(event){
-        setFormRace(event.target.value);
-    }
-
-    function handleFormAge(event){
-        setFormAge(event.target.value);
-    }
-
-    function handleFormSiblings(event){
-        setFormSiblings(event.target.value);
-    }
-
-    function handleFormShirt(event){
-        setFormShirt(event.target.value);
-    }
-
-    function handleFormPant(event){
-        setFormPant(event.target.value);
-    }
-
-    function handleFormShoe(event){
-        setFormShoe(event.target.value);
-    }
-
-    function handleFormWishlist(event){
-        setFormWishlist(event.target.value);
-    }
-
-    function handleFormInfo(event){
-        setFormInfo(event.target.value);
-    }
-
-    function handleFormBike(event){
-        setFormBike(event.target.value);
-    }
-
-
+    function handleFormName(event)      {setFormName(event.target.value)};
+    function handleFormID(event)        {setFormID(event.target.value)};
+    function handleFormGender(event)    {setFormGender(event.target.value)};
+    function handleFormRace(event)      {setFormRace(event.target.value)};
+    function handleFormAge(event)       {setFormAge(event.target.value)};
+    function handleFormSiblings(event)  {setFormSiblings(event.target.value)};
+    function handleFormShirt(event)     {setFormShirt(event.target.value)};
+    function handleFormPant(event)      {setFormPant(event.target.value)};
+    function handleFormShoe(event)      {setFormShoe(event.target.value)};
+    function handleFormWishlist(event)  {setFormWishlist(event.target.value)};
+    function handleFormInfo(event)      {setFormInfo(event.target.value)};
+    function handleFormBike(event)      {setFormBike(event.target.value)};
 
     function resetValues() {
-        setID('');
         setFormName('');
         setFormID('');
         setFormGender('');
         setFormRace('');
-        setFormAge('');
+        setFormAge(0);
         setFormSiblings('');
         setFormShirt('');
         setFormPant('');
         setFormShoe('');
         setFormWishlist('');
         setFormInfo('');
-        setFormBike('');
-        setSelectRBL('');
-        setSelectSponsor('');
+        setFormBike('No');
+        setRBL_ID(null);
+        setSponsor_ID(null);
+        setRBLSelected(listItemNotSpecified);
+        setSponsorSelected(listItemNotSpecified);
     }
 
     function handleSpecialClose() {
@@ -124,109 +94,113 @@ export function CreateChildForm ({ open, handleClose }){
         handleClose();
     }
 
-    const childIDCheck = () => {
-        let key = false;
-        let array = childrenArray.map((child) => {
-            return child.ChildID
+    const childIDIsUnique = (childID) => {
+        const searchID = childID.toUpperCase();
+        console.log("child id unique " + searchID);
+        const found = childList.filter(child => child.ChildID.toUpperCase() === searchID);
+        return (found.length===0);
+    };
+
+    //-------------------------------- Sponsor Stuff --------------------------------
+    useEffect(() => {
+        let options = sponsorList.map((sponsor) => {
+            let sponsorOption = 
+                {
+                id: sponsor.id,
+                label: getSponsorInfo(sponsor)
+                };
+            
+            return sponsorOption;
         });
-        for( let i = 0; i < array.length; i++ ){
-            if(array[i] === form_id){
-                key = true;
+        options.push(listItemNotSpecified);
+        setSponsorOptions(options);
+        setSponsorSelected(listItemNotSpecified);
+    },
+    []);
+  
+    const getSponsorInfo = (sponsor) => {
+        let Name = "";
+    
+        if ( ! sponsor) { return ""};
+        
+        if(sponsor.FirstName) {
+            Name = sponsor.FirstName
+        };
+    
+        if(sponsor.LastName) { 
+            if(Name.length > 0 ) { Name += " "}
+            Name += sponsor.LastName
+        };
+    
+        if(sponsor.Institution) {
+            if(Name.length > 0) {
+                Name = Name + " (" + sponsor.Institution + ")"
+            }else{
+                Name = sponsor.Institution
             }
-        }
-        return key;
-    }
+        };
+    
+        return Name;
+      };
 
-    function handleErrors() {
-        errorArray = [];
-        if (form_name === ''){
-            errorArray.push("Missing Child Name");
-            setErrorMessage("Missing Child Name")
-            errors = true;
-        } 
-        if (form_age === '' || form_age < 0 ){
-            errorArray.push("Invalid Age.")
-            setErrorMessage("Invalid Age")
-            errors = true;
-        }
-        if (childIDCheck()){
-            errorArray.push("Invalid Child ID")
-            setErrorMessage("Invalid Child ID")
-            errors = true;
-        }
-    }
-
-    function handleSpecialCreate(e){
-        handleErrors();
-        if (errors){
-            console.log("there are errors, ", errorArray)
-        } else {
-            handleCreate(e);
-        }
-    }
-
-    const showErrors = () => {
-        console.log("in show errors")
-        if (errors) {
-            console.log("here nad true")
-            errorArray.map((e) => {
-                <Alert severity='error'>{e}</Alert>
-            })
-        } else return <></>
-    }
-
-/*============================================= Apollo Call =================================================
-                                              Listing RBLS
-===========================================================================================================*/
-    const { data: RBL_data, loading: RBL_loading, error: RBL_error } = useQuery(gql(listRBLS)); 
-    if(RBL_data || !RBL_loading ) {
-    const RBLList = RBL_data.listRBLS.items.map((RBL) => {
-        return RBLArray.push({ 'id': RBL.id, 'label': RBL.FirstName + " " + RBL.LastName })
-    })
-    }
-    //RBLAutoArray = createAutoRBL(RBLArray);
-    //console.log("List of RBLS: ", RBLArray)
-    //console.log("RBL Auto Array: ", RBLAutoArray)
-
-/* ==============================================================================================
-                                     Grabbing a list of Sponsors
-                                     From Backend
-================================================================================================*/
-  const { data: sData, loading: sLoading, error: sError } = useQuery(gql(listSponsors)); 
-  if(sData || !sLoading ) {
-    const sponsorList = sData.listSponsors.items.map((sponsor) => {
-        return sponsorArray.push({ 'id': sponsor.id, 'label': sponsor.FirstName + " " + sponsor.LastName })
-    })
-  }
-
-/* ==============================================================================================
-                                     Grabbing a list of Sponsors
-                                     From Backend
-================================================================================================*/
-    const { data: children_data, loading: children_loading, error: children_Error } = useQuery(gql(listChildren)); 
-    if(children_data || !children_loading ) {
-    const childrenList = children_data.listChildren.items.map((child) => {
-        return childrenArray.push({ 'id': child.id, 'label': child.Firstname, "ChildID": child.ChildID })
-    })
-    }
+      //-------------------------------- RBL Stuff --------------------------------
+      useEffect(() => {
+          let options = rblList.map((rbl) => {
+              let rblOption = 
+                  {
+                  id: rbl.id,
+                  label: rbl.FirstName + " " + rbl.LastName
+                  };
+              
+              return rblOption;
+          });
+          options.push(listItemNotSpecified);
+          setRBLOptions(options);
+          setRBLSelected(listItemNotSpecified);
+      },
+      []);
 
 /* ==============================================================================================
                                         Apollo Call to Add New Child
 ================================================================================================*/
-    let input;
-    const [addChildMutation, { data, loading, error }] = useMutation(gql(createChild));
-    if(loading) {
-        return <div>Loading...</div>
-    }
+    const [addChildMutation, {loading, error }] = useMutation(gql(createChild));
+    if(loading) {return <div>Loading...</div>};
+    if(error) {setGeneralError("Create Child Mutation threw an error: " + error)};
     
     async function handleCreate(e) {
         e.preventDefault();
+
+        fieldError = false;
+
+        //validation: must have a Firstname and ChildID
+        if (form_name.length > 0) {
+            setNameError("");
+        }else{
+            setNameError("You must specify a child's first name");
+            fieldError = true;
+            setGeneralError("Please correct field errors");
+        };
+        if (form_id.length > 0) {
+            setChildIDError("");
+            if (childIDIsUnique(form_id)===false) {
+                setChildIDError("A Child with that ChildID already exists");
+                fieldError = true;
+                setGeneralError("Please correct field errors");
+            }
+        }else{
+            setChildIDError("A ChildID may not be empty");
+            fieldError = true;
+            setGeneralError("Please correct field errors");
+        };
+
+        if (fieldError) return;
+
         try {
             const response = await addChildMutation({
                 variables: {
                     input: {
                         Firstname: form_name,
-                        ChildID: form_id,
+                        ChildID: form_id.toUpperCase(),
                         Gender: form_gender,
                         Race: form_race,
                         Age: form_age,
@@ -237,26 +211,32 @@ export function CreateChildForm ({ open, handleClose }){
                         Wishlist: form_wishlist,
                         Info: form_info,
                         Bike: form_bike,
-                        rblID: selectRBL,
-                        sponsorID: selectSponsor
+                        rblID: rblID,
+                        sponsorID: sponsorID
                     }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
             console.log("Mutation response: ", response);
             handleSpecialClose();
         } catch (error) {
-            console.error("Mutation error: ", error);
+            setGeneralError("Error Creating Child: " + error);
         }
+    }
+
+    const showErrorNotification = () => {
+        let result = <></>;
+        if (generalError) {
+            result = <Alert severity="error">{generalError}</Alert>
+        };
+        return result;
     }
 
     return(
         <React.Fragment>
             <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Create New Child</DialogTitle>
-            {errorMessage && (
-                <Paper elevation='1'><Alert severity='error'> {errorMessage} </Alert></Paper>
-            )}
                 <DialogContent>
+                    {showErrorNotification()}
                     <Box
                         width={500}
                     >
@@ -277,21 +257,22 @@ export function CreateChildForm ({ open, handleClose }){
                         sx={{borderBottomWidth: 1.5}}
                         style={{background: 'black'}}
                     />
+
                     <Autocomplete
-                        options = {RBLArray}
-                        getOptionLabel={option => option.label}
-                        renderInput={(params) => (
-                        <TextField {...params} label="" variant="standard" />
-                        )}
-                        onChange={(e, value) => {
-                            if (value != null){
-                                setSelectRBL(value.id)
+                        options={RBLOptions}
+                        value={RBLSelected}
+                        onChange={(e, newValue) => { 
+                            if (newValue === null){
+                                setRBLSelected(listItemNotSpecified);
                             } else {
-                                setSelectRBL(null);
-                            }
+                                setRBLSelected(newValue);
+                                setRBL_ID(newValue.id);
+                            };
                         }}
+                        renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
                         sx={{ mb: 2, mt: 2}}
                     />
+                    
                     <Typography
                         style={{
                             fontWeight: 500
@@ -317,6 +298,8 @@ export function CreateChildForm ({ open, handleClose }){
                         style = {{width: 235}}
                         value={form_name}
                         onChange={handleFormName}
+                        error={nameError > ''}
+                        helperText={nameError}
                     />
                     <TextField
                         margin="normal"
@@ -325,6 +308,8 @@ export function CreateChildForm ({ open, handleClose }){
                         style = {{width: 235}}
                         value={form_id}
                         onChange={handleFormID}
+                        error={childIDError > ''}
+                        helperText={childIDError}
                     />
                     </Box>
                     {/*================== Age, Gender & Race =========================================*/}
@@ -344,29 +329,9 @@ export function CreateChildForm ({ open, handleClose }){
                             onChange={handleFormAge}
                             style = {{width: 150}}
                         />
-                        <TextField
-                            value={form_gender}
-                            onChange={handleFormGender}
-                            select // tell TextField to render select
-                            label="Gender"
-                            style = {{width: 150}}
-                        >
-                            <MenuItem value={'F'}>Female</MenuItem>
-                            <MenuItem value={'M'}>Male</MenuItem>
-                            <MenuItem value={'Other'}>Other</MenuItem>
-                        </TextField>
-                        <TextField
-                            value={form_race}
-                            onChange={handleFormRace}
-                            select // tell TextField to render select
-                            label="Race"
-                            style = {{width: 150}}
-                        >
-                            <MenuItem value={'White'}>White</MenuItem>
-                            <MenuItem value={'Black'}>Black</MenuItem>
-                            <MenuItem value={'Hispanic'}>Hispanic</MenuItem>
-                            <MenuItem value={'Other'}>Other</MenuItem>
-                        </TextField>
+
+                        <Gender value={form_gender} handleOnChange={handleFormGender} />
+                        <Race value={form_race} handleOnChange={handleFormRace} />
                     </Box>
                    
                     {/*================== Shirt, Pant & Shoe Size =========================================*/}
@@ -465,16 +430,7 @@ export function CreateChildForm ({ open, handleClose }){
                             />
                     </Box>
                     <Box>
-                        <TextField
-                            value={form_bike}
-                            onChange={handleFormBike}
-                            select // tell TextField to render select
-                            label="Are they receiving a bike?"
-                            fullWidth
-                        >
-                            <MenuItem value={'Y'}>Yes</MenuItem>
-                            <MenuItem value={'N'}>No</MenuItem>
-                         </TextField>
+                        <BikeInput value={form_bike} handleOnChange={handleFormBike}/>
                     </Box>
                     <Box
                         sx={{
@@ -502,28 +458,30 @@ export function CreateChildForm ({ open, handleClose }){
                         sx={{mb:2, borderBottomWidth: 1.5}}
                         style={{background: 'black'}}
                     />
+
                     <Autocomplete
-                        //value={selectSponsor}
-                        options = {sponsorArray}
-                        getOptionLabel={option => option.label}
-                        renderInput={(params) => (
-                        <TextField {...params} label="Sponsor" variant="standard" />
-                        )}
-                        onChange={(e, value) => {
-                            if(value != null){
-                                setSelectSponsor(value.id);
+                        options={sponsorOptions}
+                        value={sponsorSelected}
+                        onChange={(e, newValue) => {
+                            console.log("Sponsor selected value ", newValue); 
+                            if (newValue === null){
+                                console.log("newValue is null ", listItemNotSpecified);
+                                setSponsorSelected(listItemNotSpecified);
                             } else {
-                                setSelectSponsor(null);
-                            }
-                            
+                                setSponsorSelected(newValue);
+                                setSponsor_ID(newValue.id);
+                            };
                         }}
+                        renderInput={(params) => (<TextField {...params} label="" variant="standard" />)}
+                        sx={{ mb: 2, mt: 2}}
                     />
                     </FormControl>
                     </Box>
+                    {showErrorNotification()}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleSpecialClose}>Cancel</Button>
-                    <Button onClick={handleSpecialCreate}>Create</Button>
+                    <Button onClick={handleCreate}>Create</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

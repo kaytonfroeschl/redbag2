@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { listChildren, listSponsors, listRBLS } from '../graphql/queries';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { Paper, Button, Box } from '@mui/material';
-import { darken, lighten, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import { DataGrid, GridToolbarQuickFilter } from '@mui/x-data-grid';
 import EditIcon from '@mui/icons-material/Edit';
 import CreateChildForm from '../components/Child/CreateChildForm';
@@ -10,7 +10,6 @@ import ChildSideDrawer from '../components/Child/ChildSideDrawer';
 import ChildImport from '../components/Child/ChildImport';
 import ChildExport from '../components/Child/ChildExport';
 import { createChild } from '../graphql/mutations';
-import { ClientDevice } from 'aws-amplify';
 
 
 /* ==============================================================================================
@@ -109,76 +108,8 @@ export default function ChildrenScreen () {
   //---------------------------------------------------- 
   //      Child Stuff
   //----------------------------------------------------
-  
-  //---------------- Create New Child ----------------
-  //<CreateChildForm open={NCOpen} handleClose={handleNCClose} />
-  const handleNewChildOpen = () => {
-    setNCOpen(true);
-  }
-  const handleNewChildClose = (event, reason) => {
-    if (reason && reason === "backdropClick"){
-        return;
-    }
-    setNCOpen(false);
-  }
-  
-  const openCreateChild = () => {
-    if (NCOpen) {
-      return (
-        <CreateChildForm 
-          open={NCOpen} 
-          handleClose={handleNewChildClose}
-        />
-      )
-    }else{
-      return (<></>);
-    }
-  }
-
-  //---------------- Edit Child (aka SideDrawer) ----------------
-
-  const openSideDrawer = () => {
-    if (drawerOpen) {
-      return (
-        <ChildSideDrawer 
-          child={currentKid} 
-          open={drawerOpen} 
-          handleClose={handleDrawerClose}
-        />
-      )
-    }else{
-      return (<></>);
-    }
-  }
-
-  const handleDrawerOpen = (data) => {
-    console.log("Children Screen handleDrawerOpen Data: ", data)
-    setCurrentKid(data);
-    setDrawerOpen(true);
-    setCustomWidth('70%');
-  }
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-    drawerCallback();
-  }
-
-  const drawerCallback = () => {
-    if(customWidth === '100%'){
-        return setCustomWidth('70%')
-    } else {
-        return setCustomWidth('100%')
-    }
-  }
-  
-  /*useEffect(() => {
-      if(drawerOpen){
-          drawerCallback()
-      }
-    }, [drawerOpen])*/
 
   //---------------- List Children ----------------
-  
   const { 
     data: child_data, 
     loading: child_loading, 
@@ -188,9 +119,14 @@ export default function ChildrenScreen () {
   
   const showChildList = () => {
     if(child_loading) {return <div>Child List is loading</div>};  
-    if(child_error) {return <div>Child List Load error: " + {rbl_error}</div>};    
+    if(child_error) {
+      const errMsg = "Child List Load error: " + child_error
+      return (
+        <div>{errMsg}</div>
+      );
+    };
     if(child_data.listChildren.items.length===0) {return <div>There are no children to list</div>};
-    //console.log("Children ", child_data.listChildren.items);
+    console.log("Children ", child_data.listChildren.items);
     return (
       <DataGrid
         initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
@@ -237,6 +173,83 @@ export default function ChildrenScreen () {
       />
     )
   }
+  
+  //---------------- Create New Child ----------------
+  //<CreateChildForm open={NCOpen} handleClose={handleNCClose} />
+  const handleNewChildOpen = () => {
+    setNCOpen(true);
+  }
+  const handleNewChildClose = (event, reason) => {
+    if (reason && reason === "backdropClick"){
+        return;
+    }
+    setNCOpen(false);
+    child_Refetch();
+  };
+  
+  const openCreateChild = () => {
+    if (NCOpen) {
+      if (sponsor_loading || child_loading) {
+        return(<div>Sorry, Sponsors or Children are still loading</div>);
+      }else{        
+        return (
+          <CreateChildForm 
+            open={NCOpen} 
+            handleClose={handleNewChildClose}
+            childList={child_data.listChildren.items}
+            sponsorList={sponsor_data.listSponsors.items}
+            rblList={rbl_data.listRBLS.items}
+          />
+        );
+      }
+    }else{
+      return (<></>);
+    }
+  }
+
+  //---------------- Edit Child (aka SideDrawer) ----------------
+
+  const openSideDrawer = () => {
+    if (drawerOpen) {
+      return (
+        <ChildSideDrawer 
+          child={currentKid} 
+          open={drawerOpen} 
+          handleClose={handleDrawerClose}
+          sponsorList={sponsor_data.listSponsors.items}
+          rblList={rbl_data.listRBLS.items}
+        />
+      )
+    }else{
+      return (<></>);
+    }
+  }
+
+  const handleDrawerOpen = (data) => {
+    setCurrentKid(data);
+    setDrawerOpen(true);
+    setCustomWidth('70%');
+  }
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    drawerCallback();
+    child_Refetch();
+  };
+
+  const drawerCallback = () => {
+    if(customWidth === '100%'){
+        return setCustomWidth('70%')
+    } else {
+        return setCustomWidth('100%')
+    }
+  }
+  
+  /*useEffect(() => {
+      if(drawerOpen){
+          drawerCallback()
+      }
+    }, [drawerOpen])*/
 
   //---------------------------------------------------- 
   //       Import Child Spreadsheet
@@ -272,19 +285,19 @@ export default function ChildrenScreen () {
 
   //---------------- Add Imported Child ----------------
 
-  const [addChildMutation, {data: addData, loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
+  const [addChildMutation, {loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
   if(loadingAdd) {console.log("Loading Add Child Mutation")};
   if(errorAdd) {console.log( "Create Child Mutation error: " + errorAdd)};
 
   //const handleAddChild = async (childData) => { 
-  const handleAddChild = (childImportData) => {
+  const handleAddChild = async (childImportData) => {
     console.log("handleAddChild, about to call addChildMutation. ChildID: " + childImportData.ChildID);
     try{
-        const response = addChildMutation({
+        await addChildMutation({
         variables: { 
           input: { 
             Firstname: childImportData.Firstname, 
-            ChildID: childImportData.ChildID, 
+            ChildID: childImportData.ChildID.toUpperCase(), 
             Gender: childImportData.Gender, 
             Race: childImportData.Race, 
             Age: childImportData.Age, 

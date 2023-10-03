@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { getChild, listChildren } from '../../graphql/queries';
 import { deleteChild } from '../../graphql/mutations';
@@ -15,26 +15,6 @@ import DeleteChild from './DeleteChild';
 
 /* =============================== Drawer Styling ================================================*/
 const drawerWidth = 360;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginRight: -drawerWidth,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginRight: 0,
-    }),
-  }),
-);
-
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
@@ -44,31 +24,23 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     justifyContent: 'flex-start',
   }));
 
-
-export default function ChildSideDrawer({ child, open, handleClose }) {
-/* ==============================================================================================
-                                        Variables
-   ==============================================================================================*/
+/* 
+=================================================================================================
+                                        Component Starts Here
+=================================================================================================*/
+export default function ChildSideDrawer({ child, open, handleClose, sponsorList, rblList }) {
     const [editOpen, setEditOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
 
-    
-/* ==============================================================================================
-                                    Grabbing data from the backend
-==============================================================================================*/
-const { loading, error, data } = useQuery(gql(getChild), {
-    variables : { id: child.id },
-});
-//---------------- Delete Child ----------------
-const [deleteChildMutation, {
-    data: childDelData, 
-    loading: childDelLoading, 
-    error: childDelError
-}] = useMutation(gql(deleteChild));
-
-if (loading) {
-    return <div>Loading...</div>
-}
+    // Why do we call a query to get a child's data when 
+    //   child data is passed into this component with the "child" prop?
+    //Because the child object passed in is not updated when the updateChild mutation is called.
+    //Using this "getChild" query allows some kind of magic to happen and it is updated after updateChild is called
+    // eslint-disable-next-line
+    const { loading, error, data } = useQuery(gql(getChild), {
+        variables : { id: child.id },
+    });
+    if (loading) {console.log("Loading getChild")}
 
 
 /* ==============================================================================================
@@ -79,7 +51,7 @@ if (loading) {
       }
     
     const handleEditClose = (event, reason) => {
-        if (reason && reason == 'backdropClick'){
+        if (reason && reason === 'backdropClick'){
             return;
         }
         setEditOpen(false);
@@ -90,7 +62,7 @@ if (loading) {
     }
 
     const handleDeleteClose = (event, reason) => {
-        if (reason && reason == 'backdropClick'){
+        if (reason && reason === 'backdropClick'){
             return;
         }
         setDeleteOpen(false);
@@ -103,33 +75,38 @@ if (loading) {
                 <EditChildForm 
                     open={editOpen}
                     handleClose={handleEditClose}
-                    child={data ? data.getChild : null}
+                    child={data.getChild}
+                    sponsorList={sponsorList}
+                    rblList={rblList}
                 />
             )
         }
     }
-/* 
-  ================================================================================================
-                                        Child Delete
-  ================================================================================================*/  
+
+    //---------------- Delete Child ----------------
+    const [deleteChildMutation, {
+        loading: childDelLoading, 
+        error: childDelError
+    }] = useMutation(gql(deleteChild));
     if(childDelLoading) {console.log("Loading Delete Child Mutation")};
     if(childDelError) {console.log( "Delete Child Mutation error: " + childDelError)};
     
-    const childDelete = () => {
-    try{
-        const response = deleteChildMutation({
-        variables: {input: {id: child.id}},
-        refetchQueries: [{ query: gql(listChildren) }],
-        });
-        setDeleteOpen(false);
-        handleClose();
-        //console.log("Delete Sponsor Mutation response: ", response);
-    }catch(error) {
-        console.log("Delete Child Mutation error ", error);
-        return "Delete Child failed with error: " + error;
-    };
+    const childDelete = async () => {
+        try{
+            // eslint-disable-next-line
+            const response = await deleteChildMutation({
+            variables: {input: {id: child.id}},
+            refetchQueries: [{ query: gql(listChildren) }],
+            });
+            setDeleteOpen(false);
+            handleClose();
+        }catch(error) {
+            console.log("Delete Child Mutation error ", error);
+            return "Delete Child failed with error: " + error;
+        };
         return "";
     }
+
     const onDeleteOpen = () => {
         if(deleteOpen) {
             return (
@@ -144,357 +121,265 @@ if (loading) {
             return(<></>)
         }
     }
+  
+    const getSponsorInfo = (sponsor) => {
+        let Name = "";
+    
+        if ( ! sponsor) { return ""};
+        
+        if(sponsor.FirstName) {
+            Name = sponsor.FirstName
+        };
+    
+        if(sponsor.LastName) { 
+            if(Name.length > 0 ) { Name += " "}
+            Name += sponsor.LastName
+        };
+    
+        if(sponsor.Institution) {
+            if(Name.length > 0) {
+                Name = Name + " (" + sponsor.Institution + ")"
+            }else{
+                Name = sponsor.Institution
+            }
+        };
+    
+        return Name;
+      };
+
+    const showRBL = () => {
+        if (data && data.getChild && data.getChild.RBL) {
+            const child = data.getChild;
+            return (
+                <Typography 
+                    style={{color: `${child.RBL.Color}`}} 
+                    sx={{ml:1, fontSize: 16}}>
+                        {child.RBL.FirstName + " " + child.RBL.LastName}
+                </Typography>
+            )
+        }else{
+            return(<Typography sx={{ ml: 1, fontSize: 16}}>{"no RBL assigned"}</Typography>)
+        }
+    };
+
+    const showSponsor = () => {
+        if (data && data.getChild && data.getChild.Sponsor) {
+            const child = data.getChild;
+            return (
+                <>
+                <Box sx={{display:'flex', flexDirection: 'row'}}>
+                    <Box sx={{mt:0, ml:1, display: 'flex', flexDirection: 'column', flexGrow: 1}}>
+                        <Typography>Name</Typography>
+                        <Typography>Phone</Typography>
+                    </Box>
+
+                    <Box sx={{mt:0, ml:1, display: 'flex', flexDirection: 'column', flexGrow: 1}}>
+                        <Typography style={{fontWeight: 'bold'}}>
+                            {getSponsorInfo(child.Sponsor)}
+                        </Typography>
+                        <Typography style={{fontWeight: 'bold'}}>
+                            {child.Sponsor.Phone}
+                        </Typography>
+                    </Box>
+                </Box>
+                </>
+            )
+        }else{
+            return(<Typography sx={{ ml: 1, fontSize: 16}}>{"no Sponosr assigned"}</Typography>)
+        };
+    };
+
+    const showHeaderAndDivider = (headerText) => {
+        return (
+        <>
+            <Typography style={{color:'#01579b'}} sx={{ml:1, pt:3, fontWeight:'bold', fontSize:18}}>
+                {headerText}
+            </Typography>
+                    
+            <Divider sx={{borderBottomWidth: 1.5}} style={{background:'#01579b'}}/>
+        </>
+        );
+    };
+
+    const showBigData = (childAttributeName) => {
+        let value = "N/A";
+        if (data && data.getChild) {
+            value = data.getChild[childAttributeName];
+        };
+
+        return (
+            <Box sx={{flexGrow:1}}>
+                <Typography sx={{mt:1, ml:1, fontWeight:'bold', fontSize:24}}>
+                    {value}
+                </Typography>
+            </Box> 
+        );
+    };
+
+    const showData = (childAttributeName) => {
+        let value = "N/A";
+        if (data && data.getChild) {
+            value = data.getChild[childAttributeName];
+        };
+
+        return (
+            <Box sx={{flexGrow:1}}>
+                <Typography sx={{mt:0, ml:1}}>
+                    {value}
+                </Typography>
+            </Box> 
+        );
+    };
+
+    const showBike = () => {
+        let value = '';
+        if (data && data.getChild) {
+            value = data.getChild.Bike;
+        }else{
+            return null;
+        };
+
+        if (value === 'Yes') {
+            return (
+                <Typography sx={{mt:0, ml:1}} style={{wordWrap: "break-word" }}>
+                    <Typography style={{fontWeight:'bold', color: 'blue'}}>
+                        BIKE
+                    </Typography>
+                </Typography>
+            );
+        }else{
+            return null;
+        };
+    };
+
+    const showDataWithLabel = (childAttributeName, labelText) => {
+        let value = "N/A";
+        if (data && data.getChild) {
+            value = data.getChild[childAttributeName];
+        };
+
+        return (
+            <Box sx={{mt:0, ml:1, display: 'flex', flexDirection: 'row'}}>
+                {/* sx={{pb: 1}} */}
+                <Typography>
+                    {labelText}&nbsp;&nbsp;
+                </Typography>
+                
+                {/*  sx={{pb: 1}} */}
+                <Typography style={{fontWeight: 'bold'}}>
+                    {value}
+                </Typography>
+            </Box>
+        )
+    }
 
 
     return (
         <React.Fragment>
             <Drawer
-            ModalProps={{ disableScrollLock: true }}
-            sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
+                ModalProps={{ disableScrollLock: true }}
+                sx={{
                 width: drawerWidth,
-                height: 650,
-                mt:10,
-                mr: 2,
-                p:1,
-                borderTop: 1,
-                borderRight: 1,
-                borderBottom: 1,
-                borderColor: 'divider',
-                boxShadow: 1
-                },
-            }}
-            PaperProps={{ square: false }}
-            variant="persistent"
-            anchor="right"
-            open={open}
+                flexShrink: 0,
+                '& .MuiDrawer-paper': {
+                    width: drawerWidth,
+                    height: 650,
+                    mt:10,
+                    mr: 2,
+                    p:1,
+                    borderTop: 1,
+                    borderRight: 1,
+                    borderBottom: 1,
+                    borderColor: 'divider',
+                    boxShadow: 1
+                    },
+                }}
+                PaperProps={{ square: false }}
+                variant="persistent"
+                anchor="right"
+                open={open}
             >
-    {/* ==============================================================================================
-                                        Drawer Header
-        ==============================================================================================*/}
-        <DrawerHeader sx={{display:'flex'}}>
-            <IconButton sx={{flexGrow: .1}} onClick={handleClose}>
-                {<ClearIcon />}
-            </IconButton>
-            <Typography 
-                sx={{
-                    textAlign: 'center',
-                    flexGrow:.65,
-                    fontSize: 'h6.fontSize'}}>
-                Child Information
-            </Typography>
-        </DrawerHeader>
-            <Divider />
-            <Box
-                sx={{
-                    display:'flex',
-                    flexDirection:'row',
-                    alignContent:'flex-start'
-                }}>
-            {/* =============================== Child Name and ID ====================================== */}
-                <Box
-                    sx={{
-                        flexGrow:1
-                    }}>
+                <DrawerHeader sx={{display:'flex'}}>
+                    <IconButton sx={{flexGrow: .1}} onClick={handleClose}>
+                        {<ClearIcon />}
+                    </IconButton>
+
                     <Typography 
                         sx={{
-                            mt:1,
-                            ml: 1,
-                            fontWeight:'bold',
-                            fontSize: 24,
-                    }}>{data ? data.getChild.Firstname : "N/A"}</Typography>
-                    {data
-                        ? data.getChild.RBL !== null 
-                            ? <Typography style={{ color: `${data.getChild.RBL.Color}` }} sx={{ ml: 1, fontSize: 16}}>{data.getChild.RBL.FirstName + " " + data.getChild.RBL.LastName}</Typography>
-                            : <Typography sx={{ ml: 1, fontSize: 16}}>{" "}</Typography>
-                        : <Typography sx={{ ml: 1, fontSize: 16}}>{""}</Typography>
-                    }
-                </Box>
-                <Box
-                    sx={{
-                        flexGrow: 1,
-                    }}>
-                    <Typography
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            fontWeight: 'bold',
-                            fontSize: 25,
-                        }}>{data ? data.getChild.ChildID : "N/A"}</Typography>
-                </Box>
-                    </Box>
-                {/* =============================== Information ====================================== */}
-         <Typography
-                style={{
-                    color:'#01579b'
-                }}
-                sx={{
-                    ml: 1,
-                    mt: 1,
-                    fontWeight: 500
-                }}>Information</Typography>
-            <Divider
-                sx={{
-                    borderBottomWidth: 1.5
-                }}
-                style={{
-                    background:'#01579b'
-                }}/>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                }}>
-                <Box
-                    sx={{
-                        display:'flex',
-                        flexDirection: 'column'
-                    }}>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-
-                        }}>
-                        <Typography sx={{pb: 1}}>Age&nbsp;&nbsp;</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.Age : "N/A"}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-
-                        }}>
-                        <Typography sx={{pb: 1}}>Gender&nbsp;&nbsp;</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.Gender : "N/A"}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-
-                        }}>
-                        <Typography sx={{pb: 1}}>Race&nbsp;&nbsp;</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.Race : "N/A"}</Typography>
-                    </Box>
-                </Box>
-                <Box
-                    sx={{
-                        display:'flex',
-                        flexDirection: 'column',
-                        pl: 10
-                    }}>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-
-                        }}>
-                        <Typography sx={{pb: 1}}>Shirt Size&nbsp;&nbsp;</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.ShirtSize : "N/A"}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-
-                        }}>
-                        <Typography sx={{pb: 1}}>Pant Size&nbsp;&nbsp;</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.PantSize : "N/A"}</Typography>
-                    </Box>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'row',
-
-                        }}>
-                        <Typography sx={{pb: 1}}>Shoe Size&nbsp;&nbsp;</Typography>
-                        <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data ? data.getChild.ShoeSize : "N/A"}</Typography>
-                    </Box>
-                </Box>
-            </Box>
-                
-                <Typography
-                    style={{
-                        color:'#01579b'
-                    }}
-                    sx={{
-                        ml: 1,
-                        fontWeight: 500
-                    }}>Wish List</Typography>
-                <Divider
-                    sx={{
-                        borderBottomWidth: 1.5
-                    }}
-                    style={{
-                        background:'#01579b'
-                }}/>
-                {/* =============================== WishList ====================================== */}
-                <Typography
-                    sx={{
-                        pb: 1,
-                        mt:1,
-                        ml: 1,
-                    }}
-                    style={{ wordWrap: "break-word" }}
-                >
-                    {data ? data.getChild.Wishlist : "N/A"}
-                </Typography>
-                <Typography
-                    style={{
-                        color:'#01579b'
-                    }}
-                    sx={{
-                        ml: 1,
-                        fontWeight: 500
-                    }}>Additional Information</Typography>
-                <Divider
-                    sx={{
-                        borderBottomWidth: 1.5
-                    }}
-                    style={{
-                        background:'#01579b'
-                }}/>
-                {/* =============================== Additional Information ====================================== */}
-                <Typography
-                    sx={{
-                        pb: 1,
-                        mt:1,
-                        ml: 1
-                    }}
-                    style={{ wordWrap: "break-word" }}
+                            textAlign: 'center',
+                            flexGrow:.65,
+                            fontSize: 'h6.fontSize'}}
                     >
-                        {data ? data.getChild.Bike === 'Y' ? <Typography style={{fontWeight:'bold', color: 'blue'}}>BIKE</Typography> : "" : ""}
-                        {data ? data.getChild.Info : "N/A"}</Typography>
-                    <Typography
-                    style={{
-                        color:'#01579b'
-                    }}
-                    sx={{
-                        ml: 1,
-                        fontWeight: 500
-                    }}>Siblings</Typography>
-                <Divider
-                    sx={{
-                        borderBottomWidth: 1.5
-                    }}
-                    style={{
-                        background:'#01579b'
-                }}/>
+                        Child Information
+                    </Typography>
+                </DrawerHeader>
+            
+                <Divider />
                 
-                {/* =============================== Siblings Information ====================================== */}
-                <Typography
-                    sx={{
-                        pb: 1,
-                        mt:1,
-                        ml: 1
-                    }}
-                    style={{ wordWrap: "break-word" }}
-                    >{data ? data.getChild.Siblings : "N/A"}</Typography>
-                <Typography
-                    style={{
-                        color:'#01579b'
-                    }}
-                    sx={{
-                        ml: 1,
-                        fontWeight: 500
-                    }}>Sponsor Information</Typography>
-                <Divider
-                    sx={{
-                        borderBottomWidth: 1.5
-                    }}
-                    style={{
-                        background:'#01579b'
-                }}/>
-                {/* check and make sure they have a sponsor attached */}
-                <Box
-                    sx={{
-                        display:'flex',
-                        flexDirection: 'row'
-                    }}>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1,
-                        }}>
-                            {/* =============================== Sponosor Information ====================================== */}
-                            <Typography sx={{pb: 1}}>Name</Typography>
-                            <Typography sx={{pb: 1}}>Phone</Typography>
+                <Box sx={{display:'flex', flexDirection:'row', alignContent:'flex-start' }}>
+                    {showBigData("Firstname")}
+                    {showBigData("ChildID", true)}                    
+                </Box>
+
+                {showHeaderAndDivider("Red Bag Lady")}
+                {showRBL()}
+                
+                {showHeaderAndDivider("Information")}
+         
+                <Box sx={{display: 'flex', flexDirection: 'row'}}>                
+                    <Box sx={{display:'flex', flexDirection: 'column'}}>
+                        {showDataWithLabel("Age","Age")}
+                        {showDataWithLabel("Gender","Gender")}
+                        {showDataWithLabel("Race","Race")}
                     </Box>
-                    <Box
-                        sx={{
-                            mt: 1,
-                            ml: 1,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1,
-                        }}>
-                        { data
-                            ? data.getChild.Sponsor !== null 
-                                ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.FirstName + " " +  data.getChild.Sponsor.LastName}</Typography>
-                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
-                            : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
-                            }
-                        { data
-                            ? data.getChild.Sponsor !== null
-                                ?  <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{data.getChild.Sponsor.Phone}</Typography>
-                                : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
-                            : <Typography style={{fontWeight: 'bold'}} sx={{pb: 1}}>{" "}</Typography>
-                            }
+                    
+                    <Box sx={{display:'flex', flexDirection: 'column', pl:10}}>
+                        {showDataWithLabel("ShirtSize","Shirt Size")}
+                        {showDataWithLabel("PantSize","Pant Size")}
+                        {showDataWithLabel("ShoeSize","Shoe Size")}
+                        
                     </Box>
                 </Box>
+                
+                {showHeaderAndDivider("Wish List", "break-word")}
+                {showData("Wishlist")}
+                
+                {showHeaderAndDivider("Additional Information")}
+                
+                {showBike()}
+                {showData("Info")}
+                    
+                {showHeaderAndDivider("Siblings")}
+                {showData("Siblings")}
+                    
+                {showHeaderAndDivider("Sponsor Information")}
+                
+                <Box sx={{display:'flex', flexDirection: 'row'}}>
+                    <Box sx={{mt:1, ml:1, display: 'flex', flexDirection: 'column', flexGrow: 1}}>
+                        {showSponsor()}
+                    </Box>
+                </Box>
+
+                {showHeaderAndDivider("")}
+
                 <Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between'
-                    }}
-                >
-                    <Button 
-                        sx={{
-                            m:1,    
-                        }}
-                        variant="contained"
-                        onClick={handleEditOpen}
+                    <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                        <Button sx={{m:1}} variant="contained" onClick={handleEditOpen}>
+                            Edit Child
+                        </Button>
+                        <Button 
+                            sx={{m:1, backgroundColor: 'red', ":hover":{color: 'black', bgcolor: 'red'}}}
+                            variant="contained"
+                            onClick={handleDeleteOpen}
                         >
-                        Edit Child
-                    </Button>
-                    <Button 
-                        sx={{
-                            m:1, 
-                            backgroundColor: 'red',
-                            ":hover": {
-                                color: 'black',
-                                bgcolor: 'red',
-                            }
-                        }}
-                        variant="contained"
-                        onClick={handleDeleteOpen}
-                        >
-                        Delete
-                    </Button>
-                </Box>
+                            Delete
+                        </Button>
+                    </Box>
                 </Box> 
-                </Drawer>
-                {onEditOpen()}
-                {onDeleteOpen()}
+            </Drawer>
+
+            {onEditOpen()}
+            {onDeleteOpen()}
         </React.Fragment>
     )
 }
