@@ -87,9 +87,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     }
 
     const uiChildList = () => {
-        if(sponsor.Children.items.length === 0 ) {
-            return (<div>No Children</div>)
-        }else{
+        if(sponsor && sponsor.Children && sponsor.Children.items) {
             return (
                 <DataGrid
                     rows = {sponsor.Children.items}
@@ -107,7 +105,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                     ]}
                 />
             )
-        }
+        }else{
+            return (<div>No Children</div>)
+        };
     };
 
     const printAddress = () => {

@@ -125,9 +125,7 @@ export default function SponsorScreen () {
       if(sponsor_loading) {return <div>Loading sponsors</div>}
       if(sponsor_loading) {return <div>Error Loading sponsors: {sponsor_error}</div>}
       
-      if(sponsor_data.listSponsors.items.length === 0) {
-        return(<div>No Sponosors</div>);
-      }else{
+      if(sponsor_data && sponsor_data.listSponsors && sponsor_data.listSponsors.items) {
         console.log("2. uiListSponsors Rerendering, sponsor data has " + sponsor_data.listSponsors.items.length + " rows")
         return (
           <DataGrid
@@ -169,6 +167,8 @@ export default function SponsorScreen () {
             ]}  //end columns
           />  //end DataGrid
         )
+      }else{
+        return(<div>No Sponosors</div>);
       }
     }
   /* 
