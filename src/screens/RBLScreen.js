@@ -26,13 +26,8 @@ export default function DenseTable() {
       if (sponsor.Phone === newInput) {
         key = true;
       }
-    })
-    if(key){
-      console.log('there is a match in the system')
-    } else {
-      console.log("there is no match in the system")
-    }
-  }
+    });
+  };
 
   function extract(phoneNumber) {
     const digits = phoneNumber.replace(/\D/g, ''); // Replace all non-digit characters with an empty string
@@ -56,10 +51,7 @@ export default function DenseTable() {
         return sponsorArray.push(sponsor)
     })
   }
-
-  console.log("List of Sponsors: ", sponsorArray)
   renderedSponsorArray = renderSponsors(sponsorArray);
-  console.log("rendered Sponsor Arry: ", renderedSponsorArray)
 
 /*============================================= Apollo Call =================================================
                                               Listing RBLS
@@ -70,9 +62,6 @@ export default function DenseTable() {
           return RBLArray.push(RBL)
       })
     }
-
-    console.log("List of RBLS: ", RBLArray)
-  
 
   return (
     <React.Fragment>

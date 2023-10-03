@@ -159,7 +159,6 @@ const findChild_ByChildID = (searchChildID, childList) => {
                 Component Starts Here
 ================================================================================================*/
 export default function ChildImport({ open, handleClose, childList, sponsorList, rblList, AddChild }){
-    //console.log("ChildImport Begin");
     let processSummaryMsgs = [];
     let processDetailMsgs = [];
     let processFails = [];
@@ -180,7 +179,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
     //      User Selectes a file from the file picker
     //-----------------------------------------------------------------
     const handleFile=(e)=>{
-        console.log("handleFile, BEGIN");
         setTypeError("");
         setDataToProcess(null);
         setFailures([]);
@@ -195,14 +193,10 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         const fileToProcess = e.target.files[0]        
         const isValidFile = validateFileType(fileToProcess);        
         if(isValidFile.length > 0) {
-            console.log("handleFile, not a valid file: " + isValidFile);
             setTypeError(isValidFile);
         }else{
-            console.log("handleFile, before loadSpreadsheetFile ");
             loadSpreadsheetFile(fileToProcess);
-            console.log("handleFile, after loadSpreadsheetFile");
         };
-        console.log("handleFile, END");
     };
 
     const validateFileType = (selectedFile) => {        
@@ -223,14 +217,11 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
     };
 
     const loadSpreadsheetFile = (fileToProcess) => {
-        console.log("1. loadSpreadsheetFile, begin.  Input parm is: ", fileToProcess);
         let reader = new FileReader();
         reader.readAsArrayBuffer(fileToProcess);
         reader.onload=(e)=>{ 
-            console.log("2. loadSpreadsheetFile, reader.onload, about to call validateFileContents");
             stupidCallBackToContinueLoadingFile(e.target.result);
         };
-        console.log("3. loadSpreadsheetFile, done.");
     };
 
     const stupidCallBackToContinueLoadingFile = (arrayBuffer) => {
@@ -239,14 +230,12 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
     };
 
     const validateFileContents = (arrayBuffer) => {
-        console.log("validateFileContents BEGIN");
-        if(arrayBuffer){
+       if(arrayBuffer){
             const workbook = XLSX.read(arrayBuffer,{type: 'buffer'});
             const worksheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[worksheetName];
     
             const headers = getHeaders(worksheet);
-            //console.log("validateFileContents, Headers", headers);
     
             const headerErrors = ValidateHeaders(headers);
             if (headerErrors.length!==0) {
@@ -257,22 +246,16 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
                 return errorMsg;
             };
             
-            console.log("validateFileContents Loading Excel Data");
             let excelData = XLSX.utils.sheet_to_json(worksheet);
-            console.log("validateFileContents, excelData is", excelData);
     
             if(excelData.length===0){ 
-                console.log("validateFileContents No Excel Data");
                 return "No Excel Data in file";
             };
     
             let preProcessErrors = CheckDataForErrors(excelData);
             if(preProcessErrors.length > 0) {
-                console.log("validateFileContents preProcessErrors (dup ChildIDs in SS)");
                 return "Errors in file: " + preProcessErrors;
             };
-
-            console.log("validateFileContents No errors");
 
             setFileButton("outlined");
             setImportButton("contained");
@@ -290,7 +273,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
     //      User clicks "Import" button
     //-----------------------------------------------------------------
     const handleImport=() => {
-        //console.log("Handle Import Event");
         processDetailMsgs = [];
         processSummaryMsgs = [];
         processFails = [];
@@ -299,11 +281,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         var numFail = 0;
 
         dataToProcess.map((row, index) => {
-            //console.log("row", row);
-
             let child = ConvertDataRow(row);
-            //console.log("child (from row)", child);
-
             let childID = '';
             let rblID = '';
             let searchName = '';
@@ -312,7 +290,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             
             numProcessed += 1;
             let rowNum = index +2;
-            console.log("Processing ChildID: " + child.ChildID + ", row #" + rowNum);
 
             result = validateRequiredProperties(child);
             if(result.length > 0) {
@@ -335,7 +312,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             // }else{
             //     sponsorID = findSponsorID_ByPhone(child.SponsorPhone, sponsorList);
             //     if (sponsorID.length===0) {
-            //         console.log("No sponsor with that phone number");
             //         fatalError = true;
             //         processFails.push(
             //             "ChildID: " + child.ChildID + 
@@ -343,7 +319,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             //             " Sponsor not found using sponsor's phone number: " + child.SponsorPhone
             //         );
             //     }else{
-            //         console.log("Sponsor Found");
             //         child = {...child, sponsorID};
             //     };                
             // };
@@ -361,12 +336,9 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
                         " Red Bag Lady not found using : " + searchName
                     );
                 }else{
-                    console.log("RBL found");
                     child = {...child, rblID};
                 };                
             };
-
-            console.log("Final Child Data looks like this", child);
 
             if (fatalError ) {
                 //if we already have identified a bad row, do not try to insert it.
@@ -375,15 +347,13 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
                 if (childID==='') {
                     let addResult = AddChild(child);
                     if (addResult.length > 0 ) {
-                        console.log("Add Failed");
                         numFail += 1;
                         processFails.push(
                             "ChildID: " + child.ChildID + 
                             " at row " + rowNum + 
                             " failed to load: " + addResult
                         );
-                    }else{                    
-                        console.log("Child Added");
+                    }else{  
                         numAdd += 1;
                         processDetailMsgs.push(
                             "ChildID: " + child.ChildID + 
@@ -429,14 +399,12 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         setFileInfo(fileName + " was imported");
         setPrintButton("contained");
         setImportButton("outlined");
-        //console.log("End of Handle Import Event");
     };
 
     //-----------------------------------------------------------------
     //      Render support stuff
     //-----------------------------------------------------------------
     const showSummaryMessages = () => {
-        //console.log("showSummaryMessages begin");
         if (summaryMsgs.length===0) {
             return <Alert severity="success">No Import Summary Messages</Alert>
         }else{
@@ -447,7 +415,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         };
     };
     const showDetailMessages = () => {
-        //console.log("showDetailMessages begin");
         if (messages.length===0) {
             return <Alert severity="success">No Import Detail Messages</Alert>
         }else{

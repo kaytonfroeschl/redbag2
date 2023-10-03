@@ -141,7 +141,6 @@ export default function SponsorScreen () {
       setCurrSponsor(0);
     }else{
       setCurrSponsor(row);
-      console.log("ROW:", row)
       setEditOpen(true);
       setCustomWidth('70%')
     }
@@ -199,7 +198,6 @@ export default function SponsorScreen () {
   ================================================================================================*/
     const openDeleteSponsor = () => {
     if (deleteOpen) {
-      console.log("Render DeleteSponsor")
       return (
         <DeleteSponsor 
           open={deleteOpen}
@@ -214,7 +212,6 @@ export default function SponsorScreen () {
   }
 
   const handleDeleteOpen = (row) => {
-    console.log("Delete button was clicked on: ", row)
     setCurrSponsor(row);
     setDeleteOpen(true);
   }
@@ -223,7 +220,6 @@ export default function SponsorScreen () {
     if(reason && reason === 'backdropClick'){
         return;
     }
-    console.log("handleDeleteClose (user cancel delete)")
     setDeleteOpen(false);
   }
 
@@ -235,7 +231,7 @@ export default function SponsorScreen () {
   }] = useMutation(gql(deleteSponsor));
 
   //if(sponsorDelLoading) {console.log("Loading Delete Sponsor Mutation")};
-  //if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
+  if(sponsorDelError) {console.log( "Delete Sponsor Mutation error: " + sponsorDelError)};
 
 
   const sponsorDelete = async () => {
@@ -255,12 +251,10 @@ export default function SponsorScreen () {
                                       Import Sponsor Spreadsheet
 ================================================================================================*/
   const handleImportOpen = () => {
-    //console.log("handleImportOpen");
     setImportOpen(true);
   };
 
   const handleImportClose = () => {
-    //console.log("handleImportClose");
     setImportOpen(false);
   };
   
@@ -285,11 +279,10 @@ export default function SponsorScreen () {
     error: sponsorAddError,
   }] = useMutation(gql(createSponsor));
 
-  if(sponsorAddLoading) {console.log("Loading Sponsor Add Mutation")};
+  //if(sponsorAddLoading) {console.log("Loading Sponsor Add Mutation")};
   if(sponsorAddError) {console.log( "Create Sponsor Mutation error: " + sponsorAddError)};
 
   const handleSponsorAdd = (sponsorData) => {
-    console.log("handleSponosorAdd, about to call addSponsorMutation.", sponsorData);
     try{
       const response = addSponsorMutation({
         variables: { 
@@ -305,7 +298,6 @@ export default function SponsorScreen () {
         }, 
       });
     }catch(error) {
-      console.log("Add Sponsor Mutation error ", error);
       return "Create New Sponsor failed with error: " + error;
     };        
     return "";

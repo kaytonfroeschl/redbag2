@@ -90,7 +90,7 @@ export default function ChildrenScreen () {
   //      RBL Stuff
   //----------------------------------------------------
   const { data: rbl_data, loading: rbl_loading, error: rbl_error } = useQuery(gql(listRBLS));
-  if(rbl_loading) {console.log("RBL List is loading")};  
+  //if(rbl_loading) {console.log("RBL List is loading")};  
   if(rbl_error) {console.log("RBL List Load error: " + rbl_error)};
 
   //---------------------------------------------------- 
@@ -102,7 +102,7 @@ export default function ChildrenScreen () {
     error: sponsor_error 
   } = useQuery(gql(listSponsors), {variables: {limit: 2000 }});
 
-  if(sponsor_loading) {console.log("Sponsor List is loading")};  
+  //if(sponsor_loading) {console.log("Sponsor List is loading")};  
   if(sponsor_error) {console.log("Sponsor List Load error: " + sponsor_error)};
 
   //---------------------------------------------------- 
@@ -126,7 +126,7 @@ export default function ChildrenScreen () {
       );
     };
     if(child_data.listChildren.items.length===0) {return <div>There are no children to list</div>};
-    console.log("Children ", child_data.listChildren.items);
+    
     return (
       <DataGrid
         initialState={{pagination: {paginationModel: {page:0, pageSize:10}}}}
@@ -255,19 +255,16 @@ export default function ChildrenScreen () {
   //       Import Child Spreadsheet
   //----------------------------------------------------
   const handleImportOpen = () => {
-    //console.log("handleImportOpent");
     setImportOpen(true);
   }
 
   const handleImportClose = () => {
-    //console.log("handleImportClose");
     setImportOpen(false);
     child_Refetch();
   }
   
   const openImport = () => {
     if (importOpen) {
-      //console.log("openImport");
       return (
         <ChildImport 
           open={importOpen} 
@@ -286,12 +283,11 @@ export default function ChildrenScreen () {
   //---------------- Add Imported Child ----------------
 
   const [addChildMutation, {loading: loadingAdd, error: errorAdd }] = useMutation(gql(createChild));
-  if(loadingAdd) {console.log("Loading Add Child Mutation")};
+  //if(loadingAdd) {console.log("Loading Add Child Mutation")};
   if(errorAdd) {console.log( "Create Child Mutation error: " + errorAdd)};
 
   //const handleAddChild = async (childData) => { 
   const handleAddChild = async (childImportData) => {
-    console.log("handleAddChild, about to call addChildMutation. ChildID: " + childImportData.ChildID);
     try{
         await addChildMutation({
         variables: { 
@@ -312,9 +308,7 @@ export default function ChildrenScreen () {
           } 
         },
       });
-      console.log("End of Add Child Mutation (after childList.refetch): child_data.listChildren.items has " + child_data.listChildren.items.length + " entries");
     }catch(error) {
-      console.log("Add Child Mutation error ", error);
       return "Create New Child failed with error: " + error;
     };        
     return "";
@@ -371,8 +365,6 @@ export default function ChildrenScreen () {
     let Name = "";
 
     if ( ! sponsor) { return ""};
-
-    console.log(sponsor);
     
     if(sponsor.FirstName) {
         Name = sponsor.FirstName

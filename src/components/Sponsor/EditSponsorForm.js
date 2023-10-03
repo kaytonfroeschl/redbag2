@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateSponsor } from '../../graphql/mutations';
-import { listSponsors, getSponsor } from '../../graphql/queries';
+import { listSponsors } from '../../graphql/queries';
 import Dialog from '@mui/material/Dialog';
 import { DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -10,19 +10,10 @@ import FormControl from '@mui/material/FormControl';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-
 
 export default function EditSponsorForm({ open, handleClose, sponsor }){
-    //console.log("EDIT Sponsor: ", sponsor)
-/* ==============================================================================================
-                                        Set Variables
-================================================================================================*/
-    const [form_id, setFormID] = useState(sponsor.id);
-    const [form_name, setFormName] = useState(sponsor.FirstName);
     const [form_firstname, setFormFirstName] = useState(sponsor.FirstName);
     const [form_lastname, setFormLastName] = useState(sponsor.LastName);
-    const [form_address, setFormAddress] = useState(sponsor.Address);
     const [form_street, setFormStreet] = useState(sponsor.AddressStreet);
     const [form_city, setFormCity] = useState(sponsor.AddressCity);
     const [form_state, setFormState] = useState(sponsor.AddressState);
@@ -32,39 +23,32 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
     const [form_phone, setFormPhone] = useState(sponsor.Phone);
     const [form_ya, setFormYA] = useState(sponsor.YearsActive);
 
-    useEffect(() => {
-        setFormID(sponsor.id);
-        setFormName(sponsor.FirstName);
-        setFormFirstName(sponsor.FirstName);
-        setFormLastName(sponsor.LastName);
-        setFormAddress(sponsor.Address);
-        setFormStreet(sponsor.AddressStreet);
-        setFormCity(sponsor.AddressCity);
-        setFormState(sponsor.AddressState);
-        setFormZip(sponsor.AddressZip);
-        setFormEmail(sponsor.Email);
-        setFormInst(sponsor.Institution);
-        setFormPhone(sponsor.Phone);
-        setFormYA(sponsor.YearsActive);
-    }, [sponsor])
+    //Bill: pretty sure you don't want to do this.  Every time "sponsor" changes, you change "sponsor".
+    // useEffect(() => {
+    //     setFormID(sponsor.id);
+    //     setFormName(sponsor.FirstName);
+    //     setFormFirstName(sponsor.FirstName);
+    //     setFormLastName(sponsor.LastName);
+    //     setFormAddress(sponsor.Address);
+    //     setFormStreet(sponsor.AddressStreet);
+    //     setFormCity(sponsor.AddressCity);
+    //     setFormState(sponsor.AddressState);
+    //     setFormZip(sponsor.AddressZip);
+    //     setFormEmail(sponsor.Email);
+    //     setFormInst(sponsor.Institution);
+    //     setFormPhone(sponsor.Phone);
+    //     setFormYA(sponsor.YearsActive);
+    // }, [sponsor])
 
 /* ==============================================================================================
                                         OnChange Handle Functions 
 ================================================================================================*/
-    function handleFormName(event){
-        setFormName(event.target.value);
-    }
-
     function handleFormFirstName(event){
         setFormFirstName(event.target.value);
     }
 
     function handleFormLastName(event){
         setFormLastName(event.target.value);
-    }
-
-    function handleFormAddress(event){
-        setFormAddress(event.target.value);
     }
 
     function handleFormStreet(event){
@@ -102,21 +86,30 @@ export default function EditSponsorForm({ open, handleClose, sponsor }){
 /* ==============================================================================================
                                         Apollo Call 
 ================================================================================================*/
-    let input;
     const [updateSponsorMutation] = useMutation(gql(updateSponsor));
-    const { loading, error, data } = useQuery(gql(listSponsors));
-    if(loading) {
-        return <div>Loading...</div>
-    }
+    const {loading, error} = useQuery(gql(listSponsors));
+    if(loading) {return <div>Loading...</div>}
+    if(error) {return <div>Error in useMutation(gql(updateSponsor)): {error}</div>}
 
     async function handleUpdate(e) {
         e.preventDefault();
         try {
-            const response = await updateSponsorMutation({
-                variables: { input: { id: form_id, FirstName: form_firstname, LastName: form_lastname, Phone: form_phone, Email: form_email, Address: '', AddressStreet: form_street, AddressCity: form_city, AddressState: form_state, AddressZip: form_zip, Institution: form_inst, YearsActive: form_ya} },
+            await updateSponsorMutation({
+                variables: { input: { 
+                    id: sponsor.id, 
+                    FirstName: form_firstname, 
+                    LastName: form_lastname, 
+                    Phone: form_phone, 
+                    Email: form_email, 
+                    Address: '', 
+                    AddressStreet: form_street, 
+                    AddressCity: form_city, 
+                    AddressState: form_state, 
+                    AddressZip: form_zip, 
+                    Institution: form_inst, 
+                    YearsActive: form_ya}},
                 refetchQueries: [{ query: gql(listSponsors) }], // Refetch the query to update the list
             });
-            console.log("Mutation response: ", response);
             handleClose();
         } catch (error) {
             console.error("Mutation error: ", error);

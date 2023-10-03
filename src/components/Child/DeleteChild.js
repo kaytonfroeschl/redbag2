@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { gql, useMutation } from '@apollo/client';
-import { deleteChild } from '../../graphql/mutations';
 import {
     Dialog,
     DialogActions,
@@ -13,24 +11,7 @@ import {
 } from '@mui/material';
 
 export default function DeleteChild({ open, handleClose, child, deleteChild }) {
-   /*const [deleteChildMutation] = useMutation(deleteChild);
-
-    const handleDelete = async () => {
-        try {
-          const response = await deleteChildMutation({
-            variables: { input: {Firstname: child.passedName, ChildID: child.passedChildID} },
-          });
-    
-          console.log('Mutation response:', response);
-          // Handle success or navigate to a different page
-        } catch (error) {
-          console.error('Mutation error:', error);
-          // Handle error
-        }
-      };*/
-    function handleDelete() { }
-    
-
+   
     return(
         <React.Fragment>
             <Dialog open={open} onClose={handleClose}>

@@ -5,15 +5,12 @@ import {
     DialogContent,
     DialogTitle,
     Button,
-    Paper,
-    Stack,
     Box,
     Typography
 } from '@mui/material';
 
 export default function DeleteSponsor({open, sponsor, deleteSponsor, handleClose}){
-    console.log("DeleteSponsor Componenet Begin")
-    
+        
     const sponsorInfo = () => {
         return (
             <div>
@@ -74,7 +71,6 @@ export default function DeleteSponsor({open, sponsor, deleteSponsor, handleClose
                     
                 </DialogActions>
             </Dialog>
-            {console.log("End of Delete Componenet")}
         </React.Fragment>
         
     )

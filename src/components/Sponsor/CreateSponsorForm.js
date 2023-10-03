@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { createSponsor } from '../../graphql/mutations';
 import { listSponsors } from '../../graphql/queries';
@@ -57,10 +57,6 @@ export default function CreateSponsorForm({ open, handleClose }) {
         setFormPhone(event.target.value);
     }
 
-    function handleFormAddress(event){
-        setFormAddress(event.target.value);
-    }
-
     function handleFormStreet(event){
         setFormStreet(event.target.value);
     }
@@ -96,15 +92,12 @@ export default function CreateSponsorForm({ open, handleClose }) {
     }
 
     function handleSpecialClose() {
-        console.log("Before clear: ", form_address)
         resetValues();
         handleClose();
     }
 
     function createAddress () {
         let temp = form_street + " " + form_city + ", " + form_state + " " + form_zip;
-        console.log("create address: ", temp);
-        console.log("Form address in create: ", form_address)
         setFormAddress(temp);
         return temp
         
@@ -112,30 +105,24 @@ export default function CreateSponsorForm({ open, handleClose }) {
 
     function handleSpecialCreate(e) {
         let temp2 = createAddress();
-        console.log("temp 2: ", temp2)
         setFormAddress(temp2)
-        //setFormAddress(form_street + " " + form_city + ", " + form_state + " " + form_zip)
-        console.log("Form addy: ", form_address)
         handleCreate(e);
     }
 
 /* ==============================================================================================
                                         Apollo Call to Add New Sponsor
    ==============================================================================================*/
-    let input;
-    const [addSponsorMutation, { data, loading, error }] = useMutation(gql(createSponsor));
-    if(loading) {
-        return <div>Loading...</div>
-    }
+    const [addSponsorMutation, {loading, error }] = useMutation(gql(createSponsor));
+    if(loading) {return <div>Loading...</div>}
+    if(error) {return <div>Error: {error}</div>}
 
     async function handleCreate(e){
         e.preventDefault();
         try{
-            const response = await addSponsorMutation({
+            await addSponsorMutation({
                 variables: { input: { FirstName: form_firstname, LastName: form_lastname, Email: form_email, Phone: form_phone, Institution: form_inst, Address: form_address, AddressStreet: form_street, AddressCity: form_city, AddressState: form_state, AddressZip: form_zip, YearsActive: form_ya } },
                 refetchQueries: [{ query: gql(listSponsors) }], // dont need to change
             })
-            console.log("Mutation response: ", response);
             handleSpecialClose();
         } catch(error) {
             console.error("Mutation error: ", error);

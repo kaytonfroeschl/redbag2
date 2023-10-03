@@ -96,7 +96,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
 
     const childIDIsUnique = (childID) => {
         const searchID = childID.toUpperCase();
-        console.log("child id unique " + searchID);
         const found = childList.filter(child => child.ChildID.toUpperCase() === searchID);
         return (found.length===0);
     };
@@ -196,7 +195,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
         if (fieldError) return;
 
         try {
-            const response = await addChildMutation({
+            await addChildMutation({
                 variables: {
                     input: {
                         Firstname: form_name,
@@ -216,7 +215,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                     }},
                 refetchQueries: [{ query: gql(listChildren) }], // Refetch the query to update the list
             });
-            console.log("Mutation response: ", response);
             handleSpecialClose();
         } catch (error) {
             setGeneralError("Error Creating Child: " + error);
@@ -462,10 +460,8 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                     <Autocomplete
                         options={sponsorOptions}
                         value={sponsorSelected}
-                        onChange={(e, newValue) => {
-                            console.log("Sponsor selected value ", newValue); 
+                        onChange={(e, newValue) => { 
                             if (newValue === null){
-                                console.log("newValue is null ", listItemNotSpecified);
                                 setSponsorSelected(listItemNotSpecified);
                             } else {
                                 setSponsorSelected(newValue);

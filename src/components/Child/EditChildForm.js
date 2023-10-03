@@ -17,8 +17,6 @@ import BikeInput from '../BikeInput';
                                         Component Starts Here
 ================================================================================================*/
 export function EditChildForm ({ open, handleClose, child, sponsorList, rblList }){
-    console.log("EditChildForm. Begin.");
-
     const [form_name, setFormName] = useState(child.Firstname);
     const [form_childid, setFormChildID] = useState(child.ChildID);
     const [form_gender, setFormGender] = useState(child.Gender);
@@ -130,7 +128,6 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
             
             if (child.RBL) {
                 if (rbl.id === child.RBL.id) {
-                    console.log("EditChildForm.  RBL Assigned. RBL Option Selected is: " + rblOption.id + " " + rblOption.label);
                     setRBLSelected(rblOption);
                     setRBL_ID(rbl.id);
                 };
@@ -143,8 +140,6 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
         setRBLOptions(options);
       },
       []);
-
-      console.log("EditChildForm.  RBL Selected: " + RBLSelected.id + " " + RBLSelected.label);
 /* 
 ================================================================================================
                                         Apollo Call to Update a Child
@@ -366,10 +361,8 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
                             <Autocomplete
                                 options={sponsorOptions}
                                 value={sponsorSelected}
-                                onChange={(e, newValue) => {
-                                    console.log("Sponsor selected value ", newValue); 
+                                onChange={(e, newValue) => { 
                                     if (newValue === null){
-                                        console.log("newValue is null ", listItemNotSpecified);
                                         setSponsorSelected(listItemNotSpecified);
                                         setSponsor_ID(null);
                                     } else {

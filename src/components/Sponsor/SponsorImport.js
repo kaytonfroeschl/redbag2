@@ -116,7 +116,6 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
     //      User Selectes a file from the file picker
     //-----------------------------------------------------------------
     const handleFile=(e)=>{
-        //console.log("handleFile, BEGIN");
         setTypeError("");
         setDataToProcess(null);
         setFailures([]);
@@ -135,7 +134,6 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
         }else{
             loadSpreadsheetFile(fileToProcess);
         };
-        console.log("handleFile, END");
     };
 
     const validateFileType = (selectedFile) => {        
@@ -156,14 +154,11 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
     };
 
     const loadSpreadsheetFile = (fileToProcess) => {
-        console.log("1. loadSpreadsheetFile, begin.  Input parm is: ", fileToProcess);
         let reader = new FileReader();
         reader.readAsArrayBuffer(fileToProcess);
         reader.onload=(e)=>{ 
-            console.log("2. loadSpreadsheetFile, reader.onload, about to call validateFileContents");
             stupidCallBackToContinueLoadingFile(e.target.result);
         };
-        console.log("3. loadSpreadsheetFile, done.");
     };
 
     const stupidCallBackToContinueLoadingFile = (arrayBuffer) => {
@@ -172,14 +167,12 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
     };
 
     const validateFileContents = (arrayBuffer) => {
-        console.log("validateFileContents BEGIN");
         if(arrayBuffer){
             const workbook = XLSX.read(arrayBuffer,{type: 'buffer'});
             const worksheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[worksheetName];
     
             const headers = getHeaders(worksheet);
-            //console.log("validateFileContents, Headers", headers);
     
             const headerErrors = ValidateHeaders(headers);
             if (headerErrors.length!==0) {
@@ -191,10 +184,8 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
             };
 
             let excelData = XLSX.utils.sheet_to_json(worksheet);
-            console.log("validateFileContents, excelData is", excelData);
     
             if(excelData.length===0){ 
-                console.log("validateFileContents No Excel Data");
                 return "There is no Excel Data in file";
             };
 
@@ -214,7 +205,6 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
     //      User clicks "Import" button
     //-----------------------------------------------------------------
     const handleImport=() => {
-        //console.log("Handle Import Event");
         processDetailMsgs = [];
         processSummaryMsgs = [];
         processFails = [];
@@ -223,26 +213,19 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
         var numFail = 0;
 
         dataToProcess.map((row, index) => {
-            //console.log("row", row);
-
-            let sponsor = ConvertDataRow(row);
-            
+            let sponsor = ConvertDataRow(row);            
             numProcessed += 1;
             let rowNum = index +2;
-            
-            console.log("Processing Sponsor: at row #" + rowNum, sponsor);
 
             let addResult = AddSponsor(sponsor);
             if (addResult.length > 0 ) {
-                console.log("Add Failed");
                 numFail += 1;
                 processFails.push(
                     "Sponsor at row " + rowNum + 
                     " with name: " + sponsor.Name + 
                     " failed to load: " + addResult
                 );
-            }else{                    
-                console.log("Sponsor Added");
+            }else{ 
                 numAdd += 1;
                 processDetailMsgs.push(
                     "Sponsor at row " + rowNum + 
@@ -271,7 +254,6 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
     //      Render support stuff
     //-----------------------------------------------------------------
     const showSummaryMessages = () => {
-        //console.log("showSummaryMessages begin");
         if (summaryMsgs.length===0) {
             return <Alert severity="success">No Import Summary Messages</Alert>
         }else{
@@ -282,7 +264,6 @@ export default function ImportSponsors({ open, handleClose, AddSponsor }){
         };
     };
     const showDetailMessages = () => {
-        //console.log("showDetailMessages begin");
         if (messages.length===0) {
             return <Alert severity="success">No Import Detail Messages</Alert>
         }else{
