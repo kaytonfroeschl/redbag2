@@ -11,6 +11,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { DataGrid } from '@mui/x-data-grid';
 import EditSponsorForm from './EditSponsorForm';
+import SponsorChildList from './SponsorChildList';
 
 /* =============================== Drawer Styling ================================================*/
 const drawerWidth = 360;
@@ -86,29 +87,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
         setDeleteOpen(false);
     }
 
-    const uiChildList = () => {
-        if(sponsor && sponsor.Children && sponsor.Children.items) {
-            return (
-                <DataGrid
-                    rows = {sponsor.Children.items}
-                    columns={ [
-                        { field: 'ChildID',   headerName: 'Child ID', flex: 1},
-                        { field: 'Firstname',    headerName: 'Name', flex: 1},
-                        { field: 'RBL', headerName: 'RBL', flex: 1.3,
-                            valueGetter: (params) => {
-                            if(params.row.RBL) {
-                                return(params.row.RBL.FirstName + " " + params.row.RBL.LastName);
-                            }
-                            return "";
-                            }
-                        },
-                    ]}
-                />
-            )
-        }else{
-            return (<div>No Children</div>)
-        };
-    };
+    // const uiChildList = () => {
+    //     if(sponsor && sponsor.Children && sponsor.Children.items) {
+    //         return (<SponsorChildList children={sponsor.Children.items}/>)
+    //     }else{
+    //         return (<div>No Children</div>)
+    //     };
+    // };
 
     const printAddress = () => {
         let returnAddy = "";
@@ -276,7 +261,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
                     background:'#01579b'
                 }}/>
 
-            <Typography sx={{mt: 1, ml: 1, }}>{uiChildList()}</Typography>
+            <SponsorChildList children={sponsor.Children.items}/>
+            {/* <Typography sx={{mt: 1, ml: 1, }}>{uiChildList()}</Typography> */}
 
             <Box sx={{textAlign:'center'}}>
                 <Button 
