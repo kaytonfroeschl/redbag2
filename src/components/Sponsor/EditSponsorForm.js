@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { updateSponsor } from '../../graphql/mutations';
 import { listSponsors } from '../../graphql/queries';

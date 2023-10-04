@@ -12,7 +12,8 @@ import {
     TextField,
     Typography,
     Button,
-    Divider
+    Divider,
+    Alert,
 } from '@mui/material';
 
 
@@ -26,56 +27,28 @@ export default function CreateSponsorForm({ open, handleClose }) {
     const [form_inst, setFormInst] = useState('');
     const [form_email, setFormEmail] = useState('');
     const [form_phone, setFormPhone] = useState('');
-    const [form_address, setFormAddress] = useState('');
     const [form_street, setFormStreet] = useState('');
     const [form_city, setFormCity] = useState('');
     const [form_state, setFormState] = useState('');
     const [form_zip, setFormZip] = useState('');
     const [form_ya, setFormYA] = useState('');
 
+    const [generalError, setGeneralError] = useState('');
+
 /* ==============================================================================================
                                         Handle Functions 
 ================================================================================================*/
 
-    function handleFormFirstName(event){
-        setFormFirstName(event.target.value);
-    }
-
-    function handleFormLastName(event){
-        setFormLastName(event.target.value);
-    }
-
-    function handleFormInst(event){
-        setFormInst(event.target.value);
-    }
-
-    function handleFormEmail(event){
-        setFormEmail(event.target.value);
-    }
-
-    function handleFormPhone(event){
-        setFormPhone(event.target.value);
-    }
-
-    function handleFormStreet(event){
-        setFormStreet(event.target.value);
-    }
-
-    function handleFormCity(event){
-        setFormCity(event.target.value);
-    }
-
-    function handleFormState(event){
-        setFormState(event.target.value);
-    }
-
-    function handleFormZip(event){
-        setFormZip(event.target.value);
-    }
-
-    function handleFormYA(event){
-        setFormYA(event.target.value);
-    }
+    function handleFormFirstName(event) {setFormFirstName(event.target.value)}
+    function handleFormLastName(event)  {setFormLastName(event.target.value)}
+    function handleFormInst(event)      {setFormInst(event.target.value)}
+    function handleFormEmail(event)     {setFormEmail(event.target.value)}
+    function handleFormPhone(event)     {setFormPhone(event.target.value)}
+    function handleFormStreet(event)    {setFormStreet(event.target.value)}
+    function handleFormCity(event)      {setFormCity(event.target.value)}
+    function handleFormState(event)     {setFormState(event.target.value)}
+    function handleFormZip(event)       {setFormZip(event.target.value)}
+    function handleFormYA(event)        {setFormYA(event.target.value)}
 
     function resetValues() {
         setFormFirstName('');
@@ -83,7 +56,6 @@ export default function CreateSponsorForm({ open, handleClose }) {
         setFormInst('');
         setFormEmail('');
         setFormPhone('');
-        setFormAddress('');
         setFormStreet('');
         setFormCity('');
         setFormState('');
@@ -91,21 +63,32 @@ export default function CreateSponsorForm({ open, handleClose }) {
         setFormYA('');
     }
 
-    function handleSpecialClose() {
+    const sponsorIsValid = (sponsor) => {
+        //Must have First AND Last or Institution
+        if (! sponsor) return;
+        if (sponsor.Institution.length < 1) {
+            const firstAndLast = sponsor.FirstName + sponsor.LastName;
+            
+            if (firstAndLast.length < 1) {
+                setGeneralError("You must specify a First AND Last Name OR an Institution Name");
+                return false;
+            };
+
+            if (sponsor.FirstName.length < 1 || sponsor.LastName < 1) {
+                setGeneralError("You must have a First AND Last Name");
+                return false;
+            };
+        };
+        return true;
+    };
+
+    function handleFormCancel() {
+        setGeneralError("");
         resetValues();
         handleClose();
     }
 
-    function createAddress () {
-        let temp = form_street + " " + form_city + ", " + form_state + " " + form_zip;
-        setFormAddress(temp);
-        return temp
-        
-    }
-
-    function handleSpecialCreate(e) {
-        let temp2 = createAddress();
-        setFormAddress(temp2)
+    function handleFormCreate(e) {
         handleCreate(e);
     }
 
@@ -118,16 +101,53 @@ export default function CreateSponsorForm({ open, handleClose }) {
 
     async function handleCreate(e){
         e.preventDefault();
+        setGeneralError("");
+
+        let sponsorChanges = {
+            FirstName: form_firstname, 
+            LastName: form_lastname, 
+            Phone: form_phone, 
+            Email: form_email, 
+            Address: '', 
+            AddressStreet: form_street, 
+            AddressCity: form_city, 
+            AddressState: form_state, 
+            AddressZip: form_zip, 
+            Institution: form_inst, 
+            YearsActive: form_ya,
+        };
+
+        if ( ! sponsorIsValid(sponsorChanges)) return;
+
         try{
             await addSponsorMutation({
-                variables: { input: { FirstName: form_firstname, LastName: form_lastname, Email: form_email, Phone: form_phone, Institution: form_inst, Address: form_address, AddressStreet: form_street, AddressCity: form_city, AddressState: form_state, AddressZip: form_zip, YearsActive: form_ya } },
+                variables: { input: { 
+                    FirstName: form_firstname, 
+                    LastName: form_lastname, 
+                    Email: form_email, 
+                    Phone: form_phone, 
+                    Institution: form_inst, 
+                    Address: '', 
+                    AddressStreet: form_street, 
+                    AddressCity: form_city, 
+                    AddressState: form_state, 
+                    AddressZip: form_zip, 
+                    YearsActive: form_ya } },
                 refetchQueries: [{ query: gql(listSponsors) }], // dont need to change
             })
-            handleSpecialClose();
+            handleFormCancel();
         } catch(error) {
-            console.error("Mutation error: ", error);
+            setGeneralError("Unexpected error creating sponsor: " + error);
         }
     }
+
+    const showErrorNotification = () => {
+        let result = <></>;
+        if (generalError) {
+            result = <Alert severity="error">{generalError}</Alert>
+        };
+        return result;
+    };
 
 
     return (
@@ -135,6 +155,7 @@ export default function CreateSponsorForm({ open, handleClose }) {
             <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Create New Sponsor</DialogTitle>
                 <DialogContent>
+                {showErrorNotification()}
                 <FormControl
                     required={true}
                     variant="outlined"
@@ -261,10 +282,11 @@ export default function CreateSponsorForm({ open, handleClose }) {
                </Box>
                
                 </FormControl>
+                {showErrorNotification()}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleSpecialClose}>Cancel</Button>
-                    <Button onClick={handleSpecialCreate}>Create</Button>
+                    <Button onClick={handleFormCancel}>Cancel</Button>
+                    <Button onClick={handleFormCreate}>Create</Button>
                 </DialogActions>
         </Dialog>
         </React.Fragment>

@@ -190,6 +190,7 @@ export default function SponsorScreen () {
     if (reason && reason === "backdropClick"){
         return;
     }
+    sponsor_Refetch();
     setNSOpen(false);
   }
   /* 
