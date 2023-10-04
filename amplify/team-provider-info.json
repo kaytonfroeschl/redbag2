@@ -1,15 +1,20 @@
 {
-  "dev": {
+  "redbag": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-redbagbill-dev-91948-authRole",
-      "UnauthRoleArn": "arn:aws:iam::420627818090:role/amplify-redbagbill-dev-91948-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::420627818090:role/amplify-redbagbill-dev-91948-authRole",
+      "AuthRoleName": "amplify-redbagbill-redbag-161740-authRole",
+      "UnauthRoleArn": "arn:aws:iam::420627818090:role/amplify-redbagbill-redbag-161740-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::420627818090:role/amplify-redbagbill-redbag-161740-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-redbagbill-dev-91948-deployment",
-      "UnauthRoleName": "amplify-redbagbill-dev-91948-unauthRole",
-      "StackName": "amplify-redbagbill-dev-91948",
-      "StackId": "arn:aws:cloudformation:us-east-1:420627818090:stack/amplify-redbagbill-dev-91948/db5a76c0-0c50-11ee-8d74-123ad2821979",
-      "AmplifyAppId": "d1bol7ejs469jm"
+      "DeploymentBucketName": "amplify-redbagbill-redbag-161740-deployment",
+      "UnauthRoleName": "amplify-redbagbill-redbag-161740-unauthRole",
+      "StackName": "amplify-redbagbill-redbag-161740",
+      "StackId": "arn:aws:cloudformation:us-east-1:420627818090:stack/amplify-redbagbill-redbag-161740/73cef380-62fb-11ee-9c57-12100181b607",
+      "AmplifyAppId": "d2nlfrb4obpya1"
+    },
+    "categories": {
+      "api": {
+        "redbagbill": {}
+      }
     }
   }
 }
