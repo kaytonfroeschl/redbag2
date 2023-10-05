@@ -52,7 +52,7 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
     const [generalError, setGeneralError] = useState('');
 
     let fieldError = false;
-    const listItemNotSpecified = {id: "", label: "Not Specified"};
+    const listItemNotSpecified = {id: "000", label: "Not Specified"};
 
 /* ==============================================================================================
                                         Handle Functions 

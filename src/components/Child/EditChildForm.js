@@ -42,7 +42,7 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
 
     const [generalError, setGeneralError] = useState('');
     
-    const listItemNotSpecified = {id: "", label: "Not Specified"};
+    const listItemNotSpecified = {id: "000", label: "Not Specified"};
 
     //OnChange Handle Functions
     function handleFormName(event)      {setFormName(whatIfNull(event.target.value,""))};
