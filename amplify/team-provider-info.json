@@ -10,6 +10,14 @@
       "StackName": "amplify-redbagbill-prod-153705",
       "StackId": "arn:aws:cloudformation:us-east-1:420627818090:stack/amplify-redbagbill-prod-153705/09d14290-6395-11ee-88cd-0e48508753ab",
       "AmplifyAppId": "d2nlfrb4obpya1"
+    },
+    "categories": {
+      "auth": {
+        "redbagbill65083cf0": {}
+      },
+      "api": {
+        "redbagbill": {}
+      }
     }
   }
 }

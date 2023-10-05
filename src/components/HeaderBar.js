@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Auth } from 'aws-amplify';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
@@ -20,7 +21,8 @@ const AppBar = styled(MuiAppBar, {
 
   const defaultTheme = createTheme();
 
-export default function HeaderBar() {
+export default function HeaderBar(signOut) {
+
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -43,7 +45,7 @@ export default function HeaderBar() {
               >
                 Red Bag KC 
               </Typography>
-              <Button variant="outlined" color="inherit">Sign Out</Button>
+              <Button onClick={signOut} variant="outlined" color="inherit">Sign Out</Button>
             </Toolbar>
           </AppBar>
         </Box>

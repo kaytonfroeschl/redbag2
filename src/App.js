@@ -15,7 +15,7 @@ function App({ user }) {
           { signOut, user }
         ) => (
           <main>
-            <HeaderBar />
+            <HeaderBar signOut={signOut}/>
             <NavMenu />           
           </main>
         )
