@@ -10,10 +10,10 @@ import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client
 Amplify.configure(awsExports);
 
 const client = new ApolloClient({
-  uri: "https://ijan5shjbzc5zl3r46nhs3sblq.appsync-api.us-east-1.amazonaws.com/graphql",
+  uri: "https://bttl34e7ejbtbg3fs5y4qcz364.appsync-api.us-east-1.amazonaws.com/graphql",
   cache: new InMemoryCache(),
   headers: {
-    'X-Api-Key': "da2-yrhoxlqawreshe4txw3hzjhjle"
+    'X-Api-Key': "da2-nyg3zamvgvbengscw6xtnaallu"
   },
   connectToDevTools: true
 });
