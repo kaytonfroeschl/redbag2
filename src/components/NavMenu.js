@@ -84,7 +84,7 @@ export default function NavMenu () {
                                     }}
                                     sx={{
                                         "&.Mui-selected": {
-                                            backgroundColor: "rgb(183,216,195)"
+                                            backgroundColor: "rgb(249,185,185)"
                                           },
                                     }}
                                 >
@@ -102,7 +102,7 @@ export default function NavMenu () {
                                     }}
                                     sx={{
                                         "&.Mui-selected": {
-                                            backgroundColor: "rgb(183,216,195)"
+                                            backgroundColor: "rgb(249,185,185)"
                                           },
                                     }}
                                 >
