@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Alert, Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import ChildrenScreen from './screens/ChildrenScreen';
 import HeaderBar from './components/HeaderBar';
@@ -11,11 +11,9 @@ function App({ user }) {
   return (
     <Authenticator hideSignUp={true}>
       {
-        (
-          { signOut, user }
-        ) => (
+        ({ signOut, user }) => (
           <main>
-            <HeaderBar signOut={signOut}/>
+            <HeaderBar signOut={signOut} userInfo={user}/>
             <NavMenu />           
           </main>
         )

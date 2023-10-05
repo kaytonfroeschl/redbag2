@@ -21,9 +21,8 @@ const AppBar = styled(MuiAppBar, {
 
   const defaultTheme = createTheme();
 
-export default function HeaderBar(signOut) {
-
-
+export default function HeaderBar({signOut, userInfo}) {
+    console.log("userInfo ", userInfo);
     return (
         <ThemeProvider theme={defaultTheme}>
         <Box sx={{ display: 'flex' }}>
@@ -45,6 +44,18 @@ export default function HeaderBar(signOut) {
               >
                 Red Bag KC 
               </Typography>
+
+              <Typography
+                component="h3"
+                variant="h6"
+                color="inherit"
+                noWrap
+                align="left"
+                sx={{ flexGrow: 1 }}
+              >
+                Welcome 
+              </Typography>
+
               <Button onClick={signOut} variant="outlined" color="inherit">Sign Out</Button>
             </Toolbar>
           </AppBar>
