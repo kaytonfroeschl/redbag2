@@ -331,7 +331,7 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
                         {showDataWithLabel("Race","Race")}
                     </Box>
                     
-                    <Box sx={{display:'flex', flexDirection: 'column', pl:10}}>
+                    <Box sx={{display:'flex', flexDirection: 'column', pl:1}}>
                         {showDataWithLabel("ShirtSize","Shirt Size")}
                         {showDataWithLabel("PantSize","Pant Size")}
                         {showDataWithLabel("ShoeSize","Shoe Size")}

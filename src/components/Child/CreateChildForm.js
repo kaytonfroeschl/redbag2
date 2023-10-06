@@ -322,7 +322,6 @@ export function CreateChildForm ({ open, handleClose, childList, sponsorList, rb
                             id="outlined-basic"
                             label="Age"
                             variant="outlined"
-                            type="number"
                             value={form_age}
                             onChange={handleFormAge}
                             style = {{width: 150}}
