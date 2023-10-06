@@ -150,8 +150,8 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
             const child = data.getChild;
             return (
                 <Typography 
-                    style={{color: `${child.RBL.Color}`}} 
-                    sx={{ml:1, fontSize: 16}}>
+                    style={{backgroundColor: `${child.RBL.Color}`,  color: "#000000"}} 
+                    sx={{ml:0, p:.5, fontSize: 16}}>
                         {child.RBL.FirstName + " " + child.RBL.LastName}
                 </Typography>
             )
