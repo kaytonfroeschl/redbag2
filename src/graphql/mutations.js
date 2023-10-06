@@ -43,6 +43,58 @@ export const createSponsor = /* GraphQL */ `
             Phone
             Email
             Color
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -60,6 +112,58 @@ export const createSponsor = /* GraphQL */ `
             AddressZip
             YearsActive
             Institution
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -119,6 +223,58 @@ export const updateSponsor = /* GraphQL */ `
             Phone
             Email
             Color
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -136,6 +292,58 @@ export const updateSponsor = /* GraphQL */ `
             AddressZip
             YearsActive
             Institution
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -195,6 +403,58 @@ export const deleteSponsor = /* GraphQL */ `
             Phone
             Email
             Color
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -212,6 +472,58 @@ export const deleteSponsor = /* GraphQL */ `
             AddressZip
             YearsActive
             Institution
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -265,6 +577,58 @@ export const createRBL = /* GraphQL */ `
             Phone
             Email
             Color
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -282,6 +646,58 @@ export const createRBL = /* GraphQL */ `
             AddressZip
             YearsActive
             Institution
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -335,6 +751,58 @@ export const updateRBL = /* GraphQL */ `
             Phone
             Email
             Color
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -352,6 +820,58 @@ export const updateRBL = /* GraphQL */ `
             AddressZip
             YearsActive
             Institution
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -405,6 +925,58 @@ export const deleteRBL = /* GraphQL */ `
             Phone
             Email
             Color
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -422,6 +994,58 @@ export const deleteRBL = /* GraphQL */ `
             AddressZip
             YearsActive
             Institution
+            Children {
+              items {
+                id
+                Firstname
+                ChildID
+                Gender
+                Race
+                Age
+                Siblings
+                ShirtSize
+                PantSize
+                ShoeSize
+                Wishlist
+                Info
+                Bike
+                rblID
+                sponsorID
+                RBL {
+                  id
+                  LastName
+                  FirstName
+                  Phone
+                  Email
+                  Color
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                Sponsor {
+                  id
+                  FirstName
+                  LastName
+                  Phone
+                  Email
+                  Address
+                  AddressStreet
+                  AddressCity
+                  AddressState
+                  AddressZip
+                  YearsActive
+                  Institution
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                createdAt
+                updatedAt
+                __typename
+              }
+              nextToken
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -484,6 +1108,82 @@ export const createChild = /* GraphQL */ `
             Bike
             rblID
             sponsorID
+            RBL {
+              id
+              LastName
+              FirstName
+              Phone
+              Email
+              Color
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
+            Sponsor {
+              id
+              FirstName
+              LastName
+              Phone
+              Email
+              Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
+              YearsActive
+              Institution
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -525,6 +1225,82 @@ export const createChild = /* GraphQL */ `
             Bike
             rblID
             sponsorID
+            RBL {
+              id
+              LastName
+              FirstName
+              Phone
+              Email
+              Color
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
+            Sponsor {
+              id
+              FirstName
+              LastName
+              Phone
+              Email
+              Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
+              YearsActive
+              Institution
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -587,6 +1363,82 @@ export const updateChild = /* GraphQL */ `
             Bike
             rblID
             sponsorID
+            RBL {
+              id
+              LastName
+              FirstName
+              Phone
+              Email
+              Color
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
+            Sponsor {
+              id
+              FirstName
+              LastName
+              Phone
+              Email
+              Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
+              YearsActive
+              Institution
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -628,6 +1480,82 @@ export const updateChild = /* GraphQL */ `
             Bike
             rblID
             sponsorID
+            RBL {
+              id
+              LastName
+              FirstName
+              Phone
+              Email
+              Color
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
+            Sponsor {
+              id
+              FirstName
+              LastName
+              Phone
+              Email
+              Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
+              YearsActive
+              Institution
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -690,6 +1618,82 @@ export const deleteChild = /* GraphQL */ `
             Bike
             rblID
             sponsorID
+            RBL {
+              id
+              LastName
+              FirstName
+              Phone
+              Email
+              Color
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
+            Sponsor {
+              id
+              FirstName
+              LastName
+              Phone
+              Email
+              Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
+              YearsActive
+              Institution
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
             createdAt
             updatedAt
             __typename
@@ -731,6 +1735,82 @@ export const deleteChild = /* GraphQL */ `
             Bike
             rblID
             sponsorID
+            RBL {
+              id
+              LastName
+              FirstName
+              Phone
+              Email
+              Color
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
+            Sponsor {
+              id
+              FirstName
+              LastName
+              Phone
+              Email
+              Address
+              AddressStreet
+              AddressCity
+              AddressState
+              AddressZip
+              YearsActive
+              Institution
+              Children {
+                items {
+                  id
+                  Firstname
+                  ChildID
+                  Gender
+                  Race
+                  Age
+                  Siblings
+                  ShirtSize
+                  PantSize
+                  ShoeSize
+                  Wishlist
+                  Info
+                  Bike
+                  rblID
+                  sponsorID
+                  createdAt
+                  updatedAt
+                  __typename
+                }
+                nextToken
+                __typename
+              }
+              createdAt
+              updatedAt
+              __typename
+            }
             createdAt
             updatedAt
             __typename
