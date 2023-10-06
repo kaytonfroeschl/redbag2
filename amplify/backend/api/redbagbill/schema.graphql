@@ -30,7 +30,7 @@ type Child @model @auth(rules: [{allow: public}]) {
   ChildID: String!
   Gender: String
   Race: String
-  Age: Int
+  Age: String
   Siblings: String
   ShirtSize: String
   PantSize: String
