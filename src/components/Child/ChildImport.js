@@ -174,6 +174,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
     const [printButton, setPrintButton] = useState('outlined');
     const [fileButton, setFileButton] = useState('contained');
     const [importButton, setImportButton] = useState('outlined');
+    const [importDisabled, setImportDisabled] = useState(true);
 
     //-----------------------------------------------------------------
     //      User Selectes a file from the file picker
@@ -189,6 +190,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         ExcelFileName = '';
         setPrintButton("outlined");
         setImportButton("outlined");
+        setImportDisabled(true);
         
         const fileToProcess = e.target.files[0]        
         const isValidFile = validateFileType(fileToProcess);        
@@ -259,6 +261,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
 
             setFileButton("outlined");
             setImportButton("contained");
+            setImportDisabled(false);
             setFileInfo("Ready to import spreadsheet: '" + ExcelFileName + "' with " + excelData.length + " data rows");
             setDataToProcess(excelData);
 
@@ -279,6 +282,9 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         var numProcessed = 0;
         var numAdd = 0;
         var numFail = 0;
+        
+        setImportButton("outlined");
+        setImportDisabled(true);
 
         dataToProcess.map((row, index) => {
             let child = ConvertDataRow(row);
@@ -398,7 +404,6 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
         setFailures(processFails);
         setFileInfo(fileName + " was imported");
         setPrintButton("contained");
-        setImportButton("outlined");
     };
 
     //-----------------------------------------------------------------
@@ -515,7 +520,7 @@ export default function ChildImport({ open, handleClose, childList, sponsorList,
             </DialogContent>
             <DialogActions>
                 <Button variant="outlined" onClick={handleDialogClose}>Cancel</Button>
-                <Button variant={importButton} onClick={handleImport}>Import</Button>
+                <Button disabled={importDisabled} variant={importButton} onClick={handleImport}>Import</Button>
             </DialogActions>
             </Dialog>
         </React.Fragment>
