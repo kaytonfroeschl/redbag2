@@ -107,7 +107,7 @@ export default function SponsorScreen () {
               { field: 'Institution', headerName: 'Institution Name', flex: 1},
               { field: 'Email',       headerName: 'Email Address', flex: 1},
               { field: 'Phone',       headerName: 'Phone Number', flex: 1},
-              { field: 'actions',      headerName: "More Actions", flex: .8,
+              { field: 'actions',      headerName: "More Actions", flex: 1,
                 renderCell: (params) => {
                   return (
                     <React.Fragment>
