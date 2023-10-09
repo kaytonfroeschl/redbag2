@@ -9,7 +9,7 @@ function Gender(props) {
             variant="outlined"
             value={props.value}
             onChange={props.handleOnChange}
-            style = {{width: 110}}
+            style = {{width: 150}}
         />
     );
 }

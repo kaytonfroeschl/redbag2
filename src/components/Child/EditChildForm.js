@@ -232,7 +232,11 @@ export function EditChildForm ({ open, handleClose, child, sponsorList, rblList 
 
                             <h2>Required Information</h2>
                     
-                            <Box sx={{display:'flex', flexDirection: 'row', justifyContent: 'space-between'}}> 
+                            <Box sx={{
+                                    display:'flex',
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between'
+                                }}> 
                                 <TextField
                                     margin="normal"
                                     id="outlined-basic"

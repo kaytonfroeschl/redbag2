@@ -9,7 +9,7 @@ function Race(props) {
             variant="outlined"
             value={props.value}
             onChange={props.handleOnChange}
-            style = {{width: 250}}
+            style = {{width: 150}}
         />
     );
 }
