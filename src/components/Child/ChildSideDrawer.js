@@ -258,10 +258,12 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
 
         return (
             <Box sx={{mt:0, ml:1, display: 'flex', flexDirection: 'row'}}>
+            
                 {/* sx={{pb: 1}} */}
                 <Typography>
                     {labelText}&nbsp;&nbsp;
                 </Typography>
+
                 
                 {/*  sx={{pb: 1}} */}
                 <Typography style={{fontWeight: 'bold'}}>
@@ -329,14 +331,18 @@ export default function ChildSideDrawer({ child, open, handleClose, sponsorList,
                         {showDataWithLabel("Age","Age")}
                         {showDataWithLabel("Gender","Gender")}
                         {showDataWithLabel("Race","Race")}
+                        &nbsp;
+                        {showDataWithLabel("ShirtSize","Shirt Size")}
+                        {showDataWithLabel("PantSize","Pant Size")}
+                        {showDataWithLabel("ShoeSize","Shoe Size")}
                     </Box>
                     
-                    <Box sx={{display:'flex', flexDirection: 'column', pl:1}}>
+                    {/*<Box sx={{display:'flex', flexDirection: 'column', pl:1}}>
                         {showDataWithLabel("ShirtSize","Shirt Size")}
                         {showDataWithLabel("PantSize","Pant Size")}
                         {showDataWithLabel("ShoeSize","Shoe Size")}
                         
-                    </Box>
+                        </Box>*/}
                 </Box>
                 
                 {showHeaderAndDivider("Wish List", "break-word")}
