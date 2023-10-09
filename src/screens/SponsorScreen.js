@@ -293,9 +293,13 @@ export default function SponsorScreen () {
             Phone: "",
             Email: "",
             Address: sponsorData.Address,
+            AddressCity: sponsorData.AddressCity,
+            AddressState: sponsorData.AddressState,
+            AddressStreet: sponsorData.AddressStreet,
+            AddressZip: sponsorData.AddressZip,
             YearsActive: sponsorData.YearsActive,
             Institution: sponsorData.Institution,
-          } 
+          }
         }, 
       });
     }catch(error) {
